@@ -683,7 +683,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     // Envia mensaje al widget de tabla de contenido para solicitar datos de la TOC.
     getAppStore().dispatch(
         appActions.widgetStatePropChange(
-            WIDGET_IDS.BUFFER, // ID del widget destino, debe ser un widget que esté abierto en el layout para recibir los datos
+            WIDGET_IDS.TABLA_DE_CONTENIDO, // ID del widget destino, debe ser un widget que esté abierto en el layout para recibir los datos
             'fromBuffer', // Nombre de la propiedad que se va a crear/actualizar en el estado del widget
             {
                 task: 'TOC_DATA_REQUEST', // Identificador de la tarea o acción que se va a realizar, para que el widget destino sepa cómo manejar los datos
