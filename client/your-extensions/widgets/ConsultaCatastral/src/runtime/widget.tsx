@@ -1,6 +1,8 @@
 /** @jsx jsx */
+
+//@ts-ignore
 import './style.scss'
-import { TextInput, Radio, Label, Select, Option } from 'jimu-ui';
+import { TextInput, Label, Select, Option } from 'jimu-ui';
 import { React, IMState } from 'jimu-core';
 import { useSelector } from 'react-redux'
 import { MUNICIPIOS_CONFIG, MunicipioConfig } from '../config/municipios.config';
@@ -16,7 +18,6 @@ import { ApiResponse } from 'widgets/shared/models/api-response.model';
 import { useOnWidgetClose } from '../../../shared/hooks/useOnWidgetClose';
 import { usePopupManager } from '../../../shared/hooks/usePopupManager';
 import { useCancelableHttp } from '../../../shared/hooks/useCancelableHttp';
-import { appActions, getAppStore } from 'jimu-core'
 import { WIDGET_IDS } from '../../../shared/constants/widget-ids'
 import { Checkbox } from 'jimu-ui'
 import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils';
@@ -353,10 +354,18 @@ const Widget = (props: any) => {
     const onClose = () => {
         if (validaLoggerLocalStorage('logger')) console.log('Widget cerrado')
 
-       limpiarYCerrarWidgetResultados(widgetResultId) // cierra el widget de resultados al cerrar este widget de consulta catastral
+        limpiarYCerrarWidgetResultados(widgetResultId) // cierra el widget de resultados al cerrar este widget de consulta catastral
         cancelAll()
         onLimpiar()
     }
+
+    
+    /** Limpia automáticamente el formulario y el mapa cuando el widget es cerrado por el usuario. */
+    React.useEffect(() => {
+    if (props.state === 'CLOSED') {
+        onClose()
+    }
+    }, [props.state, onClose])
 
     /**
      * Ejecuta búsqueda por matrícula inmobiliaria.
@@ -405,8 +414,9 @@ const Widget = (props: any) => {
                 { name: 'SHAPE_PERIMETRO', alias: 'Perímetro (m)', type: 'number' }
             ] */
             const fields = response.data.fields
+            const withGraphic = {showGraphic:false}
 
-            abrirTablaResultados(false, firstFeatureArray, fields, props, widgetResultId , spatialReference as __esri.SpatialReference, undefined, capaTemporal, valorBusqueda)
+            abrirTablaResultados(false, firstFeatureArray, fields, props, widgetResultId , spatialReference as __esri.SpatialReference, undefined, withGraphic, capaTemporal, valorBusqueda)
 
 //            pintarPredio(resultado.features[0])  ahora lo pinta WidgetResult
 
@@ -460,8 +470,9 @@ const Widget = (props: any) => {
             const spatialReference = response.data?.spatialReference
 
             const fields = response.data.fields
+            const withGraphic = {showGraphic:false}
 
-            abrirTablaResultados(false, firstFeatureArray, fields, props, widgetResultId , spatialReference as __esri.SpatialReference, undefined, capaTemporal, valorBusqueda)
+            abrirTablaResultados(false, firstFeatureArray, fields, props, widgetResultId , spatialReference as __esri.SpatialReference, undefined, withGraphic, capaTemporal, valorBusqueda)
 
 
         } catch (error) {
@@ -613,7 +624,7 @@ const Widget = (props: any) => {
      * @example
      * useOnWidgetClose(props.id, onClose)
      */
-    useOnWidgetClose(props.id, jimuMapView, initialExtentRef.current, onClose)
+    // useOnWidgetClose(props.id, jimuMapView, initialExtentRef, initialZoomRef.current, initialScaleRef.current, onClose)
 
     // -----------------------------
     // UI render

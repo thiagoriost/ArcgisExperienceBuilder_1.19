@@ -10,7 +10,6 @@
  */
 import { React, type AllWidgetProps } from "jimu-core"
 import { Label, Select, Option } from "jimu-ui"
-import Graphic from "@arcgis/core/Graphic"
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer"
 import { JimuMapViewComponent, type JimuMapView } from "jimu-arcgis"
 import { MUNICIPIOS_QUINDIO } from "../../../shared/constants/municipiosQuindio"

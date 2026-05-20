@@ -475,13 +475,13 @@ const Widget = (props: AllWidgetProps<any>) => {
     const isTurismoTematica = isTurismoLabel(selectedTematicaLabel)
     const selectedCategoriaLabel = categorias.find(option => option.value === selectedCategoria)?.label ?? ''
 
-    if (!isTurismoTematica) {
+    /* if (!isTurismoTematica) {
       if (selectedSubcategoriaCategoria) {
         whereParts.push(`CATEGORIA = '${escapeSqlValue(selectedSubcategoriaCategoria)}'`)
       } else if (selectedCategoria && selectedCategoriaLabel) {
         whereParts.push(`CATEGORIA = '${escapeSqlValue(selectedCategoriaLabel)}'`)
       }
-    }
+    } */
     const buildCurrentWhereClause = whereParts.length > 0 ? whereParts.join(' AND ') : '1=1'
     if(validaLoggerLocalStorage('logger')) {
       console.log({

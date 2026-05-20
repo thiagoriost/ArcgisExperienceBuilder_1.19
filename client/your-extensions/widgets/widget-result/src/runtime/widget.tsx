@@ -45,6 +45,9 @@ import '../styles/widgetResultFloating.css'
 import ResultGraphic from "../../components/ResultGraphic_Richarts";
 import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
 import { useDibujarCoropletico } from '../../../shared/hooks/useDibujarCoropletico'
+// @ts-expect-error - Tipos para imports de .png no definidos en este workspace.
+import iconoTablaDeResultados from '../../../shared/assets/icons/Tabla de resultadosPNG.png'
+
 
 /**
  * WidgetResult
@@ -156,6 +159,37 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
     const initialExtentRef = React.useRef<__esri.Extent | null>(null)
 
     /**
+     * Nivel de zoom inicial del mapa.
+     * @type {React.MutableRefObject<number | null>}
+     */
+    const initialZoomRef = React.useRef<number | null>(null)
+
+    /**
+     * Escala inicial del mapa.
+     * @type {React.MutableRefObject<number | null>}
+     */
+    const initialScaleRef = React.useRef<number | null>(null)
+
+    /**
+     * Captura el estado inicial del mapa (extent, zoom, escala) la primera vez que la vista se activa.
+     * Registra la vista de Jimu en el estado del componente.
+     *
+     * @param {JimuMapView} view - Vista de mapa activa proporcionada por {@link JimuMapViewComponent}
+     * @returns {void}
+     */
+    const handleActiveViewChange = (view: JimuMapView) => {
+        if (!view) return
+
+        setJimuMapView(view)
+
+        if (!initialExtentRef.current) {
+            initialExtentRef.current = view.view.extent?.clone() ?? null
+            initialZoomRef.current = typeof view.view.zoom === "number" ? view.view.zoom : null
+            initialScaleRef.current = typeof view.view.scale === "number" ? view.view.scale : null
+        }
+    }
+
+    /**
      * Estado de ejecución del widget dentro del runtime de Experience Builder.
      */
     const widgetState = useSelector(
@@ -174,6 +208,22 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
      * Número de registros mostrados por página.
      */
     const pageSize = 5
+
+    /**
+     * Nivel mínimo de zoom que se fuerza cuando la geometría seleccionada es un punto.
+     * Permite ajustar rápidamente el grado de acercamiento según el mapa base.
+     *
+     * @type {number}
+     */
+    const POINT_MIN_ZOOM = 22
+
+    /**
+     * Escala objetivo usada como respaldo cuando la vista no define una escala mínima.
+     * Se utiliza para acercar más la visualización de puntos sin depender de zoomLevel.
+     *
+     * @type {number}
+     */
+    const POINT_TARGET_SCALE = 500
 
    
     /**
@@ -559,7 +609,7 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
      * Hook que detecta el cierre del widget
      * y ejecuta la función de limpieza.
      */
-    useOnWidgetClose(props.id, jimuMapView, initialExtentRef, onClose)
+    useOnWidgetClose(props.id, jimuMapView, initialExtentRef, initialZoomRef.current, initialScaleRef.current, onClose)
 
 
 
@@ -598,8 +648,9 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
     const handleSelectFeature = async (feature: any, zoomLevel = 20) => {
         if(validaLoggerLocalStorage('logger')) console.log('feature seleccionada:', feature)
 
-        
-        sendDataExternalWidget(feature.attributes.IMAGEN)
+        if(feature.attributes.IMAGEN){
+            sendDataExternalWidget(feature.attributes.IMAGEN)
+        }
 
         if (data?.temporalLayer) {
             await crearCapaTemporal(feature)
@@ -632,12 +683,34 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
         })
 
 
-        graphicsLayerRef.current.add(graphic)
+                graphicsLayerRef.current.add(graphic)
+
+                /**
+                 * Reubica el gráfico recién agregado para que quede por encima de los
+                 * demás elementos de la capa de selección.
+                 */
+                if (graphicsLayerRef.current.reorder) {
+                    graphicsLayerRef.current.reorder(graphic, 0)
+                }
 
         if (geometry.type === "point") {  // cef 20260313
+            /**
+             * Calcula un acercamiento reforzado para puntos priorizando un zoom más alto
+             * y una escala de respaldo, respetando al mismo tiempo los límites de la vista.
+             */
+            const viewConstraints = view.constraints as any
+            const maxZoom = typeof viewConstraints?.maxZoom === 'number' ? viewConstraints.maxZoom : 24
+            const pointZoom = Math.min(Math.max(zoomLevel, POINT_MIN_ZOOM), maxZoom)
+            const minScale = typeof viewConstraints?.minScale === 'number' ? viewConstraints.minScale : 0
+            const pointScale = minScale > 0 ? minScale : POINT_TARGET_SCALE
+
             await view.goTo({
                 target: geometry,
-                zoom: zoomLevel
+                zoom: pointZoom,
+                scale: pointScale
+            }, {
+                duration: 500,
+                easing: "ease-in-out"
             })
 
         } else {
@@ -813,7 +886,7 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
             <div style={{ position: 'absolute', width: 0, height: 0 }}>
                 <JimuMapViewComponent
                     useMapWidgetId={props.useMapWidgetIds?.[0]}
-                    onActiveViewChange={setJimuMapView}
+                    onActiveViewChange={handleActiveViewChange}
                 />
             </div>
 
@@ -821,13 +894,14 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
                 <button className="widget-result-floating-btn" onClick={() => setOpen(true)} title="Mostrar resultados">
                     <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {/* SVG tabla */}
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect x="4" y="6" width="20" height="16" rx="2" fill="var(--color-primary-light)" stroke="var(--color-primary-light)" strokeWidth="2" />
                             <line x1="4" y1="11" x2="24" y2="11" stroke="var(--color-primary)" strokeWidth="1.5" />
                             <line x1="4" y1="16" x2="24" y2="16" stroke="var(--color-primary)" strokeWidth="1.5" />
                             <line x1="11" y1="6" x2="11" y2="22" stroke="var(--color-primary)" strokeWidth="1.5" />
                             <line x1="18" y1="6" x2="18" y2="22" stroke="var(--color-primary)" strokeWidth="1.5" />
-                        </svg>
+                        </svg> */}
+                        <img src={iconoTablaDeResultados} alt="Icono de tabla de resultados" style={{ width: '40px', height: '40px' }} />
                     </span>
                 </button>
             )}

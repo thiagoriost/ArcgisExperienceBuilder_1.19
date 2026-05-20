@@ -75,6 +75,7 @@
   .colapsarWidget {
     display: flex;
     flex-direction: column;
+    /* background-color: var(--color-primary); */
   }
 
   .btn-colapsar {
@@ -86,7 +87,7 @@
     cursor: pointer;
     font-size: var(--font-size-md);
     font-weight: var(--font-weight-medium);
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
     transition: background-color var(--transition-normal);
     display: flex;
     align-items: center;
@@ -111,8 +112,8 @@
   }
 
   .btn-colapsar--floating {
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
     border-radius: var(--border-radius-circle);
     padding: 0;
     font-size: var(--font-size-xl);
@@ -124,4 +125,8 @@
   .btn-colapsar--floating:hover {
     transform: scale(1.1);
     box-shadow: var(--shadow-heavy);
+  }
+
+  .app-root-emotion-cache-ltr-1yiw0u5{
+    top: 10px !important;
   }
