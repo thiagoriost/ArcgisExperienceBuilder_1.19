@@ -94,7 +94,7 @@ const Widget = (props: any) => {
     React.useEffect(() => {
         if (!jimuMapView) return
 
-        if(validaLoggerLocalStorage('logger')) console.log("Mapa listo:", jimuMapView)
+        if(validaLoggerLocalStorage('logger')) console.log("Mapa listo:", {jimuMapView})
 
     }, [jimuMapView])
 
@@ -806,7 +806,10 @@ const Widget = (props: any) => {
 
     React.useEffect(() => {
       if(validaLoggerLocalStorage('logger')) console.log({filters, opciones})
-    }, [])
+        if (opciones.municipios.length === 0) {
+            handlers.cargarMunicipios_All()
+        }
+    }, [opciones])
     
     return (
 

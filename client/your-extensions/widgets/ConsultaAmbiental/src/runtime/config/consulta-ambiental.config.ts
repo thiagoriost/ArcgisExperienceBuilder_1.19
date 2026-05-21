@@ -2,11 +2,11 @@ export const AREAS = [
     {
         idArea: 1,
         area: "Quindio"
-    },
+    }/* ,
     {
         idArea: 2,
         area: "Cuenca del Río La Vieja"
-    }
+    } */
 ]
 export const CATEGORIAS = [
     {
