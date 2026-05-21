@@ -3,19 +3,18 @@ const urls = {
   SERVICIO_GEOMETRIA      : "https://sigquindio.gov.co/arcgis/rest/services/Utilities/Geometry/GeometryServer",
   //SERVICIO_GEOMETRIA      : "https://sigquindio.gov.co/arcgis/rest/services/Utilities/Geometry/GeometryServer",
   SERVICIO_SOCIOECONOMICO : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Socioeconomico_T/MapServer",
-  SERVICIO_AMBIENTAL  : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Ambiental_T_Ajustado/MapServer",
-  SERVICIO_AMBIENTAL_ALFANUMERICO : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/AmbientalAlfanumerico/MapServer",
-  SERVICIO_CARTOGRAFIA_BASICA     : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/CartografiaBasica/MapServer",
+  SERVICIO_AMBIENTAL  : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Ambiental/MapServer",
+  SERVICIO_AMBIENTAL_ALFANUMERICO : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Ambiental_Alfanumerico/MapServer",
   // SERVICIO_EDUCACION              : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Educacion_T/MapServer",
   SERVICIO_EDUCACION              : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Eduacion/MapServer",
-  SERVICIO_EDUCACION_ALFANUMERICO : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/EducacionAlfanumerico/MapServer",
+  SERVICIO_EDUCACION_ALFANUMERICO : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Educacion_Alfanumerico/MapServer",
   SERVICIO_SALUD                  : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Salud/MapServer",
   SERVICIO_GENERAL_SALUD          : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Salud_T/MapServer",
   SERVICIO_SALUD_ALFANUMERICO     : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Salud_Alfanumerico/MapServer",
-  SERVICIO_CULTURA_TURISMO        : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/CulturaTurismo/MapServer",
-  SERVICIO_CULTURA_TURISMO_ALFANUMERICO : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/TurismoAlfanumerico/MapServer/0",
-  SERVICIO_ORDENAMIENTO_TERRITORIAL : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/OrdenamientoTerritorial_T/MapServer",
-  SERVICIO_INDUSTRIA_COMERCIO     : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Industria_Y_Comercio/MapServer",
+  SERVICIO_CULTURA_TURISMO        : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Cultura_y_turismo/MapServer",
+  SERVICIO_CULTURA_TURISMO_ALFANUMERICO : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Cultura_y_Turismo_Alfanumerico/MapServer/0",
+  SERVICIO_ORDENAMIENTO_TERRITORIAL : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Ordenamiento_territorial/MapServer",
+  SERVICIO_INDUSTRIA_COMERCIO     : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Industria_y_comercio_Alfanumerico/MapServer",
 
   // URLs deprecadas, se mantienen para casos de emergencia
   OLD_SERVICIO_SALUD              : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Salud_T/MapServer",
@@ -28,7 +27,7 @@ const urls = {
   //URL_ARCHIVOS_QUINDIO : "http://181.57.208.251/ArchivosQuindioII/",
   URL_ARCHIVOS_QUINDIO : "https://sigquindio.gov.co/ArchivosQuindioIII/",
   SERVICIO_CONSULTA_AVANZADA_ALFANUMERICA : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Consulta_Avanzada_Alfanumerica/MapServer",
-  SERVICIO_RIESGO_CONSULTA : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Riesgo/MapServer",
+  SERVICIO_RIESGO_CONSULTA : "https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Gestion_del_riesgo/MapServer",
   SERVICIO_OTA_ALFANUMERICO   : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/OTAlfanumerico/MapServer",
   SERVICIO_CATASTRO_NUEVO     : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Catastro_Nuevo1/MapServer",
   SERVICIO_TABLA_CONTENIDO_RIESGOS : "https://sigquindio.gov.co:8443/ADMINSERV/AdminGeoApplication/AdminGeoWebServices/getTablaContenidoJsTree/riesgos",
@@ -42,7 +41,7 @@ const urls = {
   SERVICIO_BANCO_SERVICIOS    : "https://sigquindio.gov.co:8443/ADMINSERV/AdminGeoApplication/AdminGeoWebServices/getDirectorioWFS",
   SERVICIO_SHAPEFILE : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/ExportJsonToShape/GPServer/ExportJsonToShape/submitJob",
   AmbientalAlfanumerico: {
-    BASE: 'https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/AmbientalAlfanumerico/MapServer',
+    BASE: 'https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Ambiental_Alfanumerico/MapServer',
     TRAMITESAMBPUNTO: 10, // Tramites ambientales
     TRAMITESCATASTRO: 8, // Tramites ambientales predios
     V_CALAIREESTMUN: 4,// Calidad del aire - Estacion - Municipio
@@ -59,6 +58,7 @@ const urls = {
   },
   CARTOGRAFIA: {
     BASE: 'https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/CartografiaBasica/MapServer',
+    // BASE: 'https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Cartografia_basica/MapServer',
     MUNICIPIOS: 75,
   },
   /*

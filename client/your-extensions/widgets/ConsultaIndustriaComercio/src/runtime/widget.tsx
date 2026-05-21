@@ -8,7 +8,7 @@ import { SearchActionBar } from '../../../shared/components/search-action-bar'
 import { AlertContainer } from '../../../shared/components/alert-container'
 import OurLoading from '../../../commonWidgets/our_loading/OurLoading'
 import { urls } from '../../../api/serviciosQuindio'
-import { drawAndCenterFeatures, ejecutarConsulta, validaLoggerLocalStorage, featuresFixed, adjustFieldsForResultsWidget } from '../../../shared/utils/export.utils'
+import { drawAndCenterFeatures, ejecutarConsulta, validaLoggerLocalStorage, featuresFixed, adjustFieldsForResultsWidget, goToInitialExtent } from '../../../shared/utils/export.utils'
 import { alertService } from '../../../shared/services/alert.service'
 import { abrirTablaResultados, limpiarYCerrarWidgetResultados } from '../../../widget-result/src/runtime/widget'
 import { WIDGET_IDS } from '../../../shared/constants/widget-ids'
@@ -80,7 +80,7 @@ interface IndustriaComercioFeature {
  */
 const FINAL_OUT_FIELDS = [
   'OBJECTID',
-  'SHAPE',
+  // 'SHAPE',
   'CONDICION',
   'ESTRATO',
   'IDVEREDA',
@@ -111,8 +111,8 @@ const FINAL_OUT_FIELDS = [
   'CODIGOPOSTAL',
   'CONTADORGAS',
   'CONTADORCABLE',
-  'SHAPE.AREA',
-  'SHAPE.LEN'
+  // 'SHAPE.AREA',
+  // 'SHAPE.LEN'
 ]
 
 /**
@@ -267,7 +267,9 @@ const Widget = (props: AllWidgetProps<any>) => {
 
     if (!view || !initialExtent) return
 
-    setTimeout(async () => {
+    goToInitialExtent(jimuMapView, initialExtent, initialZoomRef.current, initialScaleRef.current)
+
+    /* setTimeout(async () => {
       await view.goTo({ target: initialExtent })
     }, 2000)
 
@@ -277,7 +279,7 @@ const Widget = (props: AllWidgetProps<any>) => {
 
     if (typeof initialScaleRef.current === 'number') {
       view.scale = initialScaleRef.current
-    }
+    } */
   }, [jimuMapView])
 
   /**

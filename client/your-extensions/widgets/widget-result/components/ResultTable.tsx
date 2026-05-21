@@ -15,7 +15,7 @@ interface Props {
   features: any[]
   fields: any[]
   onExport?: () => void
-  onSelectFeature: (feature: __esri.Graphic) => void
+  onSelectFeature: (feature: __esri.Graphic, zoomLevel: number) => void
 
   total: number
   page: number
@@ -115,7 +115,7 @@ export const ResultTable = ({ features, fields, onSelectFeature, data }: Props) 
                 key={index}
                 onClick={() => {
                   setSelectedIndex(index)
-                  onSelectFeature(f)
+                  onSelectFeature(f, 10)
                 }}
                 style={{
                   cursor: "pointer",

@@ -37,7 +37,7 @@ const Widget = (props: AllWidgetProps<any>) => {
 
   const dataFromBuffer: { task: string } | null = useSelector(
       (state: any) =>
-          state.widgetsState?.[WIDGET_IDS.BUFFER]?.fromBuffer ?? null
+          state.widgetsState?.[WIDGET_IDS.TABLA_DE_CONTENIDO]?.fromBuffer ?? null
   )
 
   React.useEffect(() => {

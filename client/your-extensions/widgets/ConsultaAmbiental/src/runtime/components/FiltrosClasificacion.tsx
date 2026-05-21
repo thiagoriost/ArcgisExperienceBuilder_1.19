@@ -1,9 +1,13 @@
 /** @jsx jsx */
+import React from 'react'
 
 import { Select, Option, Label } from 'jimu-ui'
 import { DatePicker } from 'jimu-ui/basic/date-picker'
+
+// @ts-expect-error
 import '../styles/consulta-ambiental.css'
 import { DEFINICION_FILTROS } from '../config/filtros.config'
+import { validaLoggerLocalStorage } from '../../../../shared/utils/export.utils'
 
 interface OptionItem {
     label: string
@@ -118,6 +122,26 @@ export const FiltrosClasificacion = ({
             return (filtros.categoria !== 3)
         }
     }
+
+    React.useEffect(() => {
+
+        if(validaLoggerLocalStorage('logger')) {
+            console.log(
+                {
+                    filtros,
+                    setFiltro,
+                    opciones,
+                    handlers
+                }
+            )               
+        }
+
+        filtros.area = 1 // cargar municipios del Quindio por defecto ya que cuenca la vieja fue desabilitada temporalmente
+
+      return () => {}
+    }, [])
+
+
     return (
         <div className="consulta-widget consulta-scroll">
 

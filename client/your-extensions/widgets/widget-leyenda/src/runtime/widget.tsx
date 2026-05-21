@@ -13,15 +13,9 @@
  * state.widgetsState[widgetId].results
  */
 
-import { Button } from 'jimu-ui'
-import { React, jsx, AllWidgetProps, IMState, IMConfig } from 'jimu-core'
+import { React, AllWidgetProps, IMState, IMConfig } from 'jimu-core'
 import { useSelector } from 'react-redux'
-import { exportService } from '../../../shared/services/export.service'
 import { JimuMapViewComponent, JimuMapView } from 'jimu-arcgis'
-import Graphic from '@arcgis/core/Graphic'
-import Polygon from '@arcgis/core/geometry/Polygon'
-import Point from "@arcgis/core/geometry/Point";
-import Polyline from "@arcgis/core/geometry/Polyline";
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
 import { useOnWidgetClose } from '../../../shared/hooks/useOnWidgetClose';
 import { appActions, getAppStore } from 'jimu-core'
@@ -29,6 +23,8 @@ import { WidgetState } from 'jimu-core'
 // @ts-ignore
 import '../styles/widget_Leyenda_Floating.css'
 import { /* restoreInitialExtent, */ CoroplethConfig, validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
+// @ts-expect-error - Tipos para imports de .png no definidos en este workspace.
+import iconoLeyenda from '../../../shared/assets/icons/LeyendaPNG.png'
 
 /**
  * widget-leyenda
@@ -99,6 +95,40 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
      * la vista original posteriormente.
      */
     const initialExtentRef = React.useRef<__esri.Extent | null>(null)
+
+    /**
+     * Nivel de zoom inicial del mapa.
+     * @type {React.MutableRefObject<number | null>}
+     */
+    const initialZoomRef = React.useRef<number | null>(null)
+
+    /**
+     * Escala inicial del mapa.
+     * @type {React.MutableRefObject<number | null>}
+     */
+    const initialScaleRef = React.useRef<number | null>(null)
+
+    
+    /**
+     * Captura el estado inicial del mapa (extent, zoom, escala) la primera vez que la vista se activa.
+     * Registra la vista de Jimu en el estado del componente.
+     *
+     * @param {JimuMapView} view - Vista de mapa activa proporcionada por {@link JimuMapViewComponent}
+     * @returns {void}
+     */
+    const handleActiveViewChange = (view: JimuMapView) => {
+        if (!view) return
+
+        setJimuMapView(view)
+
+        if (!initialExtentRef.current) {
+            initialExtentRef.current = view.view.extent?.clone() ?? null
+            initialZoomRef.current = typeof view.view.zoom === "number" ? view.view.zoom : null
+            initialScaleRef.current = typeof view.view.scale === "number" ? view.view.scale : null
+        }
+    }
+    
+    
 
     /**
      * Estado de ejecución del widget dentro del runtime de Experience Builder.
@@ -208,7 +238,7 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
      * Hook que detecta el cierre del widget
      * y ejecuta la función de limpieza.
      */
-    useOnWidgetClose(props.id, jimuMapView, initialExtentRef, onClose)
+    useOnWidgetClose(props.id, jimuMapView, initialExtentRef, initialZoomRef.current, initialScaleRef.current, onClose)
 
     if(validaLoggerLocalStorage('logger')) console.log('Resultados recibidos en widget-leyenda:', data)
     if (!data) return
@@ -221,7 +251,7 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
             <div style={{ position: 'absolute', width: 0, height: 0 }}>
                 <JimuMapViewComponent
                     useMapWidgetId={props.useMapWidgetIds?.[0]}
-                    onActiveViewChange={setJimuMapView}
+                    onActiveViewChange={handleActiveViewChange}
                 />
             </div>
 
@@ -229,14 +259,15 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
             {!open && legendItems.length > 0 && (
                 <button className="widget-leyenda-floating-btn" onClick={() => setOpen(true)} title="Mostrar leyenda">
                     <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        {/* <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <line x1="3" y1="6" x2="10" y2="6" />
                             <line x1="3" y1="12" x2="10" y2="12" />
                             <line x1="3" y1="18" x2="10" y2="18" />
                             <rect x="14" y="4" width="4" height="4" rx="1" />
                             <rect x="14" y="10" width="4" height="4" rx="1" />
                             <rect x="14" y="16" width="4" height="4" rx="1" />
-                        </svg>
+                        </svg> */}
+                        <img src={iconoLeyenda} alt="Icono de leyenda" style={{ width: '40px', height: '40px' }} />
                     </span>
                 </button>
             )}

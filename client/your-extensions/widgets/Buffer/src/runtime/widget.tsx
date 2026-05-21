@@ -23,6 +23,7 @@ import '../styles/styles.css'
 import { goToInitialExtent, validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
 import { WIDGET_IDS } from '../../../shared/constants/widget-ids'
 import { useSelector } from 'react-redux'
+import OurLoading from '../../../commonWidgets/our_loading/OurLoading'
 
 /**
  * Opcion renderizada en controles tipo select.
@@ -430,6 +431,8 @@ const Widget = (props: AllWidgetProps<any>) => {
   const [resultFields, setResultFields] = React.useState<BufferResultField[]>([])
   /** Mensaje informativo del resultado espacial. */
   const [resultMessage, setResultMessage] = React.useState('')
+  /** Estado de carga de la capa de características seleccionada. */
+  const [isLayerLoading, setIsLayerLoading] = React.useState(false)
 
   /** Referencia al GraphicsLayer temporal de dibujo y buffer. */
   const graphicsLayerRef = React.useRef<GraphicsLayer | null>(null)
@@ -667,6 +670,20 @@ const Widget = (props: AllWidgetProps<any>) => {
     return CAPAOPTION ?? null
   }, [capaValue, capaOptions])
 
+  const requestDataFromDOT = () => {
+    // Envia mensaje al widget de tabla de contenido para solicitar datos de la TOC.
+    getAppStore().dispatch(
+        appActions.widgetStatePropChange(
+            WIDGET_IDS.TABLA_DE_CONTENIDO, // ID del widget destino, debe ser un widget que esté abierto en el layout para recibir los datos
+            'fromBuffer', // Nombre de la propiedad que se va a crear/actualizar en el estado del widget
+            {
+                task: 'TOC_DATA_REQUEST', // Identificador de la tarea o acción que se va a realizar, para que el widget destino sepa cómo manejar los datos
+            }
+        )
+    )
+  }
+
+
   /**
    * Crea (si es necesario) la capa temporal donde se dibujan geometria y buffer.
    */
@@ -680,16 +697,7 @@ const Widget = (props: AllWidgetProps<any>) => {
       return
     }
 
-    // Envia mensaje al widget de tabla de contenido para solicitar datos de la TOC.
-    getAppStore().dispatch(
-        appActions.widgetStatePropChange(
-            WIDGET_IDS.BUFFER, // ID del widget destino, debe ser un widget que esté abierto en el layout para recibir los datos
-            'fromBuffer', // Nombre de la propiedad que se va a crear/actualizar en el estado del widget
-            {
-                task: 'TOC_DATA_REQUEST', // Identificador de la tarea o acción que se va a realizar, para que el widget destino sepa cómo manejar los datos
-            }
-        )
-    )
+    requestDataFromDOT()
 
     const graphicsLayer = new GraphicsLayer({
       id: 'buffer-graphics-layer',
@@ -738,6 +746,9 @@ const Widget = (props: AllWidgetProps<any>) => {
    * 
    * Después de agregar la capa de características (FeatureLayer), garantiza que
    * la capa de gráficos permanezca en la parte superior para renderizado correcto.
+   * 
+   * Además, monitorea el estado de carga de la capa para mostrar un indicador
+   * visual de carga mediante el componente OurLoading.
    */
   React.useEffect(() => {
     const view = jimuMapView?.view
@@ -752,6 +763,8 @@ const Widget = (props: AllWidgetProps<any>) => {
     if (!layerUrl) return
     // Crea un nuevo FeatureLayer para la capa seleccionada y lo agrega al mapa.
     try {
+      setIsLayerLoading(true)
+      
       const layer = new FeatureLayer({
         id: 'buffer-active-layer',
         title: `Capa activa: ${selectedCapa.label}`,
@@ -763,12 +776,38 @@ const Widget = (props: AllWidgetProps<any>) => {
       activeLayerRef.current = layer
 
       /**
+       * Monitorea el estado de carga de la capa usando layer.when(),
+       * que retorna una promesa que se resuelve cuando la capa ha terminado
+       * de cargar completamente. Cuando se resuelve, ocultamos el indicador
+       * de carga (OurLoading).
+       * 
+       * @param {FeatureLayer} layer Capa de características cargada.
+       * @returns {void}
+       */
+      layer.when(() => {
+        setTimeout(() => {
+          setIsLayerLoading(false)          
+        }, 8000);
+        if (validaLoggerLocalStorage('logger')) {
+          console.log('Buffer: Capa activa cargada completamente', {
+            layerId: layer.id,
+            title: layer.title,
+            url: layer.url
+          })
+        }
+      }).catch((error) => {
+        setIsLayerLoading(false)
+        console.error('Error al cargar la capa en Buffer:', error)
+      })
+
+      /**
        * Después de agregar la capa de características, asegura que la capa
        * de gráficos esté en la posición superior del mapa para que el buffer
        * sea visible encima de la capa de características.
        */
       ensureGraphicsLayerOnTop()
     } catch (error) {
+      setIsLayerLoading(false)
       console.error('No fue posible cargar la capa seleccionada en Buffer:', error)
     }
 
@@ -777,6 +816,7 @@ const Widget = (props: AllWidgetProps<any>) => {
         view.map.remove(activeLayerRef.current)
       }
       activeLayerRef.current = null
+      setIsLayerLoading(false)
     }
   }, [jimuMapView, selectedCapa, ensureGraphicsLayerOnTop])
 
@@ -1275,6 +1315,19 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
   }
 
+  /**
+   * Verifica si las opciones de temas ya están cargadas antes de solicitar datos a DOT.
+   * 
+   * Esto evita solicitudes innecesarias a DOT si los datos ya están disponibles en el estado del widget.
+   */
+  const checkifDOTexist = () => {
+    if (temaOptions.length === 0) {
+      requestDataFromDOT()
+    }
+  }
+
+
+
   return (
     <div style={{ height: '100%', padding: '5px', boxSizing: 'border-box' }}>
       {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
@@ -1287,7 +1340,7 @@ const Widget = (props: AllWidgetProps<any>) => {
       <div className='consulta-widget loading-host'>
         <div>
           <Label>Temas:</Label>
-          <Select value={temaValue} onChange={onTemaChange}>
+          <Select value={temaValue} onChange={onTemaChange} onClick={checkifDOTexist}>
             <Option value=''>Seleccione...</Option>
             {temaOptions.map(option => (
               <Option key={option.value} value={option.value}>{option.label}</Option>
@@ -1434,6 +1487,8 @@ const Widget = (props: AllWidgetProps<any>) => {
             <p className='buffer-widget__hint'>Para linea: haga clic en dos puntos del mapa.</p>
           )}
         </div>
+
+        {isLayerLoading && <OurLoading />}
       </div>
     </div>
   )

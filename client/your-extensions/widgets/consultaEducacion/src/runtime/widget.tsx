@@ -31,6 +31,9 @@ import { MUNICIPIOS_QUINDIO } from '../../../shared/constants/municipiosQuindio'
 
 // @ts-ignore
 import '../styles/styles.css'
+import { limpiarYCerrarwidgetLeyenda } from '../../../widget-leyenda/src/runtime/widget';
+import { alertService } from '../../../shared/services/alert.service'
+import { AlertContainer } from '../../../shared/components/alert-container'
 
 interface interfaceConsultaPor { id: number, name: string, url: string }
 interface interfaceCategories { id: number, name: string }
@@ -235,7 +238,6 @@ const Widget = (props: AllWidgetProps<any>) => {
   const [establecimientos, setEstablecimientos] = React.useState<interfaceEstablecimiento[] | null>(null)
   const [verAtributos, setVerAtributos] = React.useState(false)
   const [cloneFeatures, setCloneFeatures] = React.useState<any[]>([])
-  const [featuresDibujados, setFeaturesDibujados] = React.useState<__esri.Graphic[]>([])
   const [domainsMap, setDomainsMap] = React.useState<Record<string, Record<number, string>>>({})
   const [camposIndicador, setCamposIndicador] = React.useState<string[] | null>(null)
   const NAMES = ["Infraestructura", "Cobertura" ,   "Cupos ofertados","Eficiencia interna", "Tasa de Analfabetismo Dep", "Tasa de Analfabetismo Mun"];
@@ -303,6 +305,10 @@ const Widget = (props: AllWidgetProps<any>) => {
     catch (err) {
       console.error("Error realizando consulta:", err)
       setError("Ocurrio un error al realizar la consulta. Por favor intente nuevamente.")
+      alertService.warning(
+        'Sin resultados',
+        'No se encontraron resultados para la consulta realizada. Por favor intente nuevamente.',
+      )
     }
     finally {
       setLoading(false)
@@ -335,7 +341,8 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
 
     limpiarYCerrarWidgetResultados(widgetResultId)
-    limpiarFeaturesDibujados(varJimuMapView, featuresDibujados)
+    limpiarFeaturesDibujados(varJimuMapView, [])
+    limpiarYCerrarwidgetLeyenda(WIDGET_IDS.LEYENDA)
     setVerAtributos(false)
     setConsultaPorSeleccionada({name: "", id: null, url: ""})
     setSelectedCategory(null)
@@ -417,6 +424,10 @@ const Widget = (props: AllWidgetProps<any>) => {
     } catch (err) {
       console.error("Error obteniendo municipios:", err)
       setError("Ocurrió un error al obtener los municipios.")
+      alertService.warning(
+        'Sin resultados',
+        'No se encontraron resultados para la consulta realizada. Por favor intente nuevamente.',
+      )
     } finally {
       setLoading(false)
     }
@@ -461,6 +472,10 @@ const Widget = (props: AllWidgetProps<any>) => {
     } catch (err) {
       console.error("Error obteniendo datos del indicador:", err)
       setError("Ocurrió un error al obtener los datos del indicador.")
+      alertService.warning(
+        'Sin resultados',
+        'Ocurrió un error al obtener los datos del indicador. Por favor intente nuevamente.',
+      )
     } finally {
       setLoading(false)
     }
@@ -498,6 +513,10 @@ const Widget = (props: AllWidgetProps<any>) => {
     } catch (err) {
       console.error("Error obteniendo datos del municipio seleccionado:", err)
       setError("Ocurrió un error al obtener los datos del municipio seleccionado.")
+      alertService.warning(
+        'Sin resultados',
+        'No se encontraron establecimientos para el municipio seleccionado; intente nuevamente.',
+      )
     } finally {
       setLoading(false)
     }
@@ -516,17 +535,22 @@ const Widget = (props: AllWidgetProps<any>) => {
   const buscar = async () => {
     if (!selectedEstablecimiento && !selectedIndicador) {
       setError("Por favor seleccione un establecimiento o un indicador para realizar la búsqueda.")
+      alertService.warning(
+        'Sin resultados',
+        'Por favor seleccione un establecimiento o un indicador para realizar la búsqueda.',
+      )
       return
     }
     setLoading(true)
     // limpiar geometrías previamente dibujadas
     varJimuMapView?.view?.graphics?.removeAll()
-    let urlCapa, campos, where
+    let urlCapa, campos=['*'], where
     if(consultaPorSeleccionada?.name === INDICADORES.ConsultaEducacion){
       urlCapa = urls.SERVICIO_EDUCACION_ALFANUMERICO + `/0`
-      campos = ["NOMBREESTABLECIMIENTO", "NIT", "LABORATORIOS", "SALONESCONFERENCIAS", "NUMEROCOMPUTADORES", "ACCESOINTERNET", "WEBSITE", "PROGRAMASESPECIALES", "NUMEROESTUDIANTES", "NUMERODOCENTES", "ZONASRECREATIVAS", "ICFECS", "PRIMERAPELLIDO", "SEGUNDOAPELLIDO", "NOMBRE", "OBJECTID", "CODIGOESTABLECIMIENTO"
-      ]
-      where = `CODIGOESTABLECIMIENTO='${selectedEstablecimiento.CODIGOESTABLECIMIENTO}' and NOMBREESTABLECIMIENTO='${selectedEstablecimiento.NOMBREESTABLECIMIENTO}'`
+      /* campos = ["NOMBREESTABLECIMIENTO", "NIT", "LABORATORIOS", "SALONESCONFERENCIAS", "NUMEROCOMPUTADORES", "ACCESOINTERNET", "WEBSITE", "PROGRAMASESPECIALES", "NUMEROESTUDIANTES", "NUMERODOCENTES", "ZONASRECREATIVAS", "ICFECS", "PRIMERAPELLIDO", "SEGUNDOAPELLIDO", "NOMBRE", "OBJECTID", "CODIGOESTABLECIMIENTO"
+      ] */
+      
+      where = `CODIGOESTABLECIMIENTO=${selectedEstablecimiento.CODIGOESTABLECIMIENTO} and NOMBREESTABLECIMIENTO='${selectedEstablecimiento.NOMBREESTABLECIMIENTO}'`
     }else if(consultaPorSeleccionada?.name === INDICADORES.ConsultaPorIndicadores){
        urlCapa = urls.SERVICIO_EDUCACION_ALFANUMERICO + `/${selectedIndicador}`
        campos = camposIndicador ? camposIndicador.filter(c => c !== "geometry") : ["*"]
@@ -534,144 +558,160 @@ const Widget = (props: AllWidgetProps<any>) => {
        if (selectedIndicador === 1) { // para la consulta por indicador "cobertura"
         where = `NIVEL='${selectedNivel ?? ""}' and SECTOR='${selectedSector ?? ""}' and ANIO='${selectedAnio ?? ""}'`        
        }else if (selectedIndicador === 2 || selectedIndicador === 3 || selectedIndicador === 4 || selectedIndicador === 5) { // para la consulta por indicador "cupos ofertados", "eficiencia interna", "tasa de analfabetismo departamental" y "tasa de analfabetismo municipal", el filtro se realiza solo por año, ya que los niveles y sectores no aplican para estos indicadores
-        where = `ANIO='${selectedAnio ?? ""}'`       
+        where = `ANIO=${selectedAnio ?? ""}`       
        }
     }
 
-    const features = await ejecutarConsulta({ returnGeometry: true, campos, url: urlCapa, where })
-    
-    // si la longitud de los features obtenidos es menor a 1, mostrar mensaje de error indicando que no se encontraron resultados para la consulta realizada
-    if (features.length < 1) {
-      setError("No se encontraron resultados para la consulta realizada.")
-      setLoading(false)
-      return
-    }
-    // ir al extend inicial del mapa para mostrar todos los resultados obtenidos
-    // restoreInitialExtent(varJimuMapView, initialExtentRef)
-    // dibujar los features obtenidos en el mapa
-    const esCoropletico = consultaPorSeleccionada?.name === INDICADORES.ConsultaPorIndicadores && (selectedIndicador === 1 || selectedIndicador === 2 || selectedIndicador === 3 || selectedIndicador === 4 || selectedIndicador === 5) // el indicador "cobertura", "cupos ofertados", "eficiencia interna", "tasa de analfabetismo departamental" y "tasa de analfabetismo municipal" se representan con coropletico    
-
-    let camposResultados,_cloneFeatures, withGraphic={
-        showGraphic: false,
-        graphicData: [
-            { name: "ejemplo_1", value: 65 },
-            { name: "ejemplo_2", value: 80 },
-            { name: "ejemplo_3", value: features.length }
-        ],
-        graphicType: "bar",
-        graphicTitle: 'Gráfico de ejemplo',
-        selectedIndicador,
-        dataCoropletico: {},
-        fieldToFilter:''
-    }, titleTable = ""
-    if(consultaPorSeleccionada?.name === INDICADORES.ConsultaEducacion){
-      const URL_ARCHIVOS_QUINDIO = urls.URL_ARCHIVOS_QUINDIO
-      // construir la url de la imagen del establecimiento utilizando la propiedad IMAGEN y la constante URL_ARCHIVOS_QUINDIO
-      const imagenUrl = selectedEstablecimiento.IMAGEN !== " " ? `${URL_ARCHIVOS_QUINDIO}${selectedEstablecimiento.IMAGEN}` : null
-      // ajusta los campos para que cumplan la estructura esperada por el vidget resultados
-      camposResultados = [
-        { name: "NOMBREESTABLECIMIENTO", alias: "Nombre establecimiento" },
-        { name: "CODIGOESTABLECIMIENTO", alias: "Código" },
-        { name: "NIT", alias: "NIT" },
-        { name: "DIRECCION", alias: "Dirección" },
-        { name: "JORNADA", alias: "Jornada" },
-        { name: "LABORATORIOS", alias: "Laboratorios" },
-        { name: "SALONESCONFERENCIAS", alias: "Salones conferencias" },
-        { name: "NUMEROCOMPUTADORES", alias: "Computadores" },
-        { name: "ACCESOINTERNET", alias: "Acceso internet" },
-        { name: "WEBSITE", alias: "Sitio web" },
-        { name: "PROGRAMASESPECIALES", alias: "Programas especiales" },
-        { name: "NUMEROESTUDIANTES", alias: "Número estudiantes" },
-        { name: "NUMERODOCENTES", alias: "Número docentes" },
-        { name: "ZONASRECREATIVAS", alias: "Zonas recreativas" },
-        { name: "ICFECS", alias: "ICFES" },
-        { name: "NOMBRE", alias: "Nombre contacto" },
-        { name: "PRIMERAPELLIDO", alias: "Primer apellido" },
-        { name: "SEGUNDOAPELLIDO", alias: "Segundo apellido" },
-        // { name: "IMAGEN", alias: "Imagen" },
-      ]
-      _cloneFeatures = features
-        .filter(f => f?.geometry)
-        .map(f => ({
-          attributes: { ...f.attributes, IMAGEN: imagenUrl },
-          geometry: f.geometry.toJSON()
-        }))
-      setCloneFeatures(_cloneFeatures)
-      if(validaLoggerLocalStorage('logger')) console.log({_cloneFeatures})
-      // dibujar el punto del establecimiento en el mapa y centrar la vista con zoom cercano
-      if (selectedEstablecimiento.geometry) {
-        drawPoint(varJimuMapView, selectedEstablecimiento.geometry, "PLANAR", "", 6000, "consulta-educacion-establecimiento")
-      }
-      // cambiar a la pestaña de vista atributos en donde se debe mostrar la información del establecimiento seleccionado
-      setVerAtributos(true)
-      titleTable = `Información del establecimiento ${selectedEstablecimiento.NOMBREESTABLECIMIENTO}`
-
-    }else if(esCoropletico){
-      camposResultados = camposIndicador ? camposIndicador.map(c => ({ name: c, alias: c })) : [{ name: "OBJECTID", alias: "OBJECTID" }]
-      _cloneFeatures = features.map(f => ({ attributes: f.attributes, geometry: f.geometry.toJSON() }))
-      let fixDataToRenderGrafic = [], fieldToFilter =  "", titleGrahic = "", dataLeyenda: interfaceLeyenda[] = [], dataCoropletico
-      if (selectedIndicador === 1) { // para el indicador "cobertura", el gráfico mostrará la cobertura de estudiantes por municipio
-        dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Cobertura
-        fieldToFilter = dataCoropletico.fieldsToFilter[0].field // siempre toma el primer campo definido en fieldsToFilter para mostrarlo en el gráfico, en este caso "ESTUDIANTESMATRICULADOS"
-        titleGrahic = `Cobertura de educación en el año ${selectedAnio ?? ""} por ${selectedNivel ? "nivel educativo" : "sector"}`
-        dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
-      }else if(selectedIndicador === 2){ // para el indicador "cupos ofertados", el gráfico mostrará la cantidad de cupos ofertados por municipio
-        dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Cupos_ofertados
-        fieldToFilter = dataCoropletico.fieldsToFilter[0].field
-        titleGrahic = `Cupos ofertados y matriculados en el año ${selectedAnio ?? ""} `
-        dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
-      }else if(selectedIndicador === 3){ // para el indicador "eficiencia interna", el gráfico mostrará la eficiencia interna por municipio
-        dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Eficiencia_interna
-        fieldToFilter = dataCoropletico.fieldsToFilter[0].field
-        titleGrahic = `Total estudiantes matriculados en el año ${selectedAnio ?? ""} `
-        dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
-        if(validaLoggerLocalStorage('logger')) console.log({fieldToFilter, titleGrahic, dataLeyenda})
-      }else if(selectedIndicador === 4){ // para el indicador "tasa de analfabetismo departamental", el gráfico mostrará la tasa de analfabetismo departamental por municipio
-        dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Tasa_analfabetismo_departamental
-        fieldToFilter = dataCoropletico.fieldsToFilter[0].field
-        titleGrahic = `Tasa de analfabetismo departamental en el año ${selectedAnio ?? ""}`
-        dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
-      }else if(selectedIndicador === 5){ // para el indicador "tasa de analfabetismo municipal", el gráfico mostrará la tasa de analfabetismo municipal
-        dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Tasa_analfabetismo_municipal
-        fieldToFilter = dataCoropletico.fieldsToFilter[0].field
-        titleGrahic = `Tasa de analfabetismo municipal en el año ${selectedAnio ?? ""}`
-        dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
-      }
-      fixDataToRenderGrafic = features.map(f => ({ name: MUNICIPIOS_QUINDIO.find(m => m.IDMUNICIPI === f.attributes.IDMUNICIPIO)?.NOMBRE, value: Number(f.attributes[fieldToFilter]) || 0 }))
-      withGraphic = {
-        showGraphic: true,
-        graphicData: fixDataToRenderGrafic,
-        graphicType: "bar",
-        graphicTitle: titleGrahic,
-        selectedIndicador,
-        dataCoropletico,
-        fieldToFilter // primer campo que se emplea para renderizar el grafico, se asume que es el campo principal para mostrar en el gráfico
-      }
-    if(validaLoggerLocalStorage('logger')) console.log({fixDataToRenderGrafic, withGraphic})
+    try {
       
-      /* abrirWidgetLeyenda({
-        widgetleyendaId: WIDGET_IDS.LEYENDA,
+      const features = await ejecutarConsulta({ returnGeometry: true, campos, url: urlCapa, where })
+  
+      
+      // si la longitud de los features obtenidos es menor a 1, mostrar mensaje de error indicando que no se encontraron resultados para la consulta realizada
+      if (features.length < 1) {
+        setError("No se encontraron resultados para la consulta realizada.")
+        alertService.warning(
+          'Sin resultados',
+          'No se encontraron resultados para la consulta realizada.',
+        )
+        setLoading(false)
+        return
+      }
+      // ir al extend inicial del mapa para mostrar todos los resultados obtenidos
+      // restoreInitialExtent(varJimuMapView, initialExtentRef)
+      // dibujar los features obtenidos en el mapa
+      const esCoropletico = consultaPorSeleccionada?.name === INDICADORES.ConsultaPorIndicadores && (selectedIndicador === 1 || selectedIndicador === 2 || selectedIndicador === 3 || selectedIndicador === 4 || selectedIndicador === 5) // el indicador "cobertura", "cupos ofertados", "eficiencia interna", "tasa de analfabetismo departamental" y "tasa de analfabetismo municipal" se representan con coropletico    
+  
+      let camposResultados,_cloneFeatures, withGraphic={
+          showGraphic: false,
+          graphicData: [
+              { name: "ejemplo_1", value: 65 },
+              { name: "ejemplo_2", value: 80 },
+              { name: "ejemplo_3", value: features.length }
+          ],
+          graphicType: "bar",
+          graphicTitle: 'Gráfico de ejemplo',
+          selectedIndicador,
+          dataCoropletico: {},
+          fieldToFilter:''
+      }, titleTable = ""
+      if(consultaPorSeleccionada?.name === INDICADORES.ConsultaEducacion){
+        const URL_ARCHIVOS_QUINDIO = urls.URL_ARCHIVOS_QUINDIO
+        // construir la url de la imagen del establecimiento utilizando la propiedad IMAGEN y la constante URL_ARCHIVOS_QUINDIO
+        const imagenUrl = selectedEstablecimiento.IMAGEN !== " " ? `${URL_ARCHIVOS_QUINDIO}${selectedEstablecimiento.IMAGEN}` : null
+        // ajusta los campos para que cumplan la estructura esperada por el vidget resultados
+        camposResultados = [
+          { name: "NOMBREESTABLECIMIENTO", alias: "Nombre establecimiento" },
+          { name: "CODIGOESTABLECIMIENTO", alias: "Código" },
+          { name: "NIT", alias: "NIT" },
+          { name: "DIRECCION", alias: "Dirección" },
+          { name: "JORNADA", alias: "Jornada" },
+          { name: "LABORATORIOS", alias: "Laboratorios" },
+          { name: "SALONESCONFERENCIAS", alias: "Salones conferencias" },
+          { name: "NUMEROCOMPUTADORES", alias: "Computadores" },
+          { name: "ACCESOINTERNET", alias: "Acceso internet" },
+          { name: "WEBSITE", alias: "Sitio web" },
+          { name: "PROGRAMASESPECIALES", alias: "Programas especiales" },
+          { name: "NUMEROESTUDIANTES", alias: "Número estudiantes" },
+          { name: "NUMERODOCENTES", alias: "Número docentes" },
+          { name: "ZONASRECREATIVAS", alias: "Zonas recreativas" },
+          { name: "ICFECS", alias: "ICFES" },
+          { name: "NOMBRE", alias: "Nombre contacto" },
+          { name: "PRIMERAPELLIDO", alias: "Primer apellido" },
+          { name: "SEGUNDOAPELLIDO", alias: "Segundo apellido" },
+          // { name: "IMAGEN", alias: "Imagen" },
+        ]
+        _cloneFeatures = features
+          .filter(f => f?.geometry)
+          .map(f => ({
+            attributes: { ...f.attributes, IMAGEN: imagenUrl },
+            geometry: f.geometry.toJSON()
+          }))
+        setCloneFeatures(_cloneFeatures)
+        if(validaLoggerLocalStorage('logger')) console.log({_cloneFeatures})
+        // dibujar el punto del establecimiento en el mapa y centrar la vista con zoom cercano
+        if (selectedEstablecimiento.geometry) {
+          drawPoint(varJimuMapView, selectedEstablecimiento.geometry, "PLANAR", "", 6000, "consulta-educacion-establecimiento")
+        }
+        // cambiar a la pestaña de vista atributos en donde se debe mostrar la información del establecimiento seleccionado
+        setVerAtributos(true)
+        titleTable = `Información del establecimiento ${selectedEstablecimiento.NOMBREESTABLECIMIENTO}`
+  
+      }else if(esCoropletico){
+        camposResultados = camposIndicador ? camposIndicador.map(c => ({ name: c, alias: c })) : [{ name: "OBJECTID", alias: "OBJECTID" }]
+        _cloneFeatures = features.map(f => ({ attributes: f.attributes, geometry: f.geometry.toJSON() }))
+        let fixDataToRenderGrafic = [], fieldToFilter =  "", titleGrahic = "", dataLeyenda: interfaceLeyenda[] = [], dataCoropletico
+        if (selectedIndicador === 1) { // para el indicador "cobertura", el gráfico mostrará la cobertura de estudiantes por municipio
+          dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Cobertura
+          fieldToFilter = dataCoropletico.fieldsToFilter[0].field // siempre toma el primer campo definido en fieldsToFilter para mostrarlo en el gráfico, en este caso "ESTUDIANTESMATRICULADOS"
+          titleGrahic = `Cobertura de educación en el año ${selectedAnio ?? ""} por ${selectedNivel ? "nivel educativo" : "sector"}`
+          dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
+        }else if(selectedIndicador === 2){ // para el indicador "cupos ofertados", el gráfico mostrará la cantidad de cupos ofertados por municipio
+          dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Cupos_ofertados
+          fieldToFilter = dataCoropletico.fieldsToFilter[0].field
+          titleGrahic = `Cupos ofertados y matriculados en el año ${selectedAnio ?? ""} `
+          dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
+        }else if(selectedIndicador === 3){ // para el indicador "eficiencia interna", el gráfico mostrará la eficiencia interna por municipio
+          dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Eficiencia_interna
+          fieldToFilter = dataCoropletico.fieldsToFilter[0].field
+          titleGrahic = `Total estudiantes matriculados en el año ${selectedAnio ?? ""} `
+          dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
+          if(validaLoggerLocalStorage('logger')) console.log({fieldToFilter, titleGrahic, dataLeyenda})
+        }else if(selectedIndicador === 4){ // para el indicador "tasa de analfabetismo departamental", el gráfico mostrará la tasa de analfabetismo departamental por municipio
+          dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Tasa_analfabetismo_departamental
+          fieldToFilter = dataCoropletico.fieldsToFilter[0].field
+          titleGrahic = `Tasa de analfabetismo departamental en el año ${selectedAnio ?? ""}`
+          dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
+        }else if(selectedIndicador === 5){ // para el indicador "tasa de analfabetismo municipal", el gráfico mostrará la tasa de analfabetismo municipal
+          dataCoropletico = LEYENDA_COROPLETICO_QUINDIO.Tasa_analfabetismo_municipal
+          fieldToFilter = dataCoropletico.fieldsToFilter[0].field
+          titleGrahic = `Tasa de analfabetismo municipal en el año ${selectedAnio ?? ""}`
+          dataLeyenda = dataCoropletico.leyenda.map(l => ({ label: l.label, colorFondo: l.colorFondo, colorLine: l.colorLine }))
+        }
+        fixDataToRenderGrafic = features.map(f => ({ name: MUNICIPIOS_QUINDIO.find(m => m.IDMUNICIPI === f.attributes.IDMUNICIPIO)?.NOMBRE, value: Number(f.attributes[fieldToFilter]) || 0 }))
+        withGraphic = {
+          showGraphic: true,
+          graphicData: fixDataToRenderGrafic,
+          graphicType: "bar",
+          graphicTitle: titleGrahic,
+          selectedIndicador,
+          dataCoropletico,
+          fieldToFilter // primer campo que se emplea para renderizar el grafico, se asume que es el campo principal para mostrar en el gráfico
+        }
+      if(validaLoggerLocalStorage('logger')) console.log({fixDataToRenderGrafic, withGraphic})
+        
+        /* abrirWidgetLeyenda({
+          widgetleyendaId: WIDGET_IDS.LEYENDA,
+          props,
+          title: selectedIndicador === 1 ? "Cobertura de estudiantes" : selectedIndicador === 2 ? "Cupos ofertados" : "Eficiencia interna", // título que se mostrará en el widget de resultados
+          data: dataLeyenda
+        }) */
+      }
+      // abrir el widget de resultados y mostrar la información del establecimiento seleccionado
+      abrirTablaResultados(
+        esCoropletico,
+        _cloneFeatures,
+        camposResultados,
         props,
-        title: selectedIndicador === 1 ? "Cobertura de estudiantes" : selectedIndicador === 2 ? "Cupos ofertados" : "Eficiencia interna", // título que se mostrará en el widget de resultados
-        data: dataLeyenda
-      }) */
+        widgetResultId,
+        varJimuMapView.view.spatialReference,
+        titleTable,
+        withGraphic,
+        false,
+        selectedAnio
+      )
+      // ir al extend inicial del mapa para mostrar todos los resultados obtenidos
+      restoreInitialExtent(varJimuMapView, initialExtentRef)
+      setLoading(false)
+    } catch (error) {
+      console.error("Error al realizar la búsqueda:", error)
+      setError("Ocurrió un error al realizar la búsqueda. Por favor intente nuevamente.")
+      alertService.warning(
+        'Sin resultados',
+        'Ocurrió un error al realizar la búsqueda. Por favor intente nuevamente.',
+      )
+      setLoading(false)
     }
-    // abrir el widget de resultados y mostrar la información del establecimiento seleccionado
-    abrirTablaResultados(
-      esCoropletico,
-      _cloneFeatures,
-      camposResultados,
-      props,
-      widgetResultId,
-      varJimuMapView.view.spatialReference,
-      titleTable,
-      withGraphic,
-      false,
-      selectedAnio
-    )
-    // ir al extend inicial del mapa para mostrar todos los resultados obtenidos
-    restoreInitialExtent(varJimuMapView, initialExtentRef)
-    setLoading(false)
 
   }  
   
@@ -769,6 +809,7 @@ const Widget = (props: AllWidgetProps<any>) => {
           </div>
         )
       }
+      <AlertContainer />
     </div>
   )
 }
