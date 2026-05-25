@@ -146,10 +146,10 @@ export const FiltrosClasificacion = ({
         <div className="consulta-widget consulta-scroll">
 
             {DEFINICION_FILTROS.map(filtro => {
-
+                if (validaLoggerLocalStorage('logger')) console.log('filtro>>>', filtro)
                 const ocultar = isDisabledDatePicker(filtro)
 
-                if (ocultar) return null
+                if (ocultar || filtro.label === "Área temática") return null
 
                 return (
                     <div className="filtro-row" key={filtro.campo}>

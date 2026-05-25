@@ -1,0 +1,93 @@
+@import '../../../utils/styles/presetsQuindio.css';
+
+.view-counter-widget {
+  width: 60px;
+  height: 90px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background: linear-gradient(150deg, #fffdf8 0%, #f4ede1 100%);
+  border: 1px solid #d6c9b3;
+}
+
+.view-counter-widget__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.view-counter-widget__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #3a3128;
+}
+
+.view-counter-widget__subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6d6254;
+}
+
+.view-counter-widget__value-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  background-color: rgba(255, 255, 255, 0.65);
+  border: 1px solid #e6dac7;
+}
+
+.view-counter-widget__value {
+  font-size: clamp(1.1rem, 5vw, 2.1rem);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #0d5f54;
+}
+
+.view-counter-widget__label {
+  font-size: 0.85rem;
+  color: #4e453c;
+}
+
+.view-counter-widget__state {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+}
+
+.view-counter-widget__state--loading {
+  background-color: #f6efe4;
+  color: #4e453c;
+}
+
+.view-counter-widget__state--error {
+  background-color: #fdf0f0;
+  color: #7f1d1d;
+  border: 1px solid #f4b2b2;
+}
+
+.loading-host {
+  position: relative;
+}
+
+@media (max-width: 575px) {
+  .view-counter-widget {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .view-counter-widget__subtitle,
+  .view-counter-widget__label {
+    font-size: 0.78rem;
+  }
+}

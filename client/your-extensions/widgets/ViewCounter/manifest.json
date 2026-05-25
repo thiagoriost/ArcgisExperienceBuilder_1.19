@@ -1,0 +1,18 @@
+{
+  "name": "ViewCounter",
+  "label": "Contador de Visitas",
+  "type": "widget",
+  "version": "1.19.0",
+  "dependency": ["jimu-arcgis"],
+  "exbVersion": "1.19.0",
+  "author": "IGAC",
+  "description": "Widget para contar y mostrar visitas al visor geografico con persistencia local.",
+  "copyright": "Instituto Geografico Agustin Codazzi (IGAC)",
+  "license": "http://www.apache.org/licenses/LICENSE-2.0",
+  "properties": {},
+  "translatedLocales": ["es"],
+  "defaultSize": {
+    "width": 320,
+    "height": 220
+  }
+}

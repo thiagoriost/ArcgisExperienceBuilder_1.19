@@ -4,7 +4,7 @@
  *
  */
 export const CASCADE_ORDER = [
-  "area",
+  // "area",
   "tematica",
   "categoria",
   "subcategoria",
