@@ -4,6 +4,16 @@
 export const VIEW_COUNTER_API_BASE_PATH = '/api/visits'
 
 /**
+ * Clave de `sessionStorage` usada para cachear contador y vigencia de sesión.
+ */
+export const VIEW_COUNTER_SESSION_STORAGE_KEY = 'view-counter.session-cache'
+
+/**
+ * Tiempo de vigencia del cache de sesión expresado en milisegundos (12 horas).
+ */
+export const VIEW_COUNTER_SESSION_TTL_MS = 12 * 60 * 60 * 1000
+
+/**
  * Estructura persistida del contador de visitas.
  */
 export interface ViewCounterPersistence {
@@ -19,6 +29,16 @@ export interface ProcessVisitResult {
   totalVisits: number
   /** Indica si la API reporta incremento exitoso. */
   incremented: boolean
+}
+
+/**
+ * Estructura de cache de sesión para evitar múltiples incrementos por recarga.
+ */
+export interface ViewCounterSessionCache {
+  /** Total de visitas retornado por la API durante esta sesión. */
+  totalVisits: number
+  /** Marca temporal (epoch ms) hasta la cual el cache se considera válido. */
+  expiresAt: number
 }
 
 /**

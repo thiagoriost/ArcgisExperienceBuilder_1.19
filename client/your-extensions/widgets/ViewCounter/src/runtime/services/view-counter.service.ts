@@ -2,12 +2,24 @@ import { validaLoggerLocalStorage } from '../../../../shared/utils/export.utils'
 import { getViewCounterApiOrigin } from '../config/environment'
 import {
   VIEW_COUNTER_API_BASE_PATH,
+  VIEW_COUNTER_SESSION_STORAGE_KEY,
+  VIEW_COUNTER_SESSION_TTL_MS,
   type ViewCounterApiGetResponse,
   type ViewCounterApiIncrementResponse,
   type ProcessVisitResult,
   type ViewCounterPersistence,
   type ViewCounterService
 } from '../types/view-counter'
+
+/**
+ * Estructura local de cache de sesión usada internamente por el servicio.
+ */
+interface SessionCacheEntry {
+  /** Total de visitas retornado por la API en la sesión vigente. */
+  totalVisits: number
+  /** Marca de expiración en epoch milisegundos. */
+  expiresAt: number
+}
 
 /**
  * Crea un estado inicial seguro para la lectura del contador.
@@ -83,6 +95,81 @@ const buildApiError = (fallback: string, apiMessage?: string): Error => {
 }
 
 /**
+ * Verifica si un objeto corresponde al contrato de cache de sesión.
+ *
+ * @param value Valor a validar.
+ * @returns `true` cuando contiene total y expiración válidos.
+ */
+const isValidSessionCache = (value: unknown): value is SessionCacheEntry => {
+  if (!value || typeof value !== 'object') return false
+
+  const candidate = value as Partial<SessionCacheEntry>
+  return typeof candidate.totalVisits === 'number' && typeof candidate.expiresAt === 'number'
+}
+
+/**
+ * Verifica disponibilidad de `sessionStorage` en el runtime actual.
+ *
+ * @returns `true` cuando el widget puede leer/escribir cache de sesión.
+ */
+const canUseSessionStorage = (): boolean => typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined'
+
+/**
+ * Lee el cache de sesión del contador si existe y es utilizable.
+ *
+ * @returns Cache válido/parcial o `null` cuando no existe o es inválido.
+ */
+const readSessionCache = (): SessionCacheEntry | null => {
+  if (!canUseSessionStorage()) return null
+
+  try {
+    const raw = window.sessionStorage.getItem(VIEW_COUNTER_SESSION_STORAGE_KEY)
+    if (!raw) return null
+
+    const parsed = JSON.parse(raw) as unknown
+    return isValidSessionCache(parsed) ? parsed : null
+  } catch (_error) {
+    return null
+  }
+}
+
+/**
+ * Indica si un cache de sesión aún está vigente con base en su expiración.
+ *
+ * @param cache Cache previamente leído.
+ * @returns `true` cuando no ha expirado.
+ */
+const isSessionCacheActive = (cache: SessionCacheEntry | null): cache is SessionCacheEntry => {
+  if (!cache) return false
+  return cache.expiresAt > Date.now()
+}
+
+/**
+ * Guarda/actualiza el cache de sesión con vigencia de 12 horas.
+ *
+ * @param totalVisits Total que será reutilizado en recargas dentro de la sesión.
+ */
+const writeSessionCache = (totalVisits: number): void => {
+  if (!canUseSessionStorage()) return
+
+  const safeTotalVisits = Number.isFinite(totalVisits) && totalVisits >= 0 ? Math.floor(totalVisits) : 0
+  const cache: SessionCacheEntry = {
+    totalVisits: safeTotalVisits,
+    expiresAt: Date.now() + VIEW_COUNTER_SESSION_TTL_MS
+  }
+
+  window.sessionStorage.setItem(VIEW_COUNTER_SESSION_STORAGE_KEY, JSON.stringify(cache))
+}
+
+/**
+ * Elimina cache de sesión inválido o expirado para mantener consistencia.
+ */
+const clearSessionCache = (): void => {
+  if (!canUseSessionStorage()) return
+  window.sessionStorage.removeItem(VIEW_COUNTER_SESSION_STORAGE_KEY)
+}
+
+/**
  * Servicio de contador conectado a backend Express.
  *
  * Contrato HTTP esperado:
@@ -97,6 +184,26 @@ export class ExpressApiViewCounterService implements ViewCounterService {
    * @returns Estado de contador normalizado para consumo del widget.
    */
   async readPersistedCounter (): Promise<ViewCounterPersistence> {
+    const sessionCache = readSessionCache()
+    if (isSessionCacheActive(sessionCache)) {
+      if (validaLoggerLocalStorage('logger')) {
+        console.log({
+          source: 'sessionStorage',
+          action: 'readPersistedCounter',
+          totalVisits: sessionCache.totalVisits,
+          expiresAt: sessionCache.expiresAt
+        })
+      }
+
+      return {
+        totalVisits: sessionCache.totalVisits
+      }
+    }
+
+    if (sessionCache && !isSessionCacheActive(sessionCache)) {
+      clearSessionCache()
+    }
+
     if (!canUseApi()) {
       return createDefaultState()
     }
@@ -122,8 +229,11 @@ export class ExpressApiViewCounterService implements ViewCounterService {
       throw buildApiError('La API no pudo consultar el contador de visitas.', payload.error)
     }
 
+    const totalVisits = Number.isFinite(payload.count) && payload.count >= 0 ? Math.floor(payload.count) : 0
+    writeSessionCache(totalVisits)
+
     return {
-      totalVisits: Number.isFinite(payload.count) && payload.count >= 0 ? Math.floor(payload.count) : 0
+      totalVisits
     }
   }
 
@@ -133,6 +243,27 @@ export class ExpressApiViewCounterService implements ViewCounterService {
    * @returns Resultado del flujo de visita para la capa de presentación.
    */
   async processVisit (): Promise<ProcessVisitResult> {
+    const sessionCache = readSessionCache()
+    if (isSessionCacheActive(sessionCache)) {
+      if (validaLoggerLocalStorage('logger')) {
+        console.log({
+          source: 'sessionStorage',
+          action: 'processVisit-skip-api',
+          totalVisits: sessionCache.totalVisits,
+          expiresAt: sessionCache.expiresAt
+        })
+      }
+
+      return {
+        totalVisits: sessionCache.totalVisits,
+        incremented: false
+      }
+    }
+
+    if (sessionCache && !isSessionCacheActive(sessionCache)) {
+      clearSessionCache()
+    }
+
     if (!canUseApi()) {
       return {
         totalVisits: 0,
@@ -160,8 +291,11 @@ export class ExpressApiViewCounterService implements ViewCounterService {
       throw buildApiError('La API no pudo incrementar el contador de visitas.', payload.error)
     }
 
+    const totalVisits = Number.isFinite(payload.count) && payload.count >= 0 ? Math.floor(payload.count) : 0
+    writeSessionCache(totalVisits)
+
     return {
-      totalVisits: Number.isFinite(payload.count) && payload.count >= 0 ? Math.floor(payload.count) : 0,
+      totalVisits,
       incremented: true
     }
   }
