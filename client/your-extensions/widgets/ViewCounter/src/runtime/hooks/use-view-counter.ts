@@ -1,6 +1,7 @@
 import { React } from 'jimu-core'
 import { viewCounterService } from '../services/view-counter.service'
 import type { UseViewCounterState, ViewCounterService } from '../types/view-counter'
+import { validaLoggerLocalStorage } from '../../../../shared/utils/export.utils'
 
 /**
  * Hook de estado para orquestar lectura, validacion de cookie y actualizacion UI.
@@ -24,6 +25,7 @@ export const useViewCounter = (
 
     try {
       const result = await service.processVisit()
+      if (validaLoggerLocalStorage('logger')) console.log({ result })
       setTotalVisits(result.totalVisits)
     } catch (cause: unknown) {
       console.error('ViewCounter: error procesando visita', cause)

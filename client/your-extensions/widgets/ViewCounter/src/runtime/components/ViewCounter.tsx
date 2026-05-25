@@ -1,6 +1,7 @@
 import { React } from 'jimu-core'
 import { Button } from 'jimu-ui'
 import { useViewCounter } from '../hooks/use-view-counter'
+import { validaLoggerLocalStorage } from '../../../../shared/utils/export.utils'
 
 /**
  * Propiedades del componente visual de contador.
@@ -22,7 +23,9 @@ const ViewCounter = ({ locale = 'es-CO' }: ViewCounterProps) => {
    * Valor de contador formateado para visualizacion local.
    */
   const formattedCounter = React.useMemo(() => {
-    return new Intl.NumberFormat(locale).format(totalVisits)
+    const formatted = new Intl.NumberFormat(locale).format(totalVisits)
+    if (validaLoggerLocalStorage('logger')) console.log({ totalVisits, locale, formatted })
+    return formatted
   }, [locale, totalVisits])
 
   return (

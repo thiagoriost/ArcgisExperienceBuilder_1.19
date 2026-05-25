@@ -1,7 +1,10 @@
 import {
+  VIEW_COUNTER_API_BASE_PATH,
   VIEW_COUNTER_COOKIE_NAME,
   VIEW_COUNTER_COOKIE_VALUE,
   VIEW_COUNTER_DEFAULT_STORAGE_KEY,
+  type ViewCounterApiPersistenceResponse,
+  type ViewCounterApiProcessResponse,
   type ProcessVisitResult,
   type ViewCounterPersistence,
   type ViewCounterService
@@ -36,36 +39,35 @@ const isValidPersistence = (value: unknown): value is ViewCounterPersistence => 
  * @param now Fecha base para calcular expiracion.
  * @returns Nueva fecha con +1 dia.
  */
+const API_HEADERS = {
+  'Content-Type': 'application/json'
+}
+
+/**
+ * Construye la URL de un endpoint relativo del contador.
+ *
+ * @param suffix Ruta adicional dentro del API.
+ * @returns URL lista para usar con fetch.
+ */
+const buildApiUrl = (suffix = ''): string => `${VIEW_COUNTER_API_BASE_PATH}${suffix}`
+
+/**
+ * Verifica si el entorno de navegador permite usar fetch y cookies de sesión.
+ *
+ * @returns true cuando el runtime es compatible con el API HTTP.
+ */
+const canUseApi = (): boolean => typeof window !== 'undefined' && typeof window.fetch === 'function'
+
+/**
+ * Suma un dia calendario a una fecha de referencia.
+ *
+ * @param now Fecha base para calcular expiracion.
+ * @returns Nueva fecha con +1 dia.
+ */
 const getCookieExpirationDate = (now: Date = new Date()): Date => {
   const expires = new Date(now)
   expires.setDate(expires.getDate() + 1)
   return expires
-}
-
-/**
- * Obtiene el valor de un cookie por nombre.
- *
- * @param name Nombre exacto del cookie.
- * @returns Valor del cookie o null cuando no existe.
- */
-const getCookieValue = (name: string): string | null => {
-  const serialized = document.cookie
-  if (!serialized) return null
-
-  const cookieChunks = serialized.split(';').map(chunk => chunk.trim())
-  const cookieEntry = cookieChunks.find(chunk => chunk.startsWith(`${name}=`))
-
-  if (!cookieEntry) return null
-  return decodeURIComponent(cookieEntry.substring(name.length + 1))
-}
-
-/**
- * Escribe un cookie de control para la validacion de visita diaria.
- *
- * @param expiresAt Fecha de expiracion UTC del cookie.
- */
-const setVisitCookie = (expiresAt: Date): void => {
-  document.cookie = `${VIEW_COUNTER_COOKIE_NAME}=${encodeURIComponent(VIEW_COUNTER_COOKIE_VALUE)}; expires=${expiresAt.toUTCString()}; path=/; SameSite=Lax`
 }
 
 /**
@@ -92,23 +94,50 @@ export class LocalJsonViewCounterService implements ViewCounterService {
   /**
    * Lee el estado persistido y recupera defaults cuando el JSON es invalido.
    */
-  readPersistedCounter (): Promise<ViewCounterPersistence> {
+  async readPersistedCounter (): Promise<ViewCounterPersistence> {
+    if (canUseApi()) {
+      try {
+        const response = await window.fetch(buildApiUrl(), {
+          method: 'GET',
+          credentials: 'include',
+          headers: API_HEADERS
+        })
+
+        if (response.ok) {
+          const payload = await response.json() as ViewCounterApiPersistenceResponse
+          return {
+            totalVisits: Number.isFinite(payload.totalVisits) && payload.totalVisits >= 0 ? Math.floor(payload.totalVisits) : 0,
+            updatedAt: payload.updatedAt
+          }
+        }
+      } catch (_error) {
+        // Fallback local abajo.
+      }
+    }
+
     const persistedRaw = window.localStorage.getItem(this.storageKey)
+
     if (!persistedRaw) {
-      return Promise.resolve(createDefaultState())
+      return createDefaultState()
     }
 
     try {
       const parsed = JSON.parse(persistedRaw) as unknown
       if (!isValidPersistence(parsed)) {
-        return Promise.resolve(createDefaultState())
+        return createDefaultState()
       }
-      return Promise.resolve({
-        totalVisits: Number.isFinite(parsed.totalVisits) && parsed.totalVisits >= 0 ? parsed.totalVisits : 0,
+
+      const isTotalVisitsValid = Number.isFinite(parsed.totalVisits) && parsed.totalVisits >= 0
+      if (!isTotalVisitsValid) {
+        return createDefaultState()
+      }
+
+      return {
+        totalVisits: isTotalVisitsValid ? parsed.totalVisits : 0,
         updatedAt: parsed.updatedAt
-      })
+      }
     } catch (_error) {
-      return Promise.resolve(createDefaultState())
+      return createDefaultState()
     }
   }
 
@@ -118,15 +147,36 @@ export class LocalJsonViewCounterService implements ViewCounterService {
    * @param totalVisits Nuevo total acumulado.
    * @returns Estado persistido final.
    */
-  overwritePersistedCounter (totalVisits: number): Promise<ViewCounterPersistence> {
+  async overwritePersistedCounter (totalVisits: number): Promise<ViewCounterPersistence> {
     const safeTotalVisits = Number.isFinite(totalVisits) && totalVisits >= 0 ? Math.floor(totalVisits) : 0
     const nextState: ViewCounterPersistence = {
       totalVisits: safeTotalVisits,
       updatedAt: new Date().toISOString()
     }
 
+    if (canUseApi()) {
+      try {
+        const response = await window.fetch(buildApiUrl(), {
+          method: 'PUT',
+          credentials: 'include',
+          headers: API_HEADERS,
+          body: JSON.stringify({ totalVisits: safeTotalVisits })
+        })
+
+        if (response.ok) {
+          const payload = await response.json() as ViewCounterApiPersistenceResponse
+          return {
+            totalVisits: Number.isFinite(payload.totalVisits) && payload.totalVisits >= 0 ? Math.floor(payload.totalVisits) : safeTotalVisits,
+            updatedAt: payload.updatedAt
+          }
+        }
+      } catch (_error) {
+        // Fallback local abajo.
+      }
+    }
+
     window.localStorage.setItem(this.storageKey, JSON.stringify(nextState))
-    return Promise.resolve(nextState)
+    return nextState
   }
 
   /**
@@ -135,20 +185,32 @@ export class LocalJsonViewCounterService implements ViewCounterService {
    * @returns Resultado con total final y metadatos del proceso.
    */
   async processVisit (): Promise<ProcessVisitResult> {
-    const persisted = await this.readPersistedCounter()
-    const existingCookieValue = getCookieValue(VIEW_COUNTER_COOKIE_NAME)
-    const shouldIncrement = existingCookieValue !== VIEW_COUNTER_COOKIE_VALUE
+    if (canUseApi()) {
+      try {
+        const response = await window.fetch(buildApiUrl('/process'), {
+          method: 'POST',
+          credentials: 'include',
+          headers: API_HEADERS
+        })
 
-    if (!shouldIncrement) {
-      return {
-        totalVisits: persisted.totalVisits,
-        incremented: false
+        if (response.ok) {
+          const payload = await response.json() as ViewCounterApiProcessResponse
+
+          return {
+            totalVisits: Number.isFinite(payload.totalVisits) && payload.totalVisits >= 0 ? Math.floor(payload.totalVisits) : 0,
+            incremented: Boolean(payload.incremented),
+            cookieExpiresAt: payload.cookieExpiresAt
+          }
+        }
+      } catch (_error) {
+        // Fallback local abajo.
       }
     }
 
+    const persisted = await this.readPersistedCounter()
     const updated = await this.overwritePersistedCounter(persisted.totalVisits + 1)
     const expiresAt = getCookieExpirationDate()
-    setVisitCookie(expiresAt)
+    document.cookie = `${VIEW_COUNTER_COOKIE_NAME}=${encodeURIComponent(VIEW_COUNTER_COOKIE_VALUE)}; expires=${expiresAt.toUTCString()}; path=/; SameSite=Lax`
 
     return {
       totalVisits: updated.totalVisits,

@@ -14,6 +14,11 @@ export const VIEW_COUNTER_COOKIE_VALUE = 'visita'
 export const VIEW_COUNTER_DEFAULT_STORAGE_KEY = 'view-counter.persistence.json'
 
 /**
+ * Ruta del endpoint REST usado por el widget para persistencia externa.
+ */
+export const VIEW_COUNTER_API_BASE_PATH = '/rest/view-counter'
+
+/**
  * Estructura persistida del contador de visitas.
  */
 export interface ViewCounterPersistence {
@@ -32,6 +37,28 @@ export interface ProcessVisitResult {
   /** Indica si en esta carga se incremento el contador. */
   incremented: boolean
   /** Fecha de expiracion del cookie cuando fue creado en esta ejecucion. */
+  cookieExpiresAt?: string
+}
+
+/**
+ * Respuesta persistida del servicio HTTP.
+ */
+export interface ViewCounterApiPersistenceResponse {
+  /** Total acumulado de visitas. */
+  totalVisits: number
+  /** Fecha de ultima actualizacion. */
+  updatedAt: string
+}
+
+/**
+ * Respuesta del endpoint que procesa una visita.
+ */
+export interface ViewCounterApiProcessResponse {
+  /** Total acumulado luego del procesamiento. */
+  totalVisits: number
+  /** Indica si la visita incremento el contador. */
+  incremented: boolean
+  /** Fecha de expiracion del cookie cuando se creo. */
   cookieExpiresAt?: string
 }
 
