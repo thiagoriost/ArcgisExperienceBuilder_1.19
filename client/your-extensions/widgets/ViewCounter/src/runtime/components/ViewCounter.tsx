@@ -31,7 +31,7 @@ const ViewCounter = ({ locale = 'es-CO' }: ViewCounterProps) => {
   return (
     <section className='view-counter-widget consulta-widget loading-host' aria-live='polite'>
       <header className='view-counter-widget__header'>
-        <h3 className='view-counter-widget__title'>Visitas</h3>
+        <h3 className='view-counter-widget__title'>Número de visitas: {formattedCounter}</h3>
         {/* <p className='view-counter-widget__subtitle'>Contador persistente de accesos</p> */}
       </header>
 
@@ -49,13 +49,13 @@ const ViewCounter = ({ locale = 'es-CO' }: ViewCounterProps) => {
           </Button>
         </div>
       )}
-
+{/*
       {!loading && !error && (
         <div className='view-counter-widget__value-panel'>
           <span className='view-counter-widget__value'>{formattedCounter}</span>
-          {/* <span className='view-counter-widget__label'>visitas registradas</span> */}
+          <span className='view-counter-widget__label'>visitas registradas</span>
         </div>
-      )}
+      )} */}
     </section>
   )
 }
