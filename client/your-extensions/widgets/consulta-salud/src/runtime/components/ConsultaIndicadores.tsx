@@ -243,7 +243,7 @@ const ConsultaIndicadores = forwardRef((
             const whereParts: string[] = []
 
             if (anio) {
-                whereParts.push(`ANIO=${anio}`)
+                whereParts.push(`ANIO='${anio}'`)
             }
 
             if (idCategoria && (indicador === INDICADOR_AFILIACIONES || indicador === INDICADORES_MORBILIDAD))

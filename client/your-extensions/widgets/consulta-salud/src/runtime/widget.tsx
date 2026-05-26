@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import { React, jsx, AllWidgetProps } from 'jimu-core'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis'
-import '../styles/styles.scss'
-const { useEffect, useState, useRef } = React
+import '../../../utils/styles/consulta-widget.css'
+const { useEffect, useState, useRef, useCallback } = React
 
 import { urls } from '../../../api/serviciosQuindio'
 import { WIDGET_IDS } from '../../../shared/constants/widget-ids'
@@ -23,6 +23,7 @@ import ConsultaIndicadores from './components/ConsultaIndicadores'
 import ConsultaTematicas from './components/ConsultaTematicas'
 import { SearchActionBar } from '../../../shared/components/search-action-bar'
 import { useDibujarFeatures } from '../../../shared/hooks/useDibujarFeatures'
+import { captureInitialMapView, resetToDefaultMapView } from '../../../shared/utils/widget-limpieza-utils'
 
 import type { ConsultaComponentHandle } from './consulta-general-types'
 import type {
@@ -51,6 +52,9 @@ const Widget = (props: AllWidgetProps<any>) => {
     const [municipios, setMunicipios] = useState<SelectOption[]>([])
     const [idMunicipio, setIdMunicipio] = useState<string>('')
     const [jimuMapView, setJimuMapView] = useState<JimuMapView>();
+    const initialExtentRef = useRef<__esri.Extent | null>(null)
+    const initialZoomRef = useRef<number | null>(null)
+    const initialScaleRef = useRef<number | null>(null)
     const [resultadoGeneralDibujar, setResultadoGeneralDibujar] = useState<{
         features: ArcGisFeature[]
         fields: ArcGisField[]
@@ -61,10 +65,11 @@ const Widget = (props: AllWidgetProps<any>) => {
         spatialReference: undefined
     })
 
-    const activeViewChangeHandler = (jmv: JimuMapView) => {
-        if (jmv) {
-            setJimuMapView(jmv)
-        }
+    const activeViewChangeHandler = (view: JimuMapView) => {
+        if (!view) return
+
+        setJimuMapView(view)
+        captureInitialMapView(view, { initialExtentRef, initialZoomRef, initialScaleRef })
     }
     
     const refs = {
@@ -83,16 +88,17 @@ const Widget = (props: AllWidgetProps<any>) => {
         layerId: 'consulta-salud-general-feature',
         title: 'Consulta salud',
         enabled: tipoConsulta === 'general' && resultadoGeneralDibujar.features.length > 0,
-        zoom:20
+        scale:40000,
+        expandFactor:1.5
     })
 
     useEffect(() => {
         const cargarMunicipios = async () => {
             setLoading(true)
-            const lista = await listaMunicipios(execute, arcgisService) ?? []
-            setLoading(false);
+            const lista = await listaMunicipios(execute, arcgisService) ?? []            
             setMunicipios(lista);
-            setIdMunicipio((current) => current || lista?.[0]?.value || '')
+            setLoading(false);
+            //setIdMunicipio((current) => current || lista?.[0]?.value || '')
         }          
 
         void cargarMunicipios();      
@@ -108,10 +114,20 @@ const Widget = (props: AllWidgetProps<any>) => {
         cancelAllRef.current = cancelAll
     }, [cancelAll])
 
-    const onClose = () => {
-        cancelAll();
-        limpiarYCerrarWidgetResultados(widgetResultId);
-    }
+    // Esto se usa para limpieza
+    const clearResults = useCallback(() => {
+        limpiarYCerrarWidgetResultados(widgetResultId)
+        setResultadoGeneralDibujar({
+            features: [],
+            fields: [],
+            spatialReference: undefined
+        })
+    }, [widgetResultId])
+
+    // Esto se usa para limpieza
+    const resetMapView = useCallback(() => {
+        resetToDefaultMapView(jimuMapView, { initialExtentRef, initialZoomRef, initialScaleRef })
+    }, [jimuMapView])
 
     const consultar = async ()=> {        
         const result = await refs[tipoConsulta].current.consultar();
@@ -139,11 +155,24 @@ const Widget = (props: AllWidgetProps<any>) => {
         }
     }
 
-    const limpiar = () => {
-        refs[tipoConsulta].current.limpiar()
-    }
+    // Esto se usa para limpieza
+    const onLimpiar = useCallback(() => {
+        refs[tipoConsulta].current?.limpiar()
 
-    //useOnWidgetClose(props.id, onClose)
+        setMostrarBusqueda(true)
+        setMessage('')
+
+        clearResults()
+        resetMapView()
+    }, [clearResults, resetMapView, tipoConsulta])
+
+    // Esto se usa para limpieza
+    useEffect(() => {
+        if (props.state === 'CLOSED') {
+            cancelAll()
+            onLimpiar()
+        }
+    }, [props.state, cancelAll, onLimpiar])
 
     const tiposConsulta = [
         { value: 'general', label: 'General' },
@@ -165,7 +194,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     : [];
 
     return (
-        <div className="consulta-salud-root">
+        <div className="consulta-widget">
             <div style={{ position: 'absolute', width: 0, height: 0 }}>
                 <JimuMapViewComponent
                     useMapWidgetId={props.useMapWidgetIds?.[0]}
@@ -188,9 +217,9 @@ const Widget = (props: AllWidgetProps<any>) => {
                 message={message}
                 setMessage={setMessage}
                 consultar={consultar}
-                limpiar={limpiar}/>
+                limpiar={onLimpiar}/>
             ) : (
-                <div className="consulta-salud">                
+                <div className="consulta-widget">                
                     <PanelInformativo
                     imagenUrl={refs.general.current?.getFeatures()?.[0]?.attributes?.['FOTOS']
                         ? `https://sigquindio.gov.co/ArchivosQuindioIII/${refs.general.current.getFeatures()[0].attributes['FOTOS']}`
@@ -222,7 +251,7 @@ const Widget = (props: AllWidgetProps<any>) => {
 function FormularioDeBusqueda({tiposConsulta, tipoConsulta, setTipoConsulta, refs, loading, setLoading, execute, props, idMunicipio, setIdMunicipio, 
     municipios, message, setMessage, consultar, limpiar}: any) {
     return (
-    <div className="consulta-salud" >
+    <div className="consulta-widget" >
             <SelectDesdeArray label={"Consulta por"} valor={tipoConsulta} setValor={setTipoConsulta} 
             array={tiposConsulta} disabled={loading}  />
 

@@ -88,6 +88,8 @@ const removeLayerById = (map: __esri.Map, layerId: string) => {
   existingLayer.destroy?.()
 }
 
+// @param scale se usa para zoom de punto. menor: mas cerca. Mayor scale: mas lejos.
+// @param expandFactor se usa para zoom de poligono/linea. Menor: menos espacio alrededor. Mayor: mas espacio alrededor. 
 export const useDibujarFeatures = ({
   jimuMapView,
   features,
@@ -97,7 +99,8 @@ export const useDibujarFeatures = ({
   groupLayerId = 'capas-temporales',
   title = 'Resultados',
   enabled = true,
-  zoom
+  scale = 20000,
+  expandFactor = 1.2
 }: {
   jimuMapView: JimuMapView
   features: ArcGisFeature[]
@@ -107,7 +110,8 @@ export const useDibujarFeatures = ({
   groupLayerId?: string
   title?: string
   enabled?: boolean
-  zoom?: number
+    scale?: number
+    expandFactor?: number
 }): __esri.FeatureLayer | null => {
   const layerRef = React.useRef<__esri.FeatureLayer | null>(null)
 
@@ -245,13 +249,24 @@ export const useDibujarFeatures = ({
 
       await layer.load()
 
-      if (!cancelled && Number.isFinite(zoom)) {
-        const extent = await layer.queryExtent()
-        if (extent?.extent) {
-          await view.goTo({
-            target: extent.extent,
-            zoom
+      if (!cancelled && Number.isFinite(scale)) {
+        const extent = await layer.queryExtent();
+            
+            if (extent?.extent) {                      
+                await view.when();       
+                
+                if (geometryType === 'point') {
+                    //const supportsZoom = !!view.constraints?.effectiveLODs?.length;
+                    const firstGraphic = source[0];
+                    const point = firstGraphic?.geometry;
+
+                    await view.goTo({
+                        target: point,
+                        scale:scale
           })
+         } else {
+             await view.goTo(extent.extent.expand(expandFactor))
+         }
         }
       }
     }
@@ -263,7 +278,7 @@ export const useDibujarFeatures = ({
       removeLayerById(view.map, layerId)
       layerRef.current = null
     }
-  }, [jimuMapView, features, fields, spatialReference, layerId, groupLayerId, title, enabled, zoom])
+  }, [jimuMapView, features, fields, spatialReference, layerId, groupLayerId, title, enabled, scale])
 
   return layerRef.current
 }
