@@ -42,6 +42,39 @@ const LODS: LOD[] = [
 ]
 
 /**
+ * Clave de almacenamiento para persistir la posición del panel de barra de escala.
+ */
+const BARRA_ESCALA_PANEL_POSITION_STORAGE_KEY = 'barra-escala.panel-position'
+
+/**
+ * Coordenadas serializables del panel arrastrable.
+ */
+interface PanelPosition {
+  /** Coordenada horizontal en pixeles. */
+  x: number
+  /** Coordenada vertical en pixeles. */
+  y: number
+}
+
+/**
+ * Normaliza una posición cruda para usarla en el panel flotante.
+ *
+ * @param value Valor leído de localStorage.
+ * @returns Posición válida o `null` si no cumple el contrato.
+ */
+const toPanelPosition = (value: unknown): PanelPosition | null => {
+  if (!value || typeof value !== 'object') return null
+
+  const candidate = value as Partial<PanelPosition>
+  if (!Number.isFinite(candidate.x) || !Number.isFinite(candidate.y)) return null
+
+  return {
+    x: Math.max(0, Number(candidate.x)),
+    y: Math.max(0, Number(candidate.y))
+  }
+}
+
+/**
  * Widget de barra de escala para ArcGIS Experience Builder.
  * Permite seleccionar y visualizar la escala del mapa de manera interactiva.
  *
@@ -113,7 +146,12 @@ const Widget = (props: AllWidgetProps<any>) => {
    *
    * Si el valor es `null`, el widget conserva su flujo normal dentro del layout.
    */
-  const [panelPos, setPanelPos] = useState<{ x: number, y: number } | null>(null)
+  const [panelPos, setPanelPos] = useState<PanelPosition | null>(null)
+
+  /**
+   * Referencia mutable de la última posición calculada para persistencia confiable.
+   */
+  const panelPosRef = useRef<PanelPosition | null>(null)
 
   /**
    * Bandera mutable para saber si la interacción de arrastre está activa.
@@ -124,6 +162,28 @@ const Widget = (props: AllWidgetProps<any>) => {
    * Desfase entre el cursor y la esquina superior izquierda del panel.
    */
   const dragOffsetRef = useRef({ x: 0, y: 0 })
+
+  useEffect(() => {
+    panelPosRef.current = panelPos
+  }, [panelPos])
+
+  /**
+   * Carga la última posición guardada del panel cuando el widget se monta.
+   */
+  useEffect(() => {
+    try {
+      const rawPosition = window.localStorage.getItem(BARRA_ESCALA_PANEL_POSITION_STORAGE_KEY)
+      if (!rawPosition) return
+
+      const parsedPosition = JSON.parse(rawPosition) as unknown
+      const normalizedPosition = toPanelPosition(parsedPosition)
+      if (!normalizedPosition) return
+
+      setPanelPos(normalizedPosition)
+    } catch (_error) {
+      // Ignora errores de parsing/storage para no romper el render.
+    }
+  }, [])
 
   /**
    * Inicia el ciclo de drag and drop del panel de barra de escala.
@@ -163,6 +223,21 @@ const Widget = (props: AllWidgetProps<any>) => {
 
     const onMouseUp = (): void => {
       draggingRef.current = false
+
+      const persistedPosition = panelPosRef.current ?? {
+        x: Math.max(0, panelRect.left),
+        y: Math.max(0, panelRect.top)
+      }
+
+      try {
+        window.localStorage.setItem(
+          BARRA_ESCALA_PANEL_POSITION_STORAGE_KEY,
+          JSON.stringify(persistedPosition)
+        )
+      } catch (_error) {
+        // Omite errores de almacenamiento para mantener la interacción fluida.
+      }
+
       document.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseup', onMouseUp)
     }

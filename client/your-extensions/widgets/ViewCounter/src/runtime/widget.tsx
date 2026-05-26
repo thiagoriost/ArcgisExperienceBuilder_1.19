@@ -6,6 +6,39 @@ import ViewCounter from './components/ViewCounter'
 import '../styles/styles.css'
 
 /**
+ * Clave de almacenamiento para persistir la última posición del panel ViewCounter.
+ */
+const VIEW_COUNTER_PANEL_POSITION_STORAGE_KEY = 'view-counter.panel-position'
+
+/**
+ * Posición serializable del panel arrastrable.
+ */
+interface PanelPosition {
+  /** Coordenada horizontal en pixeles. */
+  x: number
+  /** Coordenada vertical en pixeles. */
+  y: number
+}
+
+/**
+ * Convierte un valor desconocido a una posición válida de panel.
+ *
+ * @param value Valor crudo leído desde localStorage.
+ * @returns Posición normalizada o `null` cuando el valor es inválido.
+ */
+const toPanelPosition = (value: unknown): PanelPosition | null => {
+  if (!value || typeof value !== 'object') return null
+
+  const candidate = value as Partial<PanelPosition>
+  if (!Number.isFinite(candidate.x) || !Number.isFinite(candidate.y)) return null
+
+  return {
+    x: Math.max(0, Number(candidate.x)),
+    y: Math.max(0, Number(candidate.y))
+  }
+}
+
+/**
  * Entrada runtime del widget ViewCounter.
  *
  * Integra un contenedor arrastrable para permitir al usuario
@@ -20,7 +53,12 @@ const Widget = (_props: AllWidgetProps<IMConfig>) => {
    *
    * Cuando es `null`, el panel usa la posición por defecto del layout.
    */
-  const [panelPos, setPanelPos] = React.useState<{ x: number, y: number } | null>(null)
+  const [panelPos, setPanelPos] = React.useState<PanelPosition | null>(null)
+
+  /**
+   * Referencia mutable de la última posición del panel para evitar cierres obsoletos en callbacks.
+   */
+  const panelPosRef = React.useRef<PanelPosition | null>(null)
 
   /**
    * Bandera mutable para controlar el ciclo de arrastre activo.
@@ -31,6 +69,28 @@ const Widget = (_props: AllWidgetProps<IMConfig>) => {
    * Desfase inicial entre cursor y esquina superior izquierda del panel.
    */
   const dragOffsetRef = React.useRef({ x: 0, y: 0 })
+
+  React.useEffect(() => {
+    panelPosRef.current = panelPos
+  }, [panelPos])
+
+  /**
+   * Hidrata la posición persistida del panel durante el montaje del widget.
+   */
+  React.useEffect(() => {
+    try {
+      const rawPosition = window.localStorage.getItem(VIEW_COUNTER_PANEL_POSITION_STORAGE_KEY)
+      if (!rawPosition) return
+
+      const parsedPosition = JSON.parse(rawPosition) as unknown
+      const normalizedPosition = toPanelPosition(parsedPosition)
+      if (!normalizedPosition) return
+
+      setPanelPos(normalizedPosition)
+    } catch (_error) {
+      // Ignora payloads corruptos y mantiene comportamiento por defecto.
+    }
+  }, [])
 
   /**
    * Inicia el arrastre del panel al presionar el encabezado.
@@ -66,6 +126,21 @@ const Widget = (_props: AllWidgetProps<IMConfig>) => {
 
     const onMouseUp = (): void => {
       draggingRef.current = false
+
+      const persistedPosition = panelPosRef.current ?? {
+        x: Math.max(0, panelRect.left),
+        y: Math.max(0, panelRect.top)
+      }
+
+      try {
+        window.localStorage.setItem(
+          VIEW_COUNTER_PANEL_POSITION_STORAGE_KEY,
+          JSON.stringify(persistedPosition)
+        )
+      } catch (_error) {
+        // En caso de bloqueo de storage, no interrumpe la interacción del usuario.
+      }
+
       document.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseup', onMouseUp)
     }
