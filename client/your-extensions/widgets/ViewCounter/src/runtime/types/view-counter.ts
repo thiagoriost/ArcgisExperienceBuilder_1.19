@@ -1,22 +1,17 @@
 /**
- * Nombre del cookie que controla incremento unico por ventana de 24 horas.
+ * Endpoint base expuesto por la API de visitas en Express.
  */
-export const VIEW_COUNTER_COOKIE_NAME = 'cookieContadorQuindio'
+export const VIEW_COUNTER_API_BASE_PATH = '/api/visits'
 
 /**
- * Valor esperado del cookie de control de visita.
+ * Clave de `sessionStorage` usada para cachear contador y vigencia de sesión.
  */
-export const VIEW_COUNTER_COOKIE_VALUE = 'visita'
+export const VIEW_COUNTER_SESSION_STORAGE_KEY = 'view-counter.session-cache'
 
 /**
- * Clave por defecto usada para persistencia JSON en almacenamiento local.
+ * Tiempo de vigencia del cache de sesión expresado en milisegundos (12 horas).
  */
-export const VIEW_COUNTER_DEFAULT_STORAGE_KEY = 'view-counter.persistence.json'
-
-/**
- * Ruta del endpoint REST usado por el widget para persistencia externa.
- */
-export const VIEW_COUNTER_API_BASE_PATH = '/rest/view-counter'
+export const VIEW_COUNTER_SESSION_TTL_MS = 12 * 60 * 60 * 1000
 
 /**
  * Estructura persistida del contador de visitas.
@@ -24,8 +19,6 @@ export const VIEW_COUNTER_API_BASE_PATH = '/rest/view-counter'
 export interface ViewCounterPersistence {
   /** Total acumulado de visitas registradas. */
   totalVisits: number
-  /** Fecha de ultima actualizacion en formato ISO-8601. */
-  updatedAt: string
 }
 
 /**
@@ -34,32 +27,42 @@ export interface ViewCounterPersistence {
 export interface ProcessVisitResult {
   /** Total de visitas luego de evaluar cookie y persistencia. */
   totalVisits: number
-  /** Indica si en esta carga se incremento el contador. */
+  /** Indica si la API reporta incremento exitoso. */
   incremented: boolean
-  /** Fecha de expiracion del cookie cuando fue creado en esta ejecucion. */
-  cookieExpiresAt?: string
 }
 
 /**
- * Respuesta persistida del servicio HTTP.
+ * Estructura de cache de sesión para evitar múltiples incrementos por recarga.
  */
-export interface ViewCounterApiPersistenceResponse {
-  /** Total acumulado de visitas. */
+export interface ViewCounterSessionCache {
+  /** Total de visitas retornado por la API durante esta sesión. */
   totalVisits: number
-  /** Fecha de ultima actualizacion. */
-  updatedAt: string
+  /** Marca temporal (epoch ms) hasta la cual el cache se considera válido. */
+  expiresAt: number
 }
 
 /**
- * Respuesta del endpoint que procesa una visita.
+ * Respuesta HTTP del endpoint `GET /api/visits`.
  */
-export interface ViewCounterApiProcessResponse {
-  /** Total acumulado luego del procesamiento. */
-  totalVisits: number
-  /** Indica si la visita incremento el contador. */
-  incremented: boolean
-  /** Fecha de expiracion del cookie cuando se creo. */
-  cookieExpiresAt?: string
+export interface ViewCounterApiGetResponse {
+  /** Bandera de exito retornada por el backend. */
+  success: boolean
+  /** Total acumulado de visitas reportado por el backend. */
+  count: number
+  /** Mensaje de error opcional retornado por la API. */
+  error?: string
+}
+
+/**
+ * Respuesta HTTP del endpoint `POST /api/visits/increment`.
+ */
+export interface ViewCounterApiIncrementResponse {
+  /** Bandera de exito retornada por el backend. */
+  success: boolean
+  /** Total acumulado luego del incremento. */
+  count: number
+  /** Mensaje de error opcional retornado por la API. */
+  error?: string
 }
 
 /**
@@ -68,9 +71,7 @@ export interface ViewCounterApiProcessResponse {
 export interface ViewCounterService {
   /** Lee el contador persistido. */
   readPersistedCounter: () => Promise<ViewCounterPersistence>
-  /** Sobrescribe por completo el contador persistido. */
-  overwritePersistedCounter: (totalVisits: number) => Promise<ViewCounterPersistence>
-  /** Procesa una visita aplicando validacion de cookie e incremento condicional. */
+  /** Ejecuta incremento remoto en la API y retorna el total actualizado. */
   processVisit: () => Promise<ProcessVisitResult>
 }
 

@@ -1,9 +1,13 @@
 /** @jsx jsx */
 import { React, jsx, AllWidgetProps } from 'jimu-core'
-const { useEffect, useState, useRef } = React
+
+const { useEffect, useState, useRef, useCallback } = React
 import { JimuMapViewComponent, JimuMapView } from 'jimu-arcgis'
-import { IMConfig } from '../config';
 import { Link } from 'jimu-ui';
+
+import { IMConfig } from '../config';
+
+import '../../../utils/styles/consulta-widget.css'
 
 import SelectDesdeArray from '../../../consulta-salud/src/runtime/components/SelectDesdeArray';
 import SelectMunicipio, { listaMunicipios } from '../../../consulta-salud/src/runtime/components/SelectMunicipio';
@@ -17,10 +21,11 @@ import { SearchActionBar } from '../../../shared/components/search-action-bar';
 import ConsultaEstrato from './components/ConsultaEstrato';
 import { useDibujarFeatures } from '../../../shared/hooks/useDibujarFeatures';
 import ConsultaClasificacion from './components/ConsultaClasificacion';
+import { captureInitialMapView, resetToDefaultMapView } from '../../../shared/utils/widget-limpieza-utils';
 
 const arcgisService = new ArcgisService()
 
-export default function Widget (props: AllWidgetProps<IMConfig>) {
+export default function Widget (props: AllWidgetProps<IMConfig>) {    
     const tiposConsulta = [
         { value: 'normatividad', label: 'Normatividad de uso del suelo' },
         { value: 'estrato', label: 'Viviendas por estrato socioeconómico' },
@@ -32,8 +37,10 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
     const [idMunicipio, setIdMunicipio] = useState<string>('')
     const [loading, setLoading] = useState(false);
     const [jimuMapView, setJimuMapView] = useState<JimuMapView | null>(null);
+    const initialExtentRef = useRef<__esri.Extent | null>(null)
+    const initialZoomRef = useRef<number | null>(null)
+    const initialScaleRef = useRef<number | null>(null)
     const [mensaje, setMensaje] = useState('');
-    const [urlFicha, setUrlFicha] = useState('');
 
     const [resultadosADibujar, setResultadosADibujar] = useState<{
         features: ArcGisFeature[]
@@ -47,9 +54,14 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
     useEffect(() => {
         const cargarMunicipios = async () => {
             setLoading(true)
-            const lista = await listaMunicipios(execute, arcgisService)
-            setLoading(false);
-            setMunicipios (lista);            
+            try {
+                const lista = await listaMunicipios(execute, arcgisService)
+                setMunicipios(lista ?? [])
+            } catch (error) {
+                setMunicipios([])
+            } finally {
+                setLoading(false);
+            }
         }          
 
         void cargarMunicipios();      
@@ -59,7 +71,11 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
         return () => {
             cancelAllRef.current()
         }
-    }, []);   
+    }, []);
+
+    useEffect(() => {  
+        setMensaje('');
+    }, [tipoConsulta]);
 
     useEffect(() => {
         cancelAllRef.current = cancelAll
@@ -71,6 +87,13 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
         clasificacion: useRef<ConsultaComponentHandle>(null)
     }
 
+    const activeViewChangeHandler = (view: JimuMapView) => {
+        if (!view) return
+
+        setJimuMapView(view)
+        captureInitialMapView(view, { initialExtentRef, initialZoomRef, initialScaleRef })
+    }
+
     useDibujarFeatures({
         jimuMapView,
         features: resultadosADibujar?.features ?? [],
@@ -79,7 +102,8 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
         layerId: 'consulta-ordenamiento-territorial',
         groupLayerId: 'capas-temporales',
         title: 'Resultados ordenamiento territorial',
-        enabled: true
+        enabled: true,
+        zoom:20
     })
 
     const consultar = async () => {
@@ -88,18 +112,40 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
         setResultadosADibujar(result)
     }
 
-    const limpiar = () => {
-        setResultadosADibujar(null);
-        setMensaje('');
-        refs[tipoConsulta].current.limpiar();
-    }
+    // Esto se usa para limpieza
+    const clearResults = useCallback(() => {
+        setResultadosADibujar(null)
+    }, [])
 
+    // Esto se usa para limpieza
+    const resetMapView = useCallback(() => {
+        resetToDefaultMapView(jimuMapView, { initialExtentRef, initialZoomRef, initialScaleRef })
+    }, [jimuMapView])
+
+    // Esto se usa para limpieza
+    const onLimpiar = useCallback(() => {
+        refs[tipoConsulta].current?.limpiar()
+
+        setMensaje('')
+
+        clearResults()
+        resetMapView()
+    }, [clearResults, resetMapView, tipoConsulta])
+
+    // Esto se usa para limpieza
+    useEffect(() => {
+        if (props.state === 'CLOSED') {
+            cancelAll()
+            onLimpiar()
+        }
+    }, [props.state, cancelAll, onLimpiar])
+    
     return (
-        <div style={{background:"#edc"}}>             
+        <div className="consulta-widget" >             
             <div style={{ position: 'absolute', width: 0, height: 0 }}>
                 <JimuMapViewComponent
                 useMapWidgetId={props.useMapWidgetIds?.[0]}
-                onActiveViewChange={setJimuMapView}
+                onActiveViewChange={activeViewChangeHandler}
                 />
             </div>
 
@@ -107,9 +153,10 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
             array={tiposConsulta} disabled={loading} />
 
             {tipoConsulta === 'normatividad' && (
-                <ConsultaNormatividad url={props.config.endpointOrdenamientoTerritorial} execute={execute} arcgisService={arcgisService}
+                <ConsultaNormatividad url={props.config.endpointOrdenamientoTerritorial} 
+                urlArchivos={props.config.endpointArchivos} execute={execute} arcgisService={arcgisService}
                 handleError={handleError} loading={loading} setLoading={setLoading} municipios={municipios} idMunicipio={idMunicipio} 
-                setIdMunicipio={setIdMunicipio} setUrlFicha={setUrlFicha} ref={refs.normatividad} />
+                setIdMunicipio={setIdMunicipio} ref={refs.normatividad} setMensaje={setMensaje}/>
             )}
 
             {tipoConsulta === 'estrato' && (
@@ -128,21 +175,22 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
                 {mensaje}  
             </div>
             
-            {tipoConsulta === 'normatividad' && (
+            {/*tipoConsulta === 'normatividad' && (
                 <div>
                     <Link href={`${props.config.endpointArchivos}${urlFicha}`} target="_blank">
-                        Ver ficha
+                        Ver fichaaa
                     </Link>                
                 </div>
-            )}
+            )*/}
 
             <SearchActionBar
             onSearch={consultar}
-            onClear={limpiar}
+            onClear={onLimpiar}
             loading={loading}
             searchLabel="Buscar"
             helpText="Ingrese una condición de búsqueda válida para habilitar el botón de busqueda. Utilice los campos, valores y operadores para construir su consulta. Por ejemplo: CAMPO1 = 'Valor' AND CAMPO2 > 100."
             />
         </div>
     )
+   //return (<div style={{backgroundColor: 'lightgray'}}>des</div>)
 }

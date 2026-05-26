@@ -87,11 +87,13 @@ const ConsultaGeneral = forwardRef(({
         void initConsultaGeneral()
     }, []);
 
+    /*
     useEffect(() => {
         if (!idTipoEstablecimiento && tipoEstablecimientos.length > 0) {
             setIdTipoEstablecimiento(tipoEstablecimientos[0].value)
         }
     }, [idTipoEstablecimiento, tipoEstablecimientos]);
+    */
 
     useEffect(() => {
         const cargarInstituciones = async () => {
@@ -115,8 +117,8 @@ const ConsultaGeneral = forwardRef(({
 
             const opcionesInstituciones = arrayValueLabel(resp.features, 'OBJECTID', 'NOMBREEQUIPAMIENTO')
             setInstituciones(opcionesInstituciones);
-            setIdInstitucion(opcionesInstituciones[0]?.value || '');
-            setNombreInstitucion(opcionesInstituciones[0]?.label || '');
+            //setIdInstitucion(opcionesInstituciones[0]?.value || '');
+            //setNombreInstitucion(opcionesInstituciones[0]?.label || '');
         }
 
         void cargarInstituciones()

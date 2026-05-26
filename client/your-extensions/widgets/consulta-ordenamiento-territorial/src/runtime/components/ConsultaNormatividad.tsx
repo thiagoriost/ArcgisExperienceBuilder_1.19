@@ -1,5 +1,7 @@
 /** @jsx jsx */
 import { React, jsx } from 'jimu-core'
+import { Link } from 'jimu-ui';
+
 import type { ArcGisFeature, SelectOption } from '../../../../consulta-salud/src/runtime/types'
 import { arrayValueLabel, cargarDesdeArcgisService } from '../../../../consulta-salud/src/runtime/util'
 import SelectMunicipio from '../../../../consulta-salud/src/runtime/components/SelectMunicipio'
@@ -8,6 +10,7 @@ const {useState, useEffect, useImperativeHandle, forwardRef } = React
 
 const ConsultaNormatividad = forwardRef(({
     url,
+    urlArchivos,
     execute,
     arcgisService,
     handleError,
@@ -16,11 +19,12 @@ const ConsultaNormatividad = forwardRef(({
     municipios,
     idMunicipio,
     setIdMunicipio,
-    setUrlFicha
+    setMensaje
 }, ref) => {
     const [fichas, setFichas] = useState<SelectOption[]>([])
     const [idFicha, setIdFicha] = useState<string>('')
     const [urlPorFicha, setUrlPorFicha] = useState<{[ficha: string]: string}>({})
+    const [urlFicha, setUrlFicha] = useState('');
 
     useImperativeHandle(ref, () => ({
         consultar: async () => {
@@ -82,10 +86,21 @@ const ConsultaNormatividad = forwardRef(({
         setUrlFicha(idFicha ? urlPorFicha[idFicha] ?? '' : '')
     }, [idFicha])
 
+    useEffect(() => {
+        setMensaje('');
+    }, [idFicha, idMunicipio])
+
     return (
         <>
             <SelectMunicipio loading={loading} municipios={municipios} idMunicipio={idMunicipio} setIdMunicipio={setIdMunicipio} />
             <SelectDesdeArray label={'Ficha'} valor={idFicha} setValor={setIdFicha} array={fichas} disabled={loading} />
+            {idFicha && (
+            <div>
+                <Link href={`${urlArchivos}${urlFicha}`} target="_blank">
+                    Ver ficha
+                </Link>                
+            </div>
+            )}
         </>
     )
 })

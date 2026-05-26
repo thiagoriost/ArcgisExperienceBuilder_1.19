@@ -1,24 +1,24 @@
 /** @jsx jsx */
 import { jsx } from 'jimu-core'
-import { Select, Label, Option } from 'jimu-ui'
 import SelectDesdeArray from './SelectDesdeArray'
-import { urls } from '../../../../api/serviciosQuindio';
-import { queryCapa } from '../util';
+import { urls } from '../../../../api/serviciosQuindio'
+import { queryCapa } from '../util'
+import type { ArcgisService } from 'widgets/shared/services/arcgis.service'
 
 export default function SelectMunicipio({loading, municipios, idMunicipio, setIdMunicipio}) {
     return (
         <SelectDesdeArray label={"Municipio"} disabled={loading} array={municipios} valor={idMunicipio} setValor={setIdMunicipio} />
-    )   
+    )
 }
 
-export async function listaMunicipios(execute, arcgisService) {
+export async function listaMunicipios(execute, arcgisService: ArcgisService) {
     const response = await queryCapa(execute, arcgisService, urls.CARTOGRAFIA.BASE, urls.CARTOGRAFIA.MUNICIPIOS, {
         outFields: 'IDMUNICIPIO,NOMBRE',
         returnGeometry: false
-    });
+    })
 
     if (!response.success) {
-        return
+        return []
     }
 
     const features = response.data?.features ?? []
@@ -29,5 +29,5 @@ export async function listaMunicipios(execute, arcgisService) {
     }))
     .sort((a: any, b: any) => a.label.localeCompare(b.label))
 
-    return lista;
+    return lista
 }
