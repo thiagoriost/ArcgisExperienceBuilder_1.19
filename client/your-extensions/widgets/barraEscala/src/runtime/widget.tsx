@@ -108,6 +108,69 @@ const Widget = (props: AllWidgetProps<any>) => {
    */
   const [pointerCoords4686, setPointerCoords4686] = useState<{lat: number, lon: number, sr: number} | null>(null)
 
+  /**
+   * Posición actual del panel flotante cuando el usuario lo arrastra.
+   *
+   * Si el valor es `null`, el widget conserva su flujo normal dentro del layout.
+   */
+  const [panelPos, setPanelPos] = useState<{ x: number, y: number } | null>(null)
+
+  /**
+   * Bandera mutable para saber si la interacción de arrastre está activa.
+   */
+  const draggingRef = useRef(false)
+
+  /**
+   * Desfase entre el cursor y la esquina superior izquierda del panel.
+   */
+  const dragOffsetRef = useRef({ x: 0, y: 0 })
+
+  /**
+   * Inicia el ciclo de drag and drop del panel de barra de escala.
+   *
+   * El arrastre se engancha sobre el header del widget y limita el movimiento
+   * al viewport para evitar que el panel quede fuera de la pantalla.
+   *
+   * @param event Evento de mouse sobre el encabezado arrastrable.
+   * @returns {void}
+   */
+  const onDragStart = useCallback((event: React.MouseEvent<HTMLDivElement>): void => {
+    // Evita interferir con interacciones de controles internos del encabezado.
+    if ((event.target as HTMLElement).closest('select, option, input, button, label')) return
+
+    event.preventDefault()
+
+    const panelElement = (event.currentTarget as HTMLElement).parentElement
+    if (!panelElement) return
+
+    draggingRef.current = true
+    const panelRect = panelElement.getBoundingClientRect()
+    dragOffsetRef.current = {
+      x: event.clientX - panelRect.left,
+      y: event.clientY - panelRect.top
+    }
+
+    const onMouseMove = (mouseEvent: MouseEvent): void => {
+      if (!draggingRef.current) return
+
+      const maxX = Math.max(0, window.innerWidth - panelRect.width)
+      const maxY = Math.max(0, window.innerHeight - panelRect.height)
+      const newX = Math.max(0, Math.min(mouseEvent.clientX - dragOffsetRef.current.x, maxX))
+      const newY = Math.max(0, Math.min(mouseEvent.clientY - dragOffsetRef.current.y, maxY))
+
+      setPanelPos({ x: newX, y: newY })
+    }
+
+    const onMouseUp = (): void => {
+      draggingRef.current = false
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  }, [])
+
     /**
      * Maneja el evento de cambio de vista activa en el widget de mapa.
      * Asigna la instancia de JimuMapView al estado local y, si la vista es de tipo MapView,
@@ -367,12 +430,27 @@ const Widget = (props: AllWidgetProps<any>) => {
   }, [])
 
   return (
-    <div className="divBarraEscala barraEscalaModern">
+    <div
+      className="divBarraEscala barraEscalaModern"
+      style={panelPos
+        ? {
+            position: 'fixed',
+            left: panelPos.x,
+            top: panelPos.y,
+            zIndex: 20
+          }
+        : undefined}
+    >
       <JimuMapViewComponent
         useMapWidgetId={props.useMapWidgetIds?.[0]}
         onActiveViewChange={onActiveViewChange}
       />
-      <div className="barraEscalaHeader borderBottom">
+      <div
+        className="barraEscalaHeader borderBottom"
+        onMouseDown={onDragStart}
+        title="Mantenga presionado y arrastre para mover el panel"
+        style={{ cursor: 'move', userSelect: 'none' }}
+      >
         <span className="barraEscalaIcon">🔍</span>
         <span className="barraEscalaTitle">Escala:</span>
         <div className="barraEscalaSelectContainer">
