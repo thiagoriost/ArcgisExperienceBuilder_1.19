@@ -452,6 +452,46 @@ const Widget = (props: AllWidgetProps<any>) => {
   const initialZoomRef = React.useRef<number | null>(null)
   /** Escala inicial del mapa para restablecer la vista al limpiar. */
   const initialScaleRef = React.useRef<number | null>(null)
+  /** Estado previo de apertura automática de popups por clic para restaurarlo después. */
+  const clickPopupEnabledRef = React.useRef<boolean | null>(null)
+
+  /**
+   * Restaura el comportamiento automático de popups por clic del mapa a su estado previo.
+   *
+   * @param mapView Vista de mapa activa a restaurar. Si no se entrega, usa la vista activa del widget.
+   * @returns {void}
+   */
+  const restoreClickOpenPopup = React.useCallback((mapView?: JimuMapView | null): void => {
+    const targetMapView = mapView ?? jimuMapView
+
+    if (!targetMapView || clickPopupEnabledRef.current === null) return
+
+    if (clickPopupEnabledRef.current) {
+      targetMapView.enableClickOpenPopup()
+    } else {
+      targetMapView.disableClickOpenPopup()
+    }
+
+    clickPopupEnabledRef.current = null
+  }, [jimuMapView])
+
+  /**
+   * Desactiva temporalmente el comportamiento automático de popups por clic del mapa.
+   *
+   * @param mapView Vista de mapa a proteger durante el flujo Buffer.
+   * @returns {void}
+   */
+  const suppressClickOpenPopup = React.useCallback((mapView?: JimuMapView | null): void => {
+    const targetMapView = mapView ?? jimuMapView
+
+    if (!targetMapView) return
+
+    if (clickPopupEnabledRef.current === null) {
+      clickPopupEnabledRef.current = targetMapView.isClickOpenPopupEnabled()
+    }
+
+    targetMapView.disableClickOpenPopup()
+  }, [jimuMapView])
 
   /**
    * Registra la carga útil recibida desde tabla de contenido para depuración local.
@@ -708,12 +748,45 @@ const Widget = (props: AllWidgetProps<any>) => {
     graphicsLayerRef.current = graphicsLayer
 
     return () => {
+      restoreClickOpenPopup(jimuMapView)
+
       if (view.map.findLayerById(graphicsLayer.id)) {
         view.map.remove(graphicsLayer)
       }
       graphicsLayerRef.current = null
     }
-  }, [jimuMapView])
+  }, [jimuMapView, restoreClickOpenPopup])
+
+  /**
+   * Controla la apertura automática de popups durante el flujo Buffer.
+   *
+   * Mientras el usuario selecciona geometrías o el análisis espacial está en curso,
+   * se desactiva el click-open popup para evitar interferencias con el dibujo.
+   */
+  React.useEffect(() => {
+    if (!jimuMapView) return
+
+    const shouldSuppressPopups = Boolean(drawMode && selectedCapa?.layerUrl) || isProcessing
+
+    if (shouldSuppressPopups) {
+      suppressClickOpenPopup(jimuMapView)
+      return () => {
+        restoreClickOpenPopup(jimuMapView)
+      }
+    }
+
+    restoreClickOpenPopup(jimuMapView)
+    return () => {
+      restoreClickOpenPopup(jimuMapView)
+    }
+  }, [
+    drawMode,
+    isProcessing,
+    jimuMapView,
+    restoreClickOpenPopup,
+    suppressClickOpenPopup,
+    selectedCapa?.layerUrl
+  ])
 
   /**
    * Asegura que la capa de gráficos (buffer) siempre esté en la posición superior del mapa.
@@ -932,6 +1005,8 @@ const Widget = (props: AllWidgetProps<any>) => {
       view.map.remove(activeLayerRef.current)
     }
     activeLayerRef.current = null
+
+    restoreClickOpenPopup(jimuMapView)
 
     void restoreInitialExtent()   
   }
