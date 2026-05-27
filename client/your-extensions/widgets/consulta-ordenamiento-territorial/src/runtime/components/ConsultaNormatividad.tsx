@@ -1,6 +1,5 @@
 /** @jsx jsx */
 import { React, jsx } from 'jimu-core'
-import { Link } from 'jimu-ui';
 
 import type { ArcGisFeature, SelectOption } from '../../../../consulta-salud/src/runtime/types'
 import { arrayValueLabel, cargarDesdeArcgisService } from '../../../../consulta-salud/src/runtime/util'
@@ -19,12 +18,13 @@ const ConsultaNormatividad = forwardRef(({
     municipios,
     idMunicipio,
     setIdMunicipio,
-    setMensaje
+    setMensaje,
+    setFichaPdfUrl,
+    setFichaPdfMensaje
 }, ref) => {
     const [fichas, setFichas] = useState<SelectOption[]>([])
     const [idFicha, setIdFicha] = useState<string>('')
     const [urlPorFicha, setUrlPorFicha] = useState<{[ficha: string]: string}>({})
-    const [urlFicha, setUrlFicha] = useState('');
 
     useImperativeHandle(ref, () => ({
         consultar: async () => {
@@ -38,7 +38,8 @@ const ConsultaNormatividad = forwardRef(({
             setIdFicha('')
             setIdMunicipio('')
             setUrlPorFicha({})
-            setUrlFicha('')
+            setFichaPdfUrl('')
+            setFichaPdfMensaje('')
         }
     }), [idFicha])
 
@@ -48,7 +49,8 @@ const ConsultaNormatividad = forwardRef(({
                 setFichas([])
                 setIdFicha('')
                 setUrlPorFicha({})
-                setUrlFicha('')
+                setFichaPdfUrl('')
+                setFichaPdfMensaje('')
                 return
             }
 
@@ -83,24 +85,25 @@ const ConsultaNormatividad = forwardRef(({
     }, [idMunicipio])
 
     useEffect(() => {
-        setUrlFicha(idFicha ? urlPorFicha[idFicha] ?? '' : '')
-    }, [idFicha])
+        const fichaUrl = idFicha ? urlPorFicha[idFicha] ?? '' : ''
+
+        setFichaPdfUrl(idFicha && fichaUrl ? `${urlArchivos}${fichaUrl}` : '')
+        setFichaPdfMensaje(idFicha && !fichaUrl ? 'La normativa no cuenta con ficha asociada.' : '')
+    }, [idFicha, urlPorFicha, urlArchivos])
 
     useEffect(() => {
         setMensaje('');
     }, [idFicha, idMunicipio])
 
+    useEffect(() => {
+        setFichaPdfUrl('');
+        setFichaPdfMensaje('');
+    }, [idMunicipio])
+
     return (
         <>
             <SelectMunicipio loading={loading} municipios={municipios} idMunicipio={idMunicipio} setIdMunicipio={setIdMunicipio} />
             <SelectDesdeArray label={'Ficha'} valor={idFicha} setValor={setIdFicha} array={fichas} disabled={loading} />
-            {idFicha && (
-            <div>
-                <Link href={`${urlArchivos}${urlFicha}`} target="_blank">
-                    Ver ficha
-                </Link>                
-            </div>
-            )}
         </>
     )
 })

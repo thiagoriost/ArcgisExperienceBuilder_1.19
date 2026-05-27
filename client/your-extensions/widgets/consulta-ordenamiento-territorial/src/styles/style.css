@@ -1,0 +1,21 @@
+.consulta-widget__resultado-row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+    margin-top:10px;
+}
+
+.consulta-widget__resultado-mensaje {
+    align-items: center;
+    display: inline-flex;
+}
+
+.consulta-widget__resultado-icon {
+    height: 16px;
+    margin-right: 6px;
+    width: 16px;
+}

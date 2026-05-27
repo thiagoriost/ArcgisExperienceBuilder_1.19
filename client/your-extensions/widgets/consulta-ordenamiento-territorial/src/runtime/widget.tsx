@@ -8,6 +8,7 @@ import { Link } from 'jimu-ui';
 import { IMConfig } from '../config';
 
 import '../../../utils/styles/consulta-widget.css'
+import '../styles/style.css'
 
 import SelectDesdeArray from '../../../consulta-salud/src/runtime/components/SelectDesdeArray';
 import SelectMunicipio, { listaMunicipios } from '../../../consulta-salud/src/runtime/components/SelectMunicipio';
@@ -22,6 +23,8 @@ import ConsultaEstrato from './components/ConsultaEstrato';
 import { useDibujarFeatures } from '../../../shared/hooks/useDibujarFeatures';
 import ConsultaClasificacion from './components/ConsultaClasificacion';
 import { captureInitialMapView, resetToDefaultMapView } from '../../../shared/utils/widget-limpieza-utils';
+import dbIcon from '../assets/database-solid-full.svg'
+import pdfIcon from '../assets/file-pdf-solid-full.svg'
 
 const arcgisService = new ArcgisService()
 
@@ -41,6 +44,8 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
     const initialZoomRef = useRef<number | null>(null)
     const initialScaleRef = useRef<number | null>(null)
     const [mensaje, setMensaje] = useState('');
+    const [fichaPdfUrl, setFichaPdfUrl] = useState('');
+    const [fichaPdfMensaje, setFichaPdfMensaje] = useState('');
 
     const [resultadosADibujar, setResultadosADibujar] = useState<{
         features: ArcGisFeature[]
@@ -75,6 +80,8 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
 
     useEffect(() => {  
         setMensaje('');
+        setFichaPdfUrl('');
+        setFichaPdfMensaje('');
     }, [tipoConsulta]);
 
     useEffect(() => {
@@ -108,7 +115,7 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
 
     const consultar = async () => {
         const result = await refs[tipoConsulta].current.consultar();        
-        setMensaje(`${result?.features?.length ?? 0} registros`)
+        setMensaje(`${result?.features?.length ?? 0} registros encontrados`)
         setResultadosADibujar(result)
     }
 
@@ -127,6 +134,8 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
         refs[tipoConsulta].current?.limpiar()
 
         setMensaje('')
+        setFichaPdfUrl('')
+        setFichaPdfMensaje('')
 
         clearResults()
         resetMapView()
@@ -156,7 +165,8 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
                 <ConsultaNormatividad url={props.config.endpointOrdenamientoTerritorial} 
                 urlArchivos={props.config.endpointArchivos} execute={execute} arcgisService={arcgisService}
                 handleError={handleError} loading={loading} setLoading={setLoading} municipios={municipios} idMunicipio={idMunicipio} 
-                setIdMunicipio={setIdMunicipio} ref={refs.normatividad} setMensaje={setMensaje}/>
+                setIdMunicipio={setIdMunicipio} ref={refs.normatividad} setMensaje={setMensaje} setFichaPdfUrl={setFichaPdfUrl}
+                setFichaPdfMensaje={setFichaPdfMensaje}/>
             )}
 
             {tipoConsulta === 'estrato' && (
@@ -171,9 +181,29 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
                 setIdMunicipio={setIdMunicipio} ref={refs.clasificacion} />
             )}
 
-            <div>
-                {mensaje}  
-            </div>
+            {(mensaje || fichaPdfUrl || fichaPdfMensaje) && (
+                <div className="consulta-widget__resultado-row">
+                    {mensaje && (
+                        <span className="consulta-widget__resultado-mensaje">
+                            <img src={dbIcon} alt="" className="consulta-widget__resultado-icon" />
+                            {mensaje}
+                        </span>
+                    )}
+                    {fichaPdfMensaje && (
+                        <span>{fichaPdfMensaje}</span>
+                    )}
+                    {fichaPdfUrl && (
+                        <Link
+                            href={fichaPdfUrl}
+                            target="_blank"
+                            className="consulta-widget__link-boton"
+                        >
+                            <img src={pdfIcon} alt="" className="consulta-widget__link-boton-icon" />
+                            Ver ficha
+                        </Link>
+                    )}
+                </div>
+            )}
             
             {/*tipoConsulta === 'normatividad' && (
                 <div>

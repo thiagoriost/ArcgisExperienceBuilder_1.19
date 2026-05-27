@@ -150,8 +150,7 @@ const Widget = (props: AllWidgetProps<any>) => {
                 result.spatialReference,
                 "Resultados - Consulta de salud",
                 result.withGraphic
-            )
-            
+            )            
         }
     }
 

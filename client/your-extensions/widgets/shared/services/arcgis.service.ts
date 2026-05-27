@@ -1,4 +1,5 @@
-import { ApiResponse } from '../models/api-response.model'
+import type { ApiResponse } from '../models/api-response.model'
+import { validaLoggerLocalStorage } from '../utils/export.utils'
 import { HttpService } from './http.service'
 
 /**
@@ -12,7 +13,7 @@ export class ArcgisService {
    * Instancia interna del servicio HTTP.
    * @private
    */
-  private http = new HttpService()
+  private readonly http = new HttpService()
 
   /**
    * Ejecuta una consulta (`query`) sobre una capa ArcGIS REST.
@@ -61,6 +62,9 @@ export class ArcgisService {
       where?: string
       outFields?: string
       returnGeometry?: boolean
+      returnDistinctValues?: boolean
+      groupByFieldsForStatistics?: string
+      orderByFields?: string
     },
     showAlert: boolean = true,
     signal?: AbortSignal
@@ -69,16 +73,33 @@ export class ArcgisService {
     const {
       where = '1=1',
       outFields = '*',
-      returnGeometry = true
+      returnGeometry = true,
+      returnDistinctValues,
+      groupByFieldsForStatistics,
+      orderByFields
     } = params
+
+    if(validaLoggerLocalStorage('logger')) { console.log(
+      {
+      where,
+      outFields,
+      returnGeometry,
+      returnDistinctValues,
+      groupByFieldsForStatistics,
+      orderByFields
+    }
+    ) }
 
     const url = `
       ${baseUrl}/${layerId}/query
       ?where=${encodeURIComponent(where)}
       &outFields=${outFields}
       &returnGeometry=${returnGeometry}
+      ${returnDistinctValues !== undefined ? `&returnDistinctValues=${returnDistinctValues}` : ''}
+      ${groupByFieldsForStatistics ? `&groupByFieldsForStatistics=${encodeURIComponent(groupByFieldsForStatistics)}` : ''}
+      ${orderByFields ? `&orderByFields=${encodeURIComponent(orderByFields)}` : ''}
       &f=json
-    `.replace(/\s/g, '')
+    `.replace(/[\r\n]\s*/g, '')
 
     return this.http.get<T>(url, showAlert, signal)
   }
