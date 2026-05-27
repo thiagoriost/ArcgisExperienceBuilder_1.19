@@ -27,6 +27,34 @@ import { /* restoreInitialExtent, */ CoroplethConfig, validaLoggerLocalStorage }
 import iconoLeyenda from '../../../shared/assets/icons/LeyendaPNG.png'
 
 /**
+ * Posición serializable del panel flotante de leyenda.
+ */
+interface PanelPosition {
+    /** Coordenada horizontal en pixeles. */
+    x: number
+    /** Coordenada vertical en pixeles. */
+    y: number
+}
+
+/**
+ * Normaliza una posición de panel leída desde localStorage.
+ *
+ * @param value Valor desconocido a normalizar.
+ * @returns Posición válida o `null` cuando no cumple el formato esperado.
+ */
+const toPanelPosition = (value: unknown): PanelPosition | null => {
+    if (!value || typeof value !== 'object') return null
+
+    const candidate = value as Partial<PanelPosition>
+    if (!Number.isFinite(candidate.x) || !Number.isFinite(candidate.y)) return null
+
+    return {
+        x: Math.max(0, Number(candidate.x)),
+        y: Math.max(0, Number(candidate.y))
+    }
+}
+
+/**
  * widget-leyenda
  *
  * Componente principal del widget encargado de:
@@ -40,19 +68,48 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
     const [open, setOpen] = React.useState(true)
 
     // Estado para la posición del panel (drag)
-    const [panelPos, setPanelPos] = React.useState<{ x: number; y: number } | null>(null)
+    const [panelPos, setPanelPos] = React.useState<PanelPosition | null>(null)
+    const panelPosRef = React.useRef<PanelPosition | null>(null)
     const draggingRef = React.useRef(false)
     const dragOffsetRef = React.useRef({ x: 0, y: 0 })
 
     /**
+     * Clave de almacenamiento única por widget para persistir posición del panel.
+     */
+    const panelPositionStorageKey = React.useMemo(() => `widget-leyenda.panel-position.${props.id}`, [props.id])
+
+    React.useEffect(() => {
+        panelPosRef.current = panelPos
+    }, [panelPos])
+
+    /**
+     * Recupera la última posición persistida del panel al montar el widget.
+     */
+    React.useEffect(() => {
+        try {
+            const rawPosition = window.localStorage.getItem(panelPositionStorageKey)
+            if (!rawPosition) return
+
+            const parsedPosition = JSON.parse(rawPosition) as unknown
+            const normalizedPosition = toPanelPosition(parsedPosition)
+            if (!normalizedPosition) return
+
+            setPanelPos(normalizedPosition)
+        } catch (_error) {
+            // Ignora errores de storage/parsing y conserva estado por defecto.
+        }
+    }, [panelPositionStorageKey])
+
+    /**
      * Inicia el arrastre del panel al hacer mousedown sobre el header.
      */
-    const onDragStart = (e: React.MouseEvent) => {
+    const onDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
         // Ignorar si se hizo clic en el botón de minimizar
         if ((e.target as HTMLElement).closest('.widget-leyenda-close-btn')) return
         e.preventDefault()
         draggingRef.current = true
         const panel = (e.currentTarget as HTMLElement).parentElement
+        if (!panel) return
         const rect = panel.getBoundingClientRect()
         dragOffsetRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
 
@@ -65,6 +122,18 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
 
         const onMouseUp = () => {
             draggingRef.current = false
+
+            const persistedPosition = panelPosRef.current ?? {
+                x: Math.max(0, rect.left),
+                y: Math.max(0, rect.top)
+            }
+
+            try {
+                window.localStorage.setItem(panelPositionStorageKey, JSON.stringify(persistedPosition))
+            } catch (_error) {
+                // No bloquea el drag cuando localStorage no está disponible.
+            }
+
             document.removeEventListener('mousemove', onMouseMove)
             document.removeEventListener('mouseup', onMouseUp)
         }

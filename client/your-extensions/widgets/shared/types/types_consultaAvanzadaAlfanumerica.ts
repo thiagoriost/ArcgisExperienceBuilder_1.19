@@ -1,6 +1,8 @@
 export interface LayerInfo {
   id: number
   name: string
+  parentLayerId?: number
+  subLayerIds?: number[] | null
   nameServicio?: string
   url?: string
   nameOriginal?: string

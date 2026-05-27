@@ -1,5 +1,5 @@
 import { React } from 'jimu-core'
-import { Button } from 'jimu-ui'
+// import { Button } from 'jimu-ui'
 import { useViewCounter } from '../hooks/use-view-counter'
 import { validaLoggerLocalStorage } from '../../../../shared/utils/export.utils'
 
@@ -17,7 +17,7 @@ export interface ViewCounterProps {
  * Renderiza estados de carga, error y resultado final formateado.
  */
 const ViewCounter = ({ locale = 'es-CO' }: ViewCounterProps) => {
-  const { totalVisits, loading, error, reload } = useViewCounter()
+  const { totalVisits, loading/* , error, reload  */} = useViewCounter()
 
   /**
    * Valor de contador formateado para visualizacion local.
@@ -41,14 +41,14 @@ const ViewCounter = ({ locale = 'es-CO' }: ViewCounterProps) => {
         </div>
       )}
 
-      {!loading && error && (
+      {/* {!loading && error && (
         <div className='view-counter-widget__state view-counter-widget__state--error'>
           <p>{error}</p>
           <Button type='primary' size='sm' onClick={() => { void reload() }}>
             Reintentar
           </Button>
         </div>
-      )}
+      )} */}
 {/*
       {!loading && !error && (
         <div className='view-counter-widget__value-panel'>

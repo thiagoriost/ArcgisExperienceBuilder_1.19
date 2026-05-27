@@ -1,0 +1,22 @@
+{
+  "name": "consulta-espacial",
+  "label": "Consulta Espacial",
+  "type": "widget",
+  "version": "1.19.0",
+  "dependency": ["jimu-arcgis"],
+  "exbVersion": "1.19.0",
+  "author": "IGAC, Ing. David Zornosa",
+  "description": "Consulta espacial",
+  "copyright": "",
+  "license": "http://www.apache.org/licenses/LICENSE-2.0",
+  "properties": {},
+  "translatedLocales": [
+    "en",
+    "es"
+  ],
+
+  "defaultSize": {
+    "width": 400,
+    "height": 300
+  }
+}

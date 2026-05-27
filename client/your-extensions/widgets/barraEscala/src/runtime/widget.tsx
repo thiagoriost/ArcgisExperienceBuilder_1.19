@@ -42,6 +42,39 @@ const LODS: LOD[] = [
 ]
 
 /**
+ * Clave de almacenamiento para persistir la posición del panel de barra de escala.
+ */
+const BARRA_ESCALA_PANEL_POSITION_STORAGE_KEY = 'barra-escala.panel-position'
+
+/**
+ * Coordenadas serializables del panel arrastrable.
+ */
+interface PanelPosition {
+  /** Coordenada horizontal en pixeles. */
+  x: number
+  /** Coordenada vertical en pixeles. */
+  y: number
+}
+
+/**
+ * Normaliza una posición cruda para usarla en el panel flotante.
+ *
+ * @param value Valor leído de localStorage.
+ * @returns Posición válida o `null` si no cumple el contrato.
+ */
+const toPanelPosition = (value: unknown): PanelPosition | null => {
+  if (!value || typeof value !== 'object') return null
+
+  const candidate = value as Partial<PanelPosition>
+  if (!Number.isFinite(candidate.x) || !Number.isFinite(candidate.y)) return null
+
+  return {
+    x: Math.max(0, Number(candidate.x)),
+    y: Math.max(0, Number(candidate.y))
+  }
+}
+
+/**
  * Widget de barra de escala para ArcGIS Experience Builder.
  * Permite seleccionar y visualizar la escala del mapa de manera interactiva.
  *
@@ -107,6 +140,111 @@ const Widget = (props: AllWidgetProps<any>) => {
    * Estructura: { lat, lon, sr }.
    */
   const [pointerCoords4686, setPointerCoords4686] = useState<{lat: number, lon: number, sr: number} | null>(null)
+
+  /**
+   * Posición actual del panel flotante cuando el usuario lo arrastra.
+   *
+   * Si el valor es `null`, el widget conserva su flujo normal dentro del layout.
+   */
+  const [panelPos, setPanelPos] = useState<PanelPosition | null>(null)
+
+  /**
+   * Referencia mutable de la última posición calculada para persistencia confiable.
+   */
+  const panelPosRef = useRef<PanelPosition | null>(null)
+
+  /**
+   * Bandera mutable para saber si la interacción de arrastre está activa.
+   */
+  const draggingRef = useRef(false)
+
+  /**
+   * Desfase entre el cursor y la esquina superior izquierda del panel.
+   */
+  const dragOffsetRef = useRef({ x: 0, y: 0 })
+
+  useEffect(() => {
+    panelPosRef.current = panelPos
+  }, [panelPos])
+
+  /**
+   * Carga la última posición guardada del panel cuando el widget se monta.
+   */
+  useEffect(() => {
+    try {
+      const rawPosition = window.localStorage.getItem(BARRA_ESCALA_PANEL_POSITION_STORAGE_KEY)
+      if (!rawPosition) return
+
+      const parsedPosition = JSON.parse(rawPosition) as unknown
+      const normalizedPosition = toPanelPosition(parsedPosition)
+      if (!normalizedPosition) return
+
+      setPanelPos(normalizedPosition)
+    } catch (_error) {
+      // Ignora errores de parsing/storage para no romper el render.
+    }
+  }, [])
+
+  /**
+   * Inicia el ciclo de drag and drop del panel de barra de escala.
+   *
+   * El arrastre se engancha sobre el header del widget y limita el movimiento
+   * al viewport para evitar que el panel quede fuera de la pantalla.
+   *
+   * @param event Evento de mouse sobre el encabezado arrastrable.
+   * @returns {void}
+   */
+  const onDragStart = useCallback((event: React.MouseEvent<HTMLDivElement>): void => {
+    // Evita interferir con interacciones de controles internos del encabezado.
+    if ((event.target as HTMLElement).closest('select, option, input, button, label')) return
+
+    event.preventDefault()
+
+    const panelElement = (event.currentTarget as HTMLElement).parentElement
+    if (!panelElement) return
+
+    draggingRef.current = true
+    const panelRect = panelElement.getBoundingClientRect()
+    dragOffsetRef.current = {
+      x: event.clientX - panelRect.left,
+      y: event.clientY - panelRect.top
+    }
+
+    const onMouseMove = (mouseEvent: MouseEvent): void => {
+      if (!draggingRef.current) return
+
+      const maxX = Math.max(0, window.innerWidth - panelRect.width)
+      const maxY = Math.max(0, window.innerHeight - panelRect.height)
+      const newX = Math.max(0, Math.min(mouseEvent.clientX - dragOffsetRef.current.x, maxX))
+      const newY = Math.max(0, Math.min(mouseEvent.clientY - dragOffsetRef.current.y, maxY))
+
+      setPanelPos({ x: newX, y: newY })
+    }
+
+    const onMouseUp = (): void => {
+      draggingRef.current = false
+
+      const persistedPosition = panelPosRef.current ?? {
+        x: Math.max(0, panelRect.left),
+        y: Math.max(0, panelRect.top)
+      }
+
+      try {
+        window.localStorage.setItem(
+          BARRA_ESCALA_PANEL_POSITION_STORAGE_KEY,
+          JSON.stringify(persistedPosition)
+        )
+      } catch (_error) {
+        // Omite errores de almacenamiento para mantener la interacción fluida.
+      }
+
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  }, [])
 
     /**
      * Maneja el evento de cambio de vista activa en el widget de mapa.
@@ -367,12 +505,27 @@ const Widget = (props: AllWidgetProps<any>) => {
   }, [])
 
   return (
-    <div className="divBarraEscala barraEscalaModern">
+    <div
+      className="divBarraEscala barraEscalaModern"
+      style={panelPos
+        ? {
+            position: 'fixed',
+            left: panelPos.x,
+            top: panelPos.y,
+            zIndex: 20
+          }
+        : undefined}
+    >
       <JimuMapViewComponent
         useMapWidgetId={props.useMapWidgetIds?.[0]}
         onActiveViewChange={onActiveViewChange}
       />
-      <div className="barraEscalaHeader borderBottom">
+      <div
+        className="barraEscalaHeader borderBottom"
+        onMouseDown={onDragStart}
+        title="Mantenga presionado y arrastre para mover el panel"
+        style={{ cursor: 'move', userSelect: 'none' }}
+      >
         <span className="barraEscalaIcon">🔍</span>
         <span className="barraEscalaTitle">Escala:</span>
         <div className="barraEscalaSelectContainer">

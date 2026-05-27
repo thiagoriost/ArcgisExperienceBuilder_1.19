@@ -1,4 +1,4 @@
-import type { React } from 'jimu-core'
+import { React } from 'jimu-core'
 import type { ApiResponse } from '../../../shared/models/api-response.model'
 import type { ArcgisService } from '../../../shared/services/arcgis.service'
 import type { HttpService } from '../../../shared/services/http.service'
@@ -8,10 +8,10 @@ export type ExecuteFn = <T>(
     requestFn: (signal: AbortSignal) => Promise<ApiResponse<T>>
 ) => Promise<ApiResponse<T>>
 
-export interface ConsultaGeneralProps {
+export type ConsultaGeneralProps = {
     loading: boolean
     execute: ExecuteFn
-    url: string
+    url: string 
     idMunicipio: string
     setIdMunicipio: React.Dispatch<React.SetStateAction<string>>
     municipios: SelectOption[]
@@ -20,7 +20,7 @@ export interface ConsultaGeneralProps {
     httpService: HttpService
 }
 
-export interface ConsultaComponentHandle {
+export type ConsultaComponentHandle = {
     consultar: () => Promise<{
         features: ArcGisFeature[]
         fields: ArcGisField[]

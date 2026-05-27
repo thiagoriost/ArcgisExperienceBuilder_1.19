@@ -1,15 +1,15 @@
 /*
 Funciones comunes para limpieza de widget.
-@author: IGAC, Ing. David Zornosa
+@author: IGAC, Ing Rigoberto Rios, Ing. David Zornosa
 */
 
 import type { JimuMapView } from 'jimu-arcgis'
 
-interface MutableRef<T> {
+type MutableRef<T> = {
     current: T
 }
 
-export interface InitialMapViewRefs {
+export type InitialMapViewRefs = {
     initialExtentRef: MutableRef<__esri.Extent | null>
     initialZoomRef: MutableRef<number | null>
     initialScaleRef: MutableRef<number | null>
