@@ -648,9 +648,8 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
     const handleSelectFeature = async (feature: any, zoomLevel = 20) => {
         if(validaLoggerLocalStorage('logger')) console.log('feature seleccionada:', feature)
 
-        if(feature.attributes.IMAGEN){
-            sendDataExternalWidget(feature.attributes.IMAGEN)
-        }
+       
+        sendDataExternalWidget(feature.attributes.IMAGEN)
 
         if (data?.temporalLayer) {
             await crearCapaTemporal(feature)
