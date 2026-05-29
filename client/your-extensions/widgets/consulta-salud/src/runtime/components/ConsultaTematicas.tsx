@@ -22,7 +22,8 @@ const ConsultaTematicas = forwardRef<ConsultaComponentHandle, any>(({
     setMessage,
     arcgisService,
     execute,
-    url
+    url,
+    onValidityChange
 }, ref) => {
     const [tematicas, setTematicas] = useState<SelectOption[]>([])
     const [tematica, setTematica] = useState('')
@@ -75,7 +76,7 @@ const ConsultaTematicas = forwardRef<ConsultaComponentHandle, any>(({
             }
 
             if (layerId === TEMATICA_SUICIDIO && rangoEdad) {
-                whereParts.push(`VALORDOMINIO='${rangoEdad}'`)
+                whereParts.push(`VALORDOMINIO=${rangoEdad}`)
             }
 
             const response = await queryCapa(execute, arcgisService, url, layerId, {
@@ -122,6 +123,13 @@ const ConsultaTematicas = forwardRef<ConsultaComponentHandle, any>(({
             setRangoEdad('')
         }
     }), [tematica, anio, idMunicipio, municipios, rangoEdad])
+
+    useEffect(() => {
+        const layerId = tematica || TEMATICA_MORTALIDAD
+        const filtroTematico = layerId === TEMATICA_MORTALIDAD ? idMunicipio : rangoEdad
+
+        onValidityChange?.(Boolean(tematica && anio && filtroTematico))
+    }, [tematica, anio, idMunicipio, rangoEdad, onValidityChange])
 
     useEffect(() => {
         setTematicas([
@@ -181,8 +189,6 @@ const ConsultaTematicas = forwardRef<ConsultaComponentHandle, any>(({
             )
         }
 
-        void cargarAniosDesdeREST(setAnios, execute, arcgisService, url, tematica, setMessage)
-
         if (tematica === TEMATICA_SUICIDIO) {
             void cargarRangoEdad()
         } else {
@@ -190,6 +196,24 @@ const ConsultaTematicas = forwardRef<ConsultaComponentHandle, any>(({
             setRangoEdad('')
         }
     }, [tematica])
+
+    useEffect(() => {
+        const layerId = tematica || TEMATICA_MORTALIDAD
+        const whereParts: string[] = []
+
+        if (layerId === TEMATICA_MORTALIDAD && idMunicipio) {
+            whereParts.push(`IDMUNICIPIO='${idMunicipio}'`)
+        }
+
+        if (layerId === TEMATICA_SUICIDIO && rangoEdad) {
+            whereParts.push(`VALORDOMINIO=${rangoEdad}`)
+        }
+
+        const where = whereParts.length > 0 ? whereParts.join(' AND ') : '1=1'
+
+        setAnio('')
+        void cargarAniosDesdeREST(setAnios, execute, arcgisService, url, layerId, setMessage, where)
+    }, [tematica, idMunicipio, rangoEdad])
 
     return (
         <>

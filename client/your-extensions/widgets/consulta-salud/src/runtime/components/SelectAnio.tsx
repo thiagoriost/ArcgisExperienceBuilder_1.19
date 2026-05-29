@@ -15,13 +15,13 @@ export default function SelectAnio({loading, anios, anio, setAnio}) {
     )
 }
 
-export async function cargarAniosDesdeREST(setAnios, execute, arcgisService, url, idCapa, setMessage) {
+export async function cargarAniosDesdeREST(setAnios, execute, arcgisService, url, idCapa, setMessage, where = '1=1') {
     setAnios([]);
 
     const response = await queryCapa(execute, arcgisService, url, idCapa, 
         {
             f: 'json',
-            where: '1=1',
+            where,
             returnGeometry: false,
             outFields: "ANIO",
             returnDistinctValues: true,

@@ -16,8 +16,11 @@ import { typeMSM } from '../../types/interfaceResponseConsultaSimple'
 import { urls } from '../../../../api/servicios'
 import { SearchActionBar } from '../../../../shared/components/search-action-bar'
 
+// @ts-ignore
 import '../../styles/style.css'
 import { validaLoggerLocalStorage } from '../../../../shared/utils/export.utils'
+import { limpiarYCerrarWidgetResultados } from "../../../../widget-result/src/runtime/widget";
+import { WIDGET_IDS } from '../../../../shared/constants/widget-ids'
 
 /**
  * Componente FiltersCS - Gestiona los filtros del widget Consulta Simple.
@@ -79,6 +82,9 @@ const FiltersCS = function ({
   selGrupo, setselGrupo, selCapas, setselCapas, selAttr, setselAttr, ResponseConsultaSimple, setResponseConsultaSimple, view, setView,
   jimuMapView, lastGeometriDeployed, condic, setCond, setRenderMap, setAlertDial, mensModal, setMensModal, setIsLoading
 }) {
+
+  const widgetResultId = WIDGET_IDS.RESULT // ID del widget de resultados en el layout
+  
   /**
    * Convierte un valor a entero de forma segura.
    * Si el valor no es numérico, retorna el valor por defecto especificado.
@@ -614,7 +620,7 @@ const FiltersCS = function ({
     setValor('')
     setValorState(true)
     setselAttr(undefined)
-
+    limpiarYCerrarWidgetResultados(widgetResultId)
     //Rutina para limpiar capa del mapa
     limpiarCapaMapa()
   }

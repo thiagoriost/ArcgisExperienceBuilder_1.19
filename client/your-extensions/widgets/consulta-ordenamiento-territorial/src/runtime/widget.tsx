@@ -5,8 +5,6 @@ const { useEffect, useState, useRef, useCallback } = React
 import { JimuMapViewComponent, JimuMapView } from 'jimu-arcgis'
 import { Link } from 'jimu-ui';
 
-import { IMConfig } from '../config';
-
 import '../../../utils/styles/consulta-widget.css'
 import '../styles/style.css'
 
@@ -25,10 +23,13 @@ import ConsultaClasificacion from './components/ConsultaClasificacion';
 import { captureInitialMapView, resetToDefaultMapView } from '../../../shared/utils/widget-limpieza-utils';
 import dbIcon from '../assets/database-solid-full.svg'
 import pdfIcon from '../assets/file-pdf-solid-full.svg'
+import { urls } from '../../../api/serviciosQuindio'
 
 const arcgisService = new ArcgisService()
+const ENDPOINT_ORDENAMIENTO_TERRITORIAL = urls.SERVICIO_OTA_ALFANUMERICO
+const ENDPOINT_ARCHIVOS = urls.URL_ARCHIVOS_QUINDIO
 
-export default function Widget (props: AllWidgetProps<IMConfig>) {    
+export default function Widget (props: AllWidgetProps<any>) {    
     const tiposConsulta = [
         { value: 'normatividad', label: 'Normatividad de uso del suelo' },
         { value: 'estrato', label: 'Viviendas por estrato socioeconómico' },
@@ -46,6 +47,7 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
     const [mensaje, setMensaje] = useState('');
     const [fichaPdfUrl, setFichaPdfUrl] = useState('');
     const [fichaPdfMensaje, setFichaPdfMensaje] = useState('');
+    const [canSearch, setCanSearch] = useState(false);
 
     const [resultadosADibujar, setResultadosADibujar] = useState<{
         features: ArcGisFeature[]
@@ -82,6 +84,7 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
         setMensaje('');
         setFichaPdfUrl('');
         setFichaPdfMensaje('');
+        setCanSearch(false);
     }, [tipoConsulta]);
 
     useEffect(() => {
@@ -162,23 +165,23 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
             array={tiposConsulta} disabled={loading} />
 
             {tipoConsulta === 'normatividad' && (
-                <ConsultaNormatividad url={props.config.endpointOrdenamientoTerritorial} 
-                urlArchivos={props.config.endpointArchivos} execute={execute} arcgisService={arcgisService}
+                <ConsultaNormatividad url={ENDPOINT_ORDENAMIENTO_TERRITORIAL} 
+                urlArchivos={ENDPOINT_ARCHIVOS} execute={execute} arcgisService={arcgisService}
                 handleError={handleError} loading={loading} setLoading={setLoading} municipios={municipios} idMunicipio={idMunicipio} 
                 setIdMunicipio={setIdMunicipio} ref={refs.normatividad} setMensaje={setMensaje} setFichaPdfUrl={setFichaPdfUrl}
-                setFichaPdfMensaje={setFichaPdfMensaje}/>
+                setFichaPdfMensaje={setFichaPdfMensaje} onValidityChange={setCanSearch}/>
             )}
 
             {tipoConsulta === 'estrato' && (
-                <ConsultaEstrato url={props.config.endpointOrdenamientoTerritorial} execute={execute} arcgisService={arcgisService}
+                <ConsultaEstrato url={ENDPOINT_ORDENAMIENTO_TERRITORIAL} execute={execute} arcgisService={arcgisService}
                 handleError={handleError} loading={loading} setLoading={setLoading} municipios={municipios} idMunicipio={idMunicipio} 
-                setIdMunicipio={setIdMunicipio} ref={refs.estrato} />
+                setIdMunicipio={setIdMunicipio} ref={refs.estrato} onValidityChange={setCanSearch} />
             )}
             
             {tipoConsulta === 'clasificacion' && (
-                <ConsultaClasificacion url={props.config.endpointOrdenamientoTerritorial} execute={execute} arcgisService={arcgisService}
+                <ConsultaClasificacion url={ENDPOINT_ORDENAMIENTO_TERRITORIAL} execute={execute} arcgisService={arcgisService}
                 handleError={handleError} loading={loading} setLoading={setLoading} municipios={municipios} idMunicipio={idMunicipio} 
-                setIdMunicipio={setIdMunicipio} ref={refs.clasificacion} />
+                setIdMunicipio={setIdMunicipio} ref={refs.clasificacion} onValidityChange={setCanSearch} />
             )}
 
             {(mensaje || fichaPdfUrl || fichaPdfMensaje) && (
@@ -207,7 +210,7 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
             
             {/*tipoConsulta === 'normatividad' && (
                 <div>
-                    <Link href={`${props.config.endpointArchivos}${urlFicha}`} target="_blank">
+                    <Link href={`${ENDPOINT_ARCHIVOS}${urlFicha}`} target="_blank">
                         Ver fichaaa
                     </Link>                
                 </div>
@@ -217,8 +220,9 @@ export default function Widget (props: AllWidgetProps<IMConfig>) {
             onSearch={consultar}
             onClear={onLimpiar}
             loading={loading}
+            disableSearch={!canSearch}
             searchLabel="Buscar"
-            helpText="Ingrese una condición de búsqueda válida para habilitar el botón de busqueda. Utilice los campos, valores y operadores para construir su consulta. Por ejemplo: CAMPO1 = 'Valor' AND CAMPO2 > 100."
+            helpText="Consulte información de ordenamiento territorial por municipio. Según el tipo de consulta, puede revisar normatividad de uso del suelo, viviendas por estrato socioeconómico o clasificación del suelo, y visualizar los resultados en el mapa."            
             />
         </div>
     )

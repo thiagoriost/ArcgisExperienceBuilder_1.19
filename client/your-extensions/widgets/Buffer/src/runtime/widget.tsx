@@ -454,6 +454,8 @@ const Widget = (props: AllWidgetProps<any>) => {
   const initialScaleRef = React.useRef<number | null>(null)
   /** Estado previo de apertura automática de popups por clic para restaurarlo después. */
   const clickPopupEnabledRef = React.useRef<boolean | null>(null)
+  /** Estado previo de highlight automático por clic para restaurarlo después. */
+  const clickHighlightEnabledRef = React.useRef<boolean | null>(null)
 
   /**
    * Restaura el comportamiento automático de popups por clic del mapa a su estado previo.
@@ -491,6 +493,47 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
 
     targetMapView.disableClickOpenPopup()
+  }, [jimuMapView])
+
+  /**
+   * Restaura el resaltado automático de entidades al estado previo al flujo Buffer.
+   *
+   * @param mapView Vista de mapa activa a restaurar. Si no se entrega, usa la vista activa del widget.
+   * @returns {void}
+   */
+  const restoreClickHighlight = React.useCallback((mapView?: JimuMapView | null): void => {
+    const targetMapView = mapView ?? jimuMapView
+
+    if (!targetMapView || clickHighlightEnabledRef.current === null) return
+
+    if (clickHighlightEnabledRef.current) {
+      targetMapView.enableClickHighlight()
+    } else {
+      targetMapView.disableClickHighlight()
+    }
+
+    clickHighlightEnabledRef.current = null
+  }, [jimuMapView])
+
+  /**
+   * Desactiva temporalmente el resaltado automático de entidades clickeadas en el mapa.
+   *
+   * Evita interferencia visual entre el highlight de capas activas y las geometrías
+   * capturadas o procesadas por el flujo Buffer.
+   *
+   * @param mapView Vista de mapa a proteger durante el flujo Buffer.
+   * @returns {void}
+   */
+  const suppressClickHighlight = React.useCallback((mapView?: JimuMapView | null): void => {
+    const targetMapView = mapView ?? jimuMapView
+
+    if (!targetMapView) return
+
+    if (clickHighlightEnabledRef.current === null) {
+      clickHighlightEnabledRef.current = targetMapView.isClickHighlightEnabled()
+    }
+
+    targetMapView.disableClickHighlight()
   }, [jimuMapView])
 
   /**
@@ -749,35 +792,43 @@ const Widget = (props: AllWidgetProps<any>) => {
 
     return () => {
       restoreClickOpenPopup(jimuMapView)
+      restoreClickHighlight(jimuMapView)
 
       if (view.map.findLayerById(graphicsLayer.id)) {
         view.map.remove(graphicsLayer)
       }
       graphicsLayerRef.current = null
     }
-  }, [jimuMapView, restoreClickOpenPopup])
+  }, [jimuMapView, restoreClickOpenPopup, restoreClickHighlight])
 
   /**
-   * Controla la apertura automática de popups durante el flujo Buffer.
+   * Controla la apertura automática de popups y el resaltado automático de entidades
+   * durante el flujo Buffer.
    *
-   * Mientras el usuario selecciona geometrías o el análisis espacial está en curso,
-   * se desactiva el click-open popup para evitar interferencias con el dibujo.
+   * Mientras el usuario dibuja geometrías (punto/línea) o el análisis espacial está
+   * en curso, se desactivan ambos comportamientos para evitar interferencias visuales
+   * con las geometrías capturadas y procesadas por el widget. Al salir del flujo se
+   * restauran los estados previos registrados al momento de la primera supresión.
    */
   React.useEffect(() => {
     if (!jimuMapView) return
 
-    const shouldSuppressPopups = Boolean(drawMode && selectedCapa?.layerUrl) || isProcessing
+    const shouldSuppress = Boolean(drawMode && selectedCapa?.layerUrl) || isProcessing
 
-    if (shouldSuppressPopups) {
+    if (shouldSuppress) {
       suppressClickOpenPopup(jimuMapView)
+      suppressClickHighlight(jimuMapView)
       return () => {
         restoreClickOpenPopup(jimuMapView)
+        restoreClickHighlight(jimuMapView)
       }
     }
 
     restoreClickOpenPopup(jimuMapView)
+    restoreClickHighlight(jimuMapView)
     return () => {
       restoreClickOpenPopup(jimuMapView)
+      restoreClickHighlight(jimuMapView)
     }
   }, [
     drawMode,
@@ -785,6 +836,8 @@ const Widget = (props: AllWidgetProps<any>) => {
     jimuMapView,
     restoreClickOpenPopup,
     suppressClickOpenPopup,
+    restoreClickHighlight,
+    suppressClickHighlight,
     selectedCapa?.layerUrl
   ])
 
@@ -1007,6 +1060,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     activeLayerRef.current = null
 
     restoreClickOpenPopup(jimuMapView)
+    restoreClickHighlight(jimuMapView)
 
     void restoreInitialExtent()   
   }
