@@ -550,6 +550,7 @@ const Widget = (props: any) => {
         setMensaje(null);
         setError('');
         setCapaTemporal(false);
+        limpiarYCerrarWidgetResultados(widgetResultId);
 //      eliminarGraficos();  // si se habilita no funciona las capas temporales porque se eliminan al limpiar, se podría mejorar para que solo elimine el gráfico del predio y no las capas temporales que se agreguen
     };
 

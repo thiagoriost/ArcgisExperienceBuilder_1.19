@@ -107,6 +107,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     setUrlLayer("")
     setLoading(false)
     setError("")
+    limpiarYCerrarWidgetResultados(widgetResultId)
   }
 
   /**
@@ -116,7 +117,6 @@ const Widget = (props: AllWidgetProps<any>) => {
     if (props.state === 'CLOSED') {
       handleClear()
       clearMapAndResetExtent(varJimuMapView, initialExtent, initialZoom)
-      limpiarYCerrarWidgetResultados(widgetResultId)
     }  
     
   }, [props])

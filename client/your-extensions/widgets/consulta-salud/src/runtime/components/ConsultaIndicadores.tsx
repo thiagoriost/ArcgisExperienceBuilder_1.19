@@ -224,7 +224,8 @@ const ConsultaIndicadores = forwardRef((
     url,
     setMessage,
     arcgisService,
-    httpService
+    httpService,
+    onValidityChange
 }, ref) => {
     const [indicadores, setIndicadores] = useState<SelectOption[]>([])
     const [indicador, setIndicador] = useState('')
@@ -514,6 +515,11 @@ const ConsultaIndicadores = forwardRef((
     }), [indicador, anio, idCategoria, categoriasIndicadores])
 
     useEffect(() => {
+        const requiereCategoria = indicador !== VIOLENCIA_INTRAFAMILIAR && indicador !== COBERTURA_VACUNACION
+        onValidityChange?.(Boolean(indicador && anio && (!requiereCategoria || idCategoria)))
+    }, [indicador, anio, idCategoria, onValidityChange])
+
+    useEffect(() => {
         const initConsultaIndicadores = async () => {
             await cargarIndicadores(execute, httpService, url, setIndicadores, setMessage)
         }
@@ -558,6 +564,8 @@ const ConsultaIndicadores = forwardRef((
 
         setCategoriasIndicadores([])
         setAnios([])
+        setAnio('')
+        setIdCategoria('')
 
         if (indicador === INDICADOR_AFILIACIONES || indicador === INDICADORES_MORBILIDAD)
             void cargarCategoriasDesdeREST()
@@ -576,17 +584,55 @@ const ConsultaIndicadores = forwardRef((
                 { value: 'TASAFECUNDIDADADOLESCENTE', label: 'Tasa de fecundidad adolescente' }
             ].sort((a: any, b: any) => a.label.localeCompare(b.label)))
         }
-
-        void cargarAniosDesdeREST(setAnios, execute, arcgisService, url, indicador, setMessage)
     }, [indicador]);   
+
+    useEffect(() => {
+        if (!indicador) {
+            setAnios([])
+            setAnio('')
+            return
+        }
+
+        const whereParts: string[] = []
+
+        if (idCategoria && (indicador === INDICADOR_AFILIACIONES || indicador === INDICADORES_MORBILIDAD)) {
+            whereParts.push(`VALORDOMINIO=${idCategoria}`)
+        }
+
+        const where = whereParts.length > 0 ? whereParts.join(' AND ') : '1=1'
+
+        setAnio('')
+        void cargarAniosDesdeREST(setAnios, execute, arcgisService, url, indicador, setMessage, where)
+    }, [indicador, idCategoria]);   
 
     return(
         <>
-        <SelectDesdeArray label={'Indicador'} valor={indicador} setValor={setIndicador} array={indicadores} disabled={loading} />
+        <SelectDesdeArray
+            label={'Indicador'}
+            valor={indicador}
+            onChange={(e) => {
+                setIndicador(e.target.value)
+                setCategoriasIndicadores([])
+                setIdCategoria('')
+                setAnios([])
+                setAnio('')
+            }}
+            array={indicadores}
+            disabled={loading}
+        />
 
         {(indicador != VIOLENCIA_INTRAFAMILIAR && indicador != COBERTURA_VACUNACION) && (
-            <SelectDesdeArray label={'Categoría'} valor={idCategoria} setValor={setIdCategoria} array={categoriasIndicadores}
-            disabled={loading || !indicador || categoriasIndicadores.length === 0} />
+            <SelectDesdeArray
+                label={'Categoría'}
+                valor={idCategoria}
+                onChange={(e) => {
+                    setIdCategoria(e.target.value)
+                    setAnios([])
+                    setAnio('')
+                }}
+                array={categoriasIndicadores}
+                disabled={loading || !indicador || categoriasIndicadores.length === 0}
+            />
         )}
 
         <SelectAnio loading={loading} anios={anios} anio={anio} setAnio={setAnio}/>

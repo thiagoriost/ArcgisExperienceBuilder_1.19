@@ -2,7 +2,7 @@ import * as XLSX from 'xlsx'
 import { loadModules } from 'esri-loader'
 import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer"
 import Graphic from '@arcgis/core/Graphic'
-import { Point, Polygon, Polyline } from "@arcgis/core/geometry"
+import { Point, Polygon, Polyline, Extent } from "@arcgis/core/geometry"
 import type { JimuMapView } from 'jimu-arcgis'
 import Query from "@arcgis/core/rest/support/Query"
 import { executeQueryJSON } from "@arcgis/core/rest/query"
@@ -291,6 +291,7 @@ export const drawFeaturesOnMap = async (response: { features: any; spatialRefere
 
 /**
  * Restaura la vista del mapa a la extensión y zoom iniciales.
+ * También persiste el extent inicial en localStorage para compartirlo entre widgets.
  * @returns {void}
  */
 export const goToInitialExtent = (varJimuMapView: JimuMapView, initialExtent: any, initialZoom?: number, initialScale?: number) => {
@@ -315,6 +316,50 @@ export const goToInitialExtent = (varJimuMapView: JimuMapView, initialExtent: an
   }, 2000)
 
   }
+
+/**
+ * Clave de almacenamiento para compartir el extent inicial entre widgets.
+ */
+const INITIAL_EXTENT_STORAGE_KEY = 'sharedInitialExtent'
+
+/**
+ * Guarda el extent inicial del mapa en localStorage para uso compartido entre widgets.
+ *
+ * @param initialExtent - Extent inicial a persistir.
+ * @returns `true` si el extent se guardó correctamente, de lo contrario `false`.
+ */
+export const saveInitialExtentToLocalStorage = (initialExtent: any): boolean => {
+  if (!initialExtent) return false
+
+  try {
+    const extentAsJson = typeof initialExtent?.toJSON === 'function'
+      ? initialExtent.toJSON()
+      : initialExtent
+
+    localStorage.setItem(INITIAL_EXTENT_STORAGE_KEY, JSON.stringify(extentAsJson))
+    return true
+  } catch (error) {
+    console.error('No fue posible guardar el extent inicial en localStorage:', error)
+    return false
+  }
+}
+
+/**
+ * Obtiene el extent inicial persistido en localStorage.
+ *
+ * @returns El extent inicial parseado o `null` si no existe / no es válido.
+ */
+export const getInitialExtentFromLocalStorage = (): __esri.ExtentProperties | null => {
+  try {
+    const rawExtent = localStorage.getItem(INITIAL_EXTENT_STORAGE_KEY)
+    if (!rawExtent) return null
+
+    return JSON.parse(rawExtent)
+  } catch (error) {
+    console.error('No fue posible leer el extent inicial desde localStorage:', error)
+    return null
+  }
+}
 
 export interface QueryOptions {
     url?: string;
@@ -388,16 +433,38 @@ export const ejecutarConsulta = async ({
     return loggerParsed === true
   }
 
-   /**
-     * Restaura el extent inicial del mapa.
-     */
+/**
+ * Restaura el extent inicial del mapa leyendo la referencia compartida desde localStorage.
+ *
+ * Prioridad de la fuente del extent:
+ * 1. localStorage (compartido entre widgets) → reconstruido como instancia `Extent`
+ *    para que `view.goTo()` lo interprete correctamente.
+ * 2. `initialExtentRef.current` (en memoria) → fallback para compatibilidad.
+ *    Si se usa el fallback, también se persiste en localStorage.
+ *
+ * @param jimuMapView - Instancia del mapa de Experience Builder.
+ * @param initialExtentRef - Referencia React opcional al extent inicial en memoria.
+ * @returns `void`
+ */
 export const restoreInitialExtent = (jimuMapView: any, initialExtentRef: any) => {
-        const view = jimuMapView?.view
-        const extent = initialExtentRef.current
-        if (view && extent) {
-            view.goTo(extent)
-        }
-    }
+  const view = jimuMapView?.view
+  const storedExtentProps = getInitialExtentFromLocalStorage()
+  const fallbackExtent = initialExtentRef?.current
+
+  if (!storedExtentProps && fallbackExtent) {
+    saveInitialExtentToLocalStorage(fallbackExtent)
+  }
+
+  // Reconstruir como instancia Extent para que view.goTo() lo interprete correctamente.
+  // Un objeto JSON plano (ExtentProperties) no es reconocido por view.goTo().
+  const extent = storedExtentProps
+    ? new Extent(storedExtentProps)
+    : fallbackExtent
+
+  if (view && extent) {
+    view.goTo(extent)
+  }
+}
 
 /**
  * Funcion que limpia el mapa eliminando todas las capas gráficas execpto la capa jimuMapView.view.map.layers.items[0].displayField === 'IDMUNICIPIO' y restablece el extent inicial.

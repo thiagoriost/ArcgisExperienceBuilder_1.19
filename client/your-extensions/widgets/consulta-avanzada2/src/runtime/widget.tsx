@@ -408,7 +408,7 @@ const ConsultaAvanzada = (props: AllWidgetProps<any>) => {
    *
    * @returns {void}
    */
-  const limpiarCons = () => {
+  const limpiarCons = (repeticiones: number=2) => {
     if (utilsModule?.logger()) console.log('Handle Evt en limpiar =>')
     setselTema(undefined)
     setTemas(temas)
@@ -427,6 +427,7 @@ const ConsultaAvanzada = (props: AllWidgetProps<any>) => {
     setLayerSelectedDeployed(null)
     setGraphicsLayerDeployed(null)
     setResponseConsulta(null)
+    limpiarYCerrarWidgetResultados(widgetResultId)
     // Limpiar capas del mapa
     if (jimuMapView && jimuMapView.view) {
       try {        
@@ -434,6 +435,11 @@ const ConsultaAvanzada = (props: AllWidgetProps<any>) => {
       } catch (e) {
         if (utilsModule?.logger()) console.error('Error al limpiar el mapa:', e)
       }
+    }
+    if (repeticiones > 1) { 
+      setTimeout(() => {
+        limpiarCons(repeticiones - 1)
+      }, 1000)
     }
   }
 
@@ -797,7 +803,7 @@ const ConsultaAvanzada = (props: AllWidgetProps<any>) => {
   React.useEffect(() => {   
     //console.log({props})
     if (props.state === 'CLOSED') {
-    limpiarYCerrarWidgetResultados(widgetResultId)
+      limpiarCons(1)
     }
   }, [props])
 
@@ -819,12 +825,6 @@ const ConsultaAvanzada = (props: AllWidgetProps<any>) => {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicios])
-
-  useEffect(() => {
-    if (props.state === 'CLOSED') {
-      limpiarCons()
-    }
-  }, [props.state])
 
   useEffect(() => {
     // setResponseConsulta(dataPruebaResponse)

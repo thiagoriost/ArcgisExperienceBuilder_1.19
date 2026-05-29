@@ -20,7 +20,8 @@ const ConsultaNormatividad = forwardRef(({
     setIdMunicipio,
     setMensaje,
     setFichaPdfUrl,
-    setFichaPdfMensaje
+    setFichaPdfMensaje,
+    onValidityChange
 }, ref) => {
     const [fichas, setFichas] = useState<SelectOption[]>([])
     const [idFicha, setIdFicha] = useState<string>('')
@@ -42,6 +43,10 @@ const ConsultaNormatividad = forwardRef(({
             setFichaPdfMensaje('')
         }
     }), [idFicha])
+
+    useEffect(() => {
+        onValidityChange?.(Boolean(idMunicipio && idFicha))
+    }, [idMunicipio, idFicha, onValidityChange])
 
     useEffect(() => {
         const cargarFichas = async () => {

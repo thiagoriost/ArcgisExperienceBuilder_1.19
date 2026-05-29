@@ -675,22 +675,23 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
         }
 
 
+        const symbol = getSymbolByGeometry(geometry)
         const graphic = new Graphic({   // 20260313
             geometry,
-            symbol: getSymbolByGeometry(geometry),
+            symbol: symbol,
             attributes: feature.attributes
         })
 
 
-                graphicsLayerRef.current.add(graphic)
+        graphicsLayerRef.current.add(graphic)
 
-                /**
-                 * Reubica el gráfico recién agregado para que quede por encima de los
-                 * demás elementos de la capa de selección.
-                 */
-                if (graphicsLayerRef.current.reorder) {
-                    graphicsLayerRef.current.reorder(graphic, 0)
-                }
+        /**
+         * Reubica el gráfico recién agregado para que quede por encima de los
+         * demás elementos de la capa de selección.
+         */
+        if (graphicsLayerRef.current.reorder) {
+            graphicsLayerRef.current.reorder(graphic, 0)
+        }
 
         if (geometry.type === "point") {  // cef 20260313
             /**

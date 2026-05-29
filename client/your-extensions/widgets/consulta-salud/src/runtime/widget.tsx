@@ -10,7 +10,7 @@ import { ArcgisService } from '../../../shared/services/arcgis.service'
 import { HttpService } from '../../../shared/services/http.service'
 import { useCancelableHttp } from '../../../shared/hooks/useCancelableHttp'
 import stethoscopeIcon from '../assets/stethoscope-solid-full.svg'
-import starIcon from '../assets/star-solid-full.svg'
+
 
 import {
     abrirTablaResultados,
@@ -35,6 +35,7 @@ import { listaMunicipios } from './components/SelectMunicipio'
 import SelectDesdeArray from './components/SelectDesdeArray'
 import { ResultTable } from '../../../shared/components/ResultTable'
 import PanelInformativo, { itemsContacto, itemsInformacionContacto } from '../../../shared/components/PanelInformativo/PanelInformativo'
+import { limpiarYCerrarwidgetLeyenda } from '../../../widget-leyenda/src/runtime/widget'
 
 const arcgisService = new ArcgisService()
 const httpService = new HttpService();
@@ -163,6 +164,7 @@ const Widget = (props: AllWidgetProps<any>) => {
 
         clearResults()
         resetMapView()
+        limpiarYCerrarwidgetLeyenda(WIDGET_IDS.LEYENDA)
     }, [clearResults, resetMapView, tipoConsulta])
 
     // Esto se usa para limpieza
@@ -249,6 +251,12 @@ const Widget = (props: AllWidgetProps<any>) => {
 
 function FormularioDeBusqueda({tiposConsulta, tipoConsulta, setTipoConsulta, refs, loading, setLoading, execute, props, idMunicipio, setIdMunicipio, 
     municipios, message, setMessage, consultar, limpiar}: any) {
+    const [canSearch, setCanSearch] = React.useState(false)
+
+    React.useEffect(() => {
+        setCanSearch(false)
+    }, [tipoConsulta])
+
     return (
     <div className="consulta-widget" >
             <SelectDesdeArray label={"Consulta por"} valor={tipoConsulta} setValor={setTipoConsulta} 
@@ -268,7 +276,8 @@ function FormularioDeBusqueda({tiposConsulta, tipoConsulta, setTipoConsulta, ref
                 setIdMunicipio={setIdMunicipio}
                 municipios={municipios}
                 message={message}
-                setMessage={setMessage} />
+                setMessage={setMessage}
+                onValidityChange={setCanSearch} />
             )}
 
             {tipoConsulta === 'indicadores' && (           
@@ -280,7 +289,8 @@ function FormularioDeBusqueda({tiposConsulta, tipoConsulta, setTipoConsulta, ref
                 setLoading={setLoading}
                 execute={execute}
                 url={urls.SERVICIO_SALUD_ALFANUMERICO}
-                setMessage={setMessage} />
+                setMessage={setMessage}
+                onValidityChange={setCanSearch} />
             )}
 
             {tipoConsulta === 'tematicas' && (
@@ -295,15 +305,17 @@ function FormularioDeBusqueda({tiposConsulta, tipoConsulta, setTipoConsulta, ref
                 municipios={municipios}
                 execute={execute}
                 url={urls.SERVICIO_SALUD_ALFANUMERICO}
-                setMessage={setMessage} />
+                setMessage={setMessage}
+                onValidityChange={setCanSearch} />
             )}
 
             <SearchActionBar
             onSearch={consultar}
             onClear={limpiar}
             loading={loading}
+            disableSearch={!canSearch}
             searchLabel="Buscar"
-            helpText="Ingrese una condición de búsqueda válida para habilitar el botón de busqueda. Utilice los campos, valores y operadores para construir su consulta. Por ejemplo: CAMPO1 = 'Valor' AND CAMPO2 > 100."
+            helpText="Consulte información de salud del departamento seleccionando el tipo de consulta y los filtros disponibles. Puede buscar equipamientos, indicadores o temáticas por municipio para visualizar resultados en el mapa, tabla o panel informativo."
             />
 
             <div>

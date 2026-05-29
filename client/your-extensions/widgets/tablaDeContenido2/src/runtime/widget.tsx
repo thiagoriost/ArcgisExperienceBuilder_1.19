@@ -6,7 +6,7 @@ import '../styles/style.css'
 import type { CapasTematicas, ItemResponseTablaContenido, TablaDeContenidoInterface, datosBasicosInterface, interfaceCapasNietos } from '../types/interfaces'
 import WidgetTree from './components/widgetTree'
 import * as projection from "@arcgis/core/geometry/projection"
-import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
+import { getInitialExtentFromLocalStorage, restoreInitialExtent, saveInitialExtentToLocalStorage, validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
 import { useSelector } from 'react-redux'
 import { WIDGET_IDS } from '../../../shared/constants/widget-ids'
 // @ts-expect-error - Tipos para imports de .png no definidos en este workspace.
@@ -160,9 +160,15 @@ const Widget = (props: AllWidgetProps<any>) => {
   }, [varJimuMapView])
 
   /**
-   * cef 20260310
-   * Guarda el extent inicial del mapa cuando la vista
-   * del mapa está disponible.
+   * Captura y persiste el extent inicial del mapa cuando la vista está disponible.
+   *
+   * Lógica:
+   * - Si `localStorage` ya contiene un extent guardado (por este u otro widget),
+   *   se restaura esa posición en el mapa usando {@link restoreInitialExtent}.
+   * - Si no existe extent en `localStorage`, se guarda el extent actual del mapa
+   *   como referencia compartida para todos los widgets.
+   *
+   * Esto garantiza que todos los widgets compartan la misma posición de origen.
    */
   React.useEffect(() => {
     const view = varJimuMapView?.view
@@ -170,6 +176,18 @@ const Widget = (props: AllWidgetProps<any>) => {
 
     if (!initialExtentRef.current) {
       initialExtentRef.current = view.extent.clone()
+
+      const extentGuardado = getInitialExtentFromLocalStorage()
+
+      if (extentGuardado) {
+        // El extent inicial ya fue registrado; restaurar esa posición en el mapa
+        if (utilsModule?.logger()) console.log("Extent inicial encontrado en localStorage. Restaurando...", extentGuardado)
+        restoreInitialExtent(varJimuMapView, initialExtentRef)
+      } else {
+        // Primera carga: guardar el extent actual como referencia compartida
+        if (utilsModule?.logger()) console.log("Extent inicial guardado en localStorage:", initialExtentRef.current)
+        saveInitialExtentToLocalStorage(initialExtentRef.current)
+      }
     }
   }, [varJimuMapView])
 

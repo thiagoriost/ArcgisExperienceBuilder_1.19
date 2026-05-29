@@ -7,7 +7,7 @@ import SelectDesdeArray from '../../../../consulta-salud/src/runtime/components/
 const {useState, useEffect, useImperativeHandle, forwardRef } = React
 
 const ConsultaClasificacion = forwardRef(({url, execute, arcgisService, 
-loading, setLoading, municipios, idMunicipio, setIdMunicipio}, ref) => {
+loading, setLoading, municipios, idMunicipio, setIdMunicipio, onValidityChange}, ref) => {
     const [clases, setClases] = useState<SelectOption[]>([])
     const [idClase, setIdClase] = useState<string>('')
 
@@ -30,6 +30,10 @@ loading, setLoading, municipios, idMunicipio, setIdMunicipio}, ref) => {
             setIdMunicipio('');
         }
     }), [idClase, idMunicipio]);
+
+    useEffect(() => {
+        onValidityChange?.(Boolean(idMunicipio && idClase))
+    }, [idMunicipio, idClase, onValidityChange])
 
     useEffect(() => {
         const cargarClases = async ()=> {

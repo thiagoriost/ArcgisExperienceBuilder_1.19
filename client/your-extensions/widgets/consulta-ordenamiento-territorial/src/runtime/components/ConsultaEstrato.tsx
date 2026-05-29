@@ -8,7 +8,7 @@ import SelectDesdeArray from '../../../../consulta-salud/src/runtime/components/
 const {useState, useEffect, useImperativeHandle, forwardRef, useRef } = React
 
 const ConsultaEstrato = forwardRef(({url, execute, arcgisService, 
-handleError, loading, setLoading, municipios, idMunicipio, setIdMunicipio}, ref) => {
+handleError, loading, setLoading, municipios, idMunicipio, setIdMunicipio, onValidityChange}, ref) => {
     const [estratos, setEstratos] = useState<SelectOption[]>([
         {label:"0", value:"0"},
         {label:"1", value:"1"},
@@ -51,6 +51,10 @@ handleError, loading, setLoading, municipios, idMunicipio, setIdMunicipio}, ref)
             setIdMunicipio('');
         }
     }), [idEstrato]);
+
+    useEffect(() => {
+        onValidityChange?.(Boolean(idMunicipio && idEstrato))
+    }, [idMunicipio, idEstrato, onValidityChange])
     
     return (
         <>            

@@ -20,7 +20,8 @@ const ConsultaGeneral = forwardRef(({
     municipios,
     setMessage,
     arcgisService,
-    httpService
+    httpService,
+    onValidityChange
 }, ref) => {
     const [tipoEstablecimientos, setTipoEstablecimientos] = useState<SelectOption[]>([])
     const [idTipoEstablecimiento, setIdTipoEstablecimiento] = useState('')
@@ -78,6 +79,10 @@ const ConsultaGeneral = forwardRef(({
             setIdMunicipio(municipios[0]?.value || '')
         }
     }), [idInstitucion, nombreInstitucion, tipoEstablecimientos, instituciones, municipios]);
+
+    useEffect(() => {
+        onValidityChange?.(Boolean(idTipoEstablecimiento && idMunicipio && idInstitucion))
+    }, [idTipoEstablecimiento, idMunicipio, idInstitucion, onValidityChange])
 
     useEffect(() => {
         const initConsultaGeneral = async () => {
