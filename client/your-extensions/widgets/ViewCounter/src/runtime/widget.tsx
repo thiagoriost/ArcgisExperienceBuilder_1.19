@@ -89,6 +89,7 @@ const Widget = (_props: AllWidgetProps<IMConfig>) => {
       setPanelPos(normalizedPosition)
     } catch (_error) {
       // Ignora payloads corruptos y mantiene comportamiento por defecto.
+      console.log({_error})
     }
   }, [])
 
