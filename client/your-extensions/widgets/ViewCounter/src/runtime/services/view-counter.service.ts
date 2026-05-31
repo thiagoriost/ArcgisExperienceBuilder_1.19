@@ -73,7 +73,11 @@ const API_HEADERS = {
  * @param suffix Ruta adicional dentro del API.
  * @returns URL lista para usar con fetch.
  */
-const buildApiUrl = (suffix = ''): string => `${getViewCounterApiOrigin()}${VIEW_COUNTER_API_BASE_PATH}${suffix}`
+const buildApiUrl = (suffix = ''): string => {
+  const viewCounterApiOrigin = getViewCounterApiOrigin()
+  if (validaLoggerLocalStorage('logger')) console.log("buildApiUrl",{ viewCounterApiOrigin, VIEW_COUNTER_API_BASE_PATH, suffix })
+  return `${viewCounterApiOrigin}${VIEW_COUNTER_API_BASE_PATH}${suffix}`
+}
 
 /**
  * Verifica si el entorno actual soporta `fetch`.
@@ -187,7 +191,7 @@ export class ExpressApiViewCounterService implements ViewCounterService {
     const sessionCache = readSessionCache()
     if (isSessionCacheActive(sessionCache)) {
       if (validaLoggerLocalStorage('logger')) {
-        console.log({
+        console.log("readPersistedCounter",{
           source: 'sessionStorage',
           action: 'readPersistedCounter',
           totalVisits: sessionCache.totalVisits,
@@ -209,7 +213,7 @@ export class ExpressApiViewCounterService implements ViewCounterService {
     }
 
     const url = buildApiUrl()
-    if (validaLoggerLocalStorage('logger')) console.log({ url, method: 'GET' })
+    if (validaLoggerLocalStorage('logger')) console.log("readPersistedCounter", { url, method: 'GET' })
 
     const response = await fetch(url, {
       method: 'GET',
@@ -246,7 +250,7 @@ export class ExpressApiViewCounterService implements ViewCounterService {
     const sessionCache = readSessionCache()
     if (isSessionCacheActive(sessionCache)) {
       if (validaLoggerLocalStorage('logger')) {
-        console.log({
+        console.log("processVisit",{
           source: 'sessionStorage',
           action: 'processVisit-skip-api',
           totalVisits: sessionCache.totalVisits,
