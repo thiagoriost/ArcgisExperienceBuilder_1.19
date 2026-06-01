@@ -20,6 +20,9 @@ import { validaLoggerLocalStorage } from "../../../shared/utils/export.utils"
  * @property {number} imageHeight - Alto original de la imagen capturada en píxeles.
  * @property {string} spatialReference - Sistema de referencia espacial del mapa.
  * @property {string} [author] - Autor del mapa (opcional).
+ * @property {boolean} [showGrid] - Si es true, dibuja una grilla sobre la imagen del mapa.
+ * @property {number} [gridCellSizeMm] - Tamaño de celda de grilla en mm (por defecto: 12).
+ * @property {string} [gridColor] - Color hexadecimal de la grilla (por defecto: #787878).
  * @property {__esri.MapView | __esri.SceneView} view - Vista del mapa para extraer la leyenda.
  */
 interface PdfOptions {
@@ -30,7 +33,64 @@ interface PdfOptions {
   imageHeight: number;
   spatialReference: string;
   author?: string;
+  showGrid?: boolean;
+  gridCellSizeMm?: number;
+  gridColor?: string;
   view: __esri.MapView | __esri.SceneView;
+}
+
+/**
+ * Convierte un color hexadecimal (#RRGGBB) a componentes RGB.
+ * Si el valor no es válido, retorna un gris por defecto.
+ */
+const hexToRgb = (hexColor?: string): [number, number, number] => {
+  if (!hexColor) return [120, 120, 120]
+
+  const sanitized = hexColor.replace("#", "")
+  if (sanitized.length !== 6) return [120, 120, 120]
+
+  const r = Number.parseInt(sanitized.slice(0, 2), 16)
+  const g = Number.parseInt(sanitized.slice(2, 4), 16)
+  const b = Number.parseInt(sanitized.slice(4, 6), 16)
+
+  if ([r, g, b].some((value) => Number.isNaN(value))) {
+    return [120, 120, 120]
+  }
+
+  return [r, g, b]
+}
+
+/**
+ * Dibuja una grilla regular sobre el área del mapa dentro del PDF.
+ * Se usa como sobreimpresión opcional para apoyar lectura cartográfica.
+ */
+interface GridDrawingOptions {
+  mapLeft: number;
+  mapTop: number;
+  mapWidth: number;
+  mapHeight: number;
+  cellSizeMm: number;
+  gridColor: string;
+}
+
+const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
+  const { mapLeft, mapTop, mapWidth, mapHeight, cellSizeMm, gridColor } = gridOptions
+  const [r, g, b] = hexToRgb(gridColor)
+
+  doc.setDrawColor(r, g, b)
+  doc.setLineWidth(0.15)
+
+  for (let x = mapLeft + cellSizeMm; x < mapLeft + mapWidth; x += cellSizeMm) {
+    doc.line(x, mapTop, x, mapTop + mapHeight)
+  }
+
+  for (let y = mapTop + cellSizeMm; y < mapTop + mapHeight; y += cellSizeMm) {
+    doc.line(mapLeft, y, mapLeft + mapWidth, y)
+  }
+
+  // Restablecer estilos para no afectar otros elementos del PDF.
+  doc.setDrawColor(0, 0, 0)
+  doc.setLineWidth(1)
 }
 
 
@@ -55,6 +115,9 @@ interface PdfOptions {
  *   imageHeight: 1080,
  *   spatialReference: "WKID 4326",
  *   author: "IGAC",
+ *   showGrid: true,
+ *   gridCellSizeMm: 12,
+ *   gridColor: "#787878",
  *   view: mapView
  * });
  */
@@ -112,8 +175,27 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   // Centrar horizontalmente
   const mapLeftCentered = mapLeft + (maxMapWidth - mapWidth) / 2
 
-  doc.rect(mapLeftCentered, mapTop, mapWidth, mapHeight)
   doc.addImage(options.imageUrl, "PNG", mapLeftCentered, mapTop, mapWidth, mapHeight)
+
+  // Marco del mapa para delimitar visualmente la captura dentro del layout.
+  doc.rect(mapLeftCentered, mapTop, mapWidth, mapHeight)
+
+  // Dibujar grilla solo cuando el usuario la activa desde el widget.
+  if (options.showGrid) {
+    const cellSizeMm = options.gridCellSizeMm && options.gridCellSizeMm > 0
+      ? options.gridCellSizeMm
+      : 12
+    const gridColor = options.gridColor || "#787878"
+
+    drawGridOnMap(doc, {
+      mapLeft: mapLeftCentered,
+      mapTop,
+      mapWidth,
+      mapHeight,
+      cellSizeMm,
+      gridColor
+    })
+  }
 
    /* ==========================================
      CAJETÍN INFERIOR
