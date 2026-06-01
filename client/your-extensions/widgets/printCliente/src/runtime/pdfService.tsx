@@ -20,6 +20,7 @@ import { validaLoggerLocalStorage } from "../../../shared/utils/export.utils"
  * @property {number} imageHeight - Alto original de la imagen capturada en píxeles.
  * @property {string} spatialReference - Sistema de referencia espacial del mapa.
  * @property {string} [author] - Autor del mapa (opcional).
+ * @property {boolean} [showGrid] - Si es true, dibuja una grilla sobre la imagen del mapa.
  * @property {__esri.MapView | __esri.SceneView} view - Vista del mapa para extraer la leyenda.
  */
 interface PdfOptions {
@@ -30,7 +31,37 @@ interface PdfOptions {
   imageHeight: number;
   spatialReference: string;
   author?: string;
+  showGrid?: boolean;
   view: __esri.MapView | __esri.SceneView;
+}
+
+/**
+ * Dibuja una grilla regular sobre el área del mapa dentro del PDF.
+ * Se usa como sobreimpresión opcional para apoyar lectura cartográfica.
+ */
+const drawGridOnMap = (
+  doc: JsPDF,
+  mapLeft: number,
+  mapTop: number,
+  mapWidth: number,
+  mapHeight: number
+): void => {
+  const cellSizeMm = 12
+
+  doc.setDrawColor(120, 120, 120)
+  doc.setLineWidth(0.15)
+
+  for (let x = mapLeft + cellSizeMm; x < mapLeft + mapWidth; x += cellSizeMm) {
+    doc.line(x, mapTop, x, mapTop + mapHeight)
+  }
+
+  for (let y = mapTop + cellSizeMm; y < mapTop + mapHeight; y += cellSizeMm) {
+    doc.line(mapLeft, y, mapLeft + mapWidth, y)
+  }
+
+  // Restablecer estilos para no afectar otros elementos del PDF.
+  doc.setDrawColor(0, 0, 0)
+  doc.setLineWidth(1)
 }
 
 
@@ -55,6 +86,7 @@ interface PdfOptions {
  *   imageHeight: 1080,
  *   spatialReference: "WKID 4326",
  *   author: "IGAC",
+ *   showGrid: true,
  *   view: mapView
  * });
  */
@@ -112,8 +144,15 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   // Centrar horizontalmente
   const mapLeftCentered = mapLeft + (maxMapWidth - mapWidth) / 2
 
-  doc.rect(mapLeftCentered, mapTop, mapWidth, mapHeight)
   doc.addImage(options.imageUrl, "PNG", mapLeftCentered, mapTop, mapWidth, mapHeight)
+
+  // Marco del mapa para delimitar visualmente la captura dentro del layout.
+  doc.rect(mapLeftCentered, mapTop, mapWidth, mapHeight)
+
+  // Dibujar grilla solo cuando el usuario la activa desde el widget.
+  if (options.showGrid) {
+    drawGridOnMap(doc, mapLeftCentered, mapTop, mapWidth, mapHeight)
+  }
 
    /* ==========================================
      CAJETÍN INFERIOR

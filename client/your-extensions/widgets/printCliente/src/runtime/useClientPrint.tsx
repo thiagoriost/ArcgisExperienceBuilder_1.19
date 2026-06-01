@@ -14,12 +14,15 @@ import { generatePdf } from "./pdfService"
  * @interface PrintOptions
  * @property {string} [title] - Título del mapa en el PDF (por defecto: "MAPA TEMÁTICO").
  * @property {string} [author] - Autor del mapa (por defecto: "IGAC").
+ * @property {boolean} [showGrid] - Indica si se dibuja una grilla sobre el mapa en el PDF.
  */
 export interface PrintOptions {
   /** Título del mapa en el PDF */
   title?: string
   /** Autor del mapa */
   author?: string
+  /** Dibuja una grilla sobre el mapa en el PDF */
+  showGrid?: boolean
 }
 
 /**
@@ -68,6 +71,7 @@ export const useClientPrint = (jimuMapView?: JimuMapView, options?: PrintOptions
         imageHeight: screenshot.height,
         spatialReference: `WKID ${jimuMapView.view.spatialReference.wkid}`,
         author: options?.author || "IGAC",
+        showGrid: options?.showGrid ?? false,
         view: jimuMapView.view
       })
 
@@ -75,7 +79,7 @@ export const useClientPrint = (jimuMapView?: JimuMapView, options?: PrintOptions
       setLoading(false)
     }
 
-  }, [jimuMapView, options?.title, options?.author])
+  }, [jimuMapView, options?.title, options?.author, options?.showGrid])
 
   return { print, loading }
 }

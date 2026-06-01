@@ -28,8 +28,9 @@ export default function Widget(props: any) {
   const [jimuMapView, setJimuMapView] = React.useState<any>()
   const [title, setTitle] = React.useState("Sig Quindío")
   const [author, setAuthor] = React.useState("")
+  const [showGrid, setShowGrid] = React.useState(false)
 
-  const { print, loading } = useClientPrint(jimuMapView, { title, author })
+  const { print, loading } = useClientPrint(jimuMapView, { title, author, showGrid })
 
   /**
    * Restablece los campos del formulario a sus valores vacíos.
@@ -69,6 +70,17 @@ export default function Widget(props: any) {
         />
       </div>
 
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={showGrid}
+            onChange={(e) => { setShowGrid(e.target.checked) }}
+          />
+          Dibujar grilla
+        </label>
+      </div>
+
       {/* <button
         onClick={print}
         disabled={loading}
@@ -83,7 +95,6 @@ export default function Widget(props: any) {
         loading={loading}
         disableSearch={loading || author.trim() === "" || title.trim() === ""}
         searchLabel="Imprimir PDF"
-        searchLabelLoading="Generando PDF..."
         clearLabel="Limpiar campos"
       />
 
