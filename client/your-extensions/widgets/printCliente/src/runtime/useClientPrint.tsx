@@ -15,6 +15,8 @@ import { generatePdf } from "./pdfService"
  * @property {string} [title] - Título del mapa en el PDF (por defecto: "MAPA TEMÁTICO").
  * @property {string} [author] - Autor del mapa (por defecto: "IGAC").
  * @property {boolean} [showGrid] - Indica si se dibuja una grilla sobre el mapa en el PDF.
+ * @property {number} [gridCellSizeMm] - Tamaño de celda de grilla en mm (por defecto: 12).
+ * @property {string} [gridColor] - Color de la grilla en formato hexadecimal (por defecto: #787878).
  */
 export interface PrintOptions {
   /** Título del mapa en el PDF */
@@ -23,6 +25,10 @@ export interface PrintOptions {
   author?: string
   /** Dibuja una grilla sobre el mapa en el PDF */
   showGrid?: boolean
+  /** Tamaño de celda de grilla en mm */
+  gridCellSizeMm?: number
+  /** Color de la grilla en formato hexadecimal */
+  gridColor?: string
 }
 
 /**
@@ -72,6 +78,8 @@ export const useClientPrint = (jimuMapView?: JimuMapView, options?: PrintOptions
         spatialReference: `WKID ${jimuMapView.view.spatialReference.wkid}`,
         author: options?.author || "IGAC",
         showGrid: options?.showGrid ?? false,
+        gridCellSizeMm: options?.gridCellSizeMm ?? 12,
+        gridColor: options?.gridColor || "#787878",
         view: jimuMapView.view
       })
 
@@ -79,7 +87,14 @@ export const useClientPrint = (jimuMapView?: JimuMapView, options?: PrintOptions
       setLoading(false)
     }
 
-  }, [jimuMapView, options?.title, options?.author, options?.showGrid])
+  }, [
+    jimuMapView,
+    options?.title,
+    options?.author,
+    options?.showGrid,
+    options?.gridCellSizeMm,
+    options?.gridColor
+  ])
 
   return { print, loading }
 }

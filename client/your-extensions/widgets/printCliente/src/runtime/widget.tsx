@@ -29,8 +29,16 @@ export default function Widget(props: any) {
   const [title, setTitle] = React.useState("Sig Quindío")
   const [author, setAuthor] = React.useState("")
   const [showGrid, setShowGrid] = React.useState(false)
+  const [gridCellSizeMm, setGridCellSizeMm] = React.useState(12)
+  const [gridColor, setGridColor] = React.useState("#787878")
 
-  const { print, loading } = useClientPrint(jimuMapView, { title, author, showGrid })
+  const { print, loading } = useClientPrint(jimuMapView, {
+    title,
+    author,
+    showGrid,
+    gridCellSizeMm,
+    gridColor
+  })
 
   /**
    * Restablece los campos del formulario a sus valores vacíos.
@@ -80,6 +88,40 @@ export default function Widget(props: any) {
           Dibujar grilla
         </label>
       </div>
+
+      {/* Controles avanzados de grilla visibles solo cuando la grilla está activada. */}
+      {showGrid && (
+        <div style={{display: 'flex', flexDirection: 'row', gap: '10px' }}>
+          <div style={{ marginBottom: '10px', width: '50%' }}>
+            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+              Tamaño de grilla (mm):
+            </label>
+            <input
+              type="number"
+              min={1}
+              step={1}
+              value={gridCellSizeMm}
+              onChange={(e) => {
+                const value = Number(e.target.value)
+                setGridCellSizeMm(Number.isFinite(value) && value > 0 ? value : 12)
+              }}
+              style={{ padding: '6px', boxSizing: 'border-box' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '10px', width: '50%' }}>
+            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+              Color de grilla:
+            </label>
+            <input
+              type="color"
+              value={gridColor}
+              onChange={(e) => { setGridColor(e.target.value) }}
+              style={{ height: '38px', padding: '4px', boxSizing: 'border-box', width: '100%' }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* <button
         onClick={print}

@@ -21,6 +21,8 @@ import { validaLoggerLocalStorage } from "../../../shared/utils/export.utils"
  * @property {string} spatialReference - Sistema de referencia espacial del mapa.
  * @property {string} [author] - Autor del mapa (opcional).
  * @property {boolean} [showGrid] - Si es true, dibuja una grilla sobre la imagen del mapa.
+ * @property {number} [gridCellSizeMm] - Tamaño de celda de grilla en mm (por defecto: 12).
+ * @property {string} [gridColor] - Color hexadecimal de la grilla (por defecto: #787878).
  * @property {__esri.MapView | __esri.SceneView} view - Vista del mapa para extraer la leyenda.
  */
 interface PdfOptions {
@@ -32,23 +34,50 @@ interface PdfOptions {
   spatialReference: string;
   author?: string;
   showGrid?: boolean;
+  gridCellSizeMm?: number;
+  gridColor?: string;
   view: __esri.MapView | __esri.SceneView;
+}
+
+/**
+ * Convierte un color hexadecimal (#RRGGBB) a componentes RGB.
+ * Si el valor no es válido, retorna un gris por defecto.
+ */
+const hexToRgb = (hexColor?: string): [number, number, number] => {
+  if (!hexColor) return [120, 120, 120]
+
+  const sanitized = hexColor.replace("#", "")
+  if (sanitized.length !== 6) return [120, 120, 120]
+
+  const r = Number.parseInt(sanitized.slice(0, 2), 16)
+  const g = Number.parseInt(sanitized.slice(2, 4), 16)
+  const b = Number.parseInt(sanitized.slice(4, 6), 16)
+
+  if ([r, g, b].some((value) => Number.isNaN(value))) {
+    return [120, 120, 120]
+  }
+
+  return [r, g, b]
 }
 
 /**
  * Dibuja una grilla regular sobre el área del mapa dentro del PDF.
  * Se usa como sobreimpresión opcional para apoyar lectura cartográfica.
  */
-const drawGridOnMap = (
-  doc: JsPDF,
-  mapLeft: number,
-  mapTop: number,
-  mapWidth: number,
-  mapHeight: number
-): void => {
-  const cellSizeMm = 12
+interface GridDrawingOptions {
+  mapLeft: number;
+  mapTop: number;
+  mapWidth: number;
+  mapHeight: number;
+  cellSizeMm: number;
+  gridColor: string;
+}
 
-  doc.setDrawColor(120, 120, 120)
+const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
+  const { mapLeft, mapTop, mapWidth, mapHeight, cellSizeMm, gridColor } = gridOptions
+  const [r, g, b] = hexToRgb(gridColor)
+
+  doc.setDrawColor(r, g, b)
   doc.setLineWidth(0.15)
 
   for (let x = mapLeft + cellSizeMm; x < mapLeft + mapWidth; x += cellSizeMm) {
@@ -87,6 +116,8 @@ const drawGridOnMap = (
  *   spatialReference: "WKID 4326",
  *   author: "IGAC",
  *   showGrid: true,
+ *   gridCellSizeMm: 12,
+ *   gridColor: "#787878",
  *   view: mapView
  * });
  */
@@ -151,7 +182,19 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
 
   // Dibujar grilla solo cuando el usuario la activa desde el widget.
   if (options.showGrid) {
-    drawGridOnMap(doc, mapLeftCentered, mapTop, mapWidth, mapHeight)
+    const cellSizeMm = options.gridCellSizeMm && options.gridCellSizeMm > 0
+      ? options.gridCellSizeMm
+      : 12
+    const gridColor = options.gridColor || "#787878"
+
+    drawGridOnMap(doc, {
+      mapLeft: mapLeftCentered,
+      mapTop,
+      mapWidth,
+      mapHeight,
+      cellSizeMm,
+      gridColor
+    })
   }
 
    /* ==========================================
