@@ -194,11 +194,11 @@ interface StoredBufferRecord {
   /** Campos de tabla asociados al conjunto de resultados. */
   resultFields: BufferResultField[]
   /** Filas normalizadas para visualización tabular. */
-  resultRows: BufferResultRow[]
+  intersectedFeaturesByBuffer: BufferResultRow[]
   /** Referencia espacial de los resultados de este buffer. */
   spatialReference?: __esri.SpatialReference
   /** Estado de visibilidad individual del buffer. */
-  checked: boolean
+  bufferChecked: boolean
 }
 
 /**
@@ -461,7 +461,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   const [isProcessing, setIsProcessing] = React.useState(false)
 
   /** Filas normalizadas para tabla local de resultados. */
-  const [resultRows, setResultRows] = React.useState<BufferResultRow[]>([])
+  const [intersectedFeaturesByBuffer, setIntersectedFeaturesByBuffer] = React.useState<BufferResultRow[]>([])
   /** Definición de columnas para la tabla local. */
   const [resultFields, setResultFields] = React.useState<BufferResultField[]>([])
   /** Mensaje informativo del resultado espacial. */
@@ -489,6 +489,8 @@ const Widget = (props: AllWidgetProps<any>) => {
   const lastSpatialRequestKeyRef = React.useRef('')
   /** Consecutivo interno para asignar id secuencial por buffer. */
   const nextBufferIdRef = React.useRef(1)
+  /** Guarda el último buffer seleccionado para restaurar su foco al reactivar la vista global. */
+  const lastSelectedBufferIdRef = React.useRef<number | null>(null)
   /** Extent inicial de la vista para restaurarlo al cerrar el widget. */
   const initialExtentRef = React.useRef<__esri.Extent | null>(null)
   /** Zoom inicial del mapa para restablecer la vista al limpiar. */
@@ -1048,7 +1050,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   const clearDrawings = React.useCallback((): void => {
     lineStartPointRef.current = null
     graphicsLayerRef.current?.removeAll()
-    setResultRows([])
+    setIntersectedFeaturesByBuffer([])
     setResultFields([])
     setResultMessage('')
     setBufferHistory([])
@@ -1303,29 +1305,47 @@ const Widget = (props: AllWidgetProps<any>) => {
     if(validaLoggerLocalStorage('logger')) {
       console.log('Buffer - openResultsForStoredBuffer:', {buffer})
     }
-    if (!buffer.checked || buffer.resultRows.length === 0) {
+    if (!buffer.bufferChecked || buffer.intersectedFeaturesByBuffer.length === 0) {
       limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
       return
     }
 
-    const featuresForResultWidget = buffer.resultRows.map(row => ({
+    const featuresForResultWidget = buffer.intersectedFeaturesByBuffer.map(row => ({
       attributes: row.attributes,
       geometry: row.geometry
     }))
 
-    abrirTablaResultados(
-      false,
-      featuresForResultWidget,
-      buffer.resultFields,
-      props,
-      WIDGET_IDS.RESULT,
-      buffer.spatialReference,
-      `Intersección por buffer #${buffer.idBuffer}`,
-      {
-        showGraphic: false
-      }
-    )
+    if (buffer.bufferChecked) {
+      abrirTablaResultados(
+        false,
+        featuresForResultWidget,
+        buffer.resultFields,
+        props,
+        WIDGET_IDS.RESULT,
+        buffer.spatialReference,
+        `Intersección por buffer #${buffer.idBuffer}`,
+        {
+          showGraphic: false
+        }
+      )      
+    }
   }, [props])
+
+  /**
+   * Marca todos los buffers como visibles o invisibles de una sola vez.
+   *
+   * @param checked Estado de visibilidad a aplicar a todo el historial.
+   * @returns {void}
+   */
+  const setAllBufferChecks = React.useCallback((checked: boolean): void => {
+    if(validaLoggerLocalStorage('logger')) {
+      console.log('Buffer - setAllBufferChecks:', { checked, bufferHistory })
+    }
+    setBufferHistory(prev => prev.map(buffer => ({
+      ...buffer,
+      bufferChecked: checked
+    })))
+  }, [bufferHistory])
 
   /**
    * Redibuja todos los buffers visibles en el GraphicsLayer temporal.
@@ -1349,7 +1369,7 @@ const Widget = (props: AllWidgetProps<any>) => {
       return
     }
 
-    const visibleBuffers = bufferHistory.filter(buffer => buffer.checked)
+    const visibleBuffers = bufferHistory.filter(buffer => buffer.bufferChecked)
 
     visibleBuffers.forEach(buffer => {
       const sourceGeometry = geometryJsonUtils.fromJSON(buffer.sourceGeometry) as __esri.GeometryUnion | null
@@ -1412,19 +1432,10 @@ const Widget = (props: AllWidgetProps<any>) => {
    */
   const focusStoredBuffer = React.useCallback(async (buffer: StoredBufferRecord, shouldZoom = true) => {
     if(validaLoggerLocalStorage('logger')) {
-      console.log('Buffer - focusStoredBuffer:', {
-        bufferId: buffer.idBuffer,
-        extent: buffer.extent,
-        sourceGeometry: buffer.sourceGeometry,
-        bufferGeometry: buffer.bufferGeometry,
-        intersectedFeatures: buffer.intersectedFeatures,
-        resultRows: buffer.resultRows,
-        resultFields: buffer.resultFields,
-        spatialReference: buffer.spatialReference,
-        shouldZoom
-      })
+      console.log('Buffer - focusStoredBuffer:', {buffer, shouldZoom })
     }
     setSelectedBufferId(buffer.idBuffer)
+    lastSelectedBufferIdRef.current = buffer.idBuffer // Actualizamos la referencia del último buffer seleccionado para mantener el seguimiento correcto del estado de selección, especialmente en casos donde el usuario pueda interactuar rápidamente con múltiples entradas del historial o cuando se apliquen filtros de visibilidad que oculten temporalmente algunos buffers.
 
     if (shouldZoom && buffer.extent && jimuMapView?.view) {
       const extentGeometry = geometryJsonUtils.fromJSON({
@@ -1513,7 +1524,7 @@ const Widget = (props: AllWidgetProps<any>) => {
       const intersectedFeatures = queryResult.features ?? []
 
       const mappedResults = mapQueryResults(intersectedFeatures)
-      setResultRows(mappedResults.rows)
+      setIntersectedFeaturesByBuffer(mappedResults.rows)
       setResultFields(mappedResults.fields)
 
       const storedBuffer: StoredBufferRecord = {
@@ -1526,9 +1537,9 @@ const Widget = (props: AllWidgetProps<any>) => {
           geometry: row.geometry
         })),
         resultFields: mappedResults.fields,
-        resultRows: mappedResults.rows,
+        intersectedFeaturesByBuffer: mappedResults.rows,
         spatialReference: view.spatialReference,
-        checked: true
+        bufferChecked: true // Por defecto, el nuevo buffer se agrega como visible en el historial para que el usuario pueda verlo inmediatamente después de la generación, mejorando la experiencia de interacción al no requerir pasos adicionales para mostrar el buffer recién creado.
       }
 
       setBufferHistory(prev => [...prev, storedBuffer])
@@ -1550,7 +1561,7 @@ const Widget = (props: AllWidgetProps<any>) => {
       console.error('Error en el flujo de buffer/intersección:', error)
       setActionError('Ocurrió un error al generar el buffer o consultar intersecciones.')
       setResultMessage('No fue posible completar el análisis espacial.')
-      setResultRows([])
+      setIntersectedFeaturesByBuffer([])
       setResultFields([])
     } finally {
       if (executionId === executionIdRef.current) {
@@ -1634,27 +1645,11 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
   }
 
-  /* 
-   * Alterna un campo específico de todos los registros del historial de buffers.
-   *
-   * @param checked Estado a aplicar. de tipo booleano.
-   * @param field Campo del registro a actualizar. de tipo string que corresponde a una clave de StoredBufferRecord.
-   * @returns void
-   * @internal
-   */
-  const toggleAllFieldOf_bufferHistory = (checked: boolean, field: keyof StoredBufferRecord) => {
-    setBufferHistory(prev => prev.map(buffer => ({
-      ...buffer,
-      [field]: checked
-    })))
-  }
-
-
   /**
    * Gestiona el check global de visualización de buffers.
    *
    * Cuando está inactivo oculta todas las geometrías y cierra resultados.
-   * Al activarlo vuelve a pintar las geometrías visibles por check individual.
+   * Al activarlo restaura todos los checks y reabre el último buffer seleccionado.
    */
   const onToggleShowAllBuffers = (event: React.ChangeEvent<HTMLInputElement>) => {
     if(validaLoggerLocalStorage('logger')) {
@@ -1663,12 +1658,25 @@ const Widget = (props: AllWidgetProps<any>) => {
       })
     }
     const checked = event.target.checked
-    setShowAllBuffers(checked)
+    setShowAllBuffers(checked) // Actualizamos el estado de visibilidad global de buffers, lo que a su vez desencadenará un redibujo de las geometrías en el mapa según el nuevo estado. Esto permite al usuario controlar rápidamente la visualización de todos los buffers generados sin perder el contexto de su historial o selección individual.
 
     if (!checked) {
-      toggleAllFieldOf_bufferHistory(checked, 'checked')      
+      setAllBufferChecks(false) // Desactivamos todos los checks individuales de buffers cuando se desactiva la visualización global, asegurando que ningún buffer permanezca visible de manera inconsistente.
       setSelectedBufferId(null)
       limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
+      return
+    }
+
+    setAllBufferChecks(true) // Activamos todos los checks individuales de buffers cuando se activa la visualización global, asegurando que todos los buffers sean visibles de manera consistente.
+
+    if (bufferHistory.length === 0 || bufferHistory.length > 1) return
+
+    const targetBufferId = lastSelectedBufferIdRef.current || bufferHistory[0].idBuffer // Intentamos mantener el foco en el último buffer seleccionado por el usuario para mejorar la experiencia de navegación al mostrar nuevamente los buffers. Si no existe un buffer previamente seleccionado, no se enfocará ningún buffer específico, permitiendo al usuario elegir manualmente cuál revisar primero desde el historial.
+    if (targetBufferId == null) return
+
+    const targetBuffer = bufferHistory.find(item => item.idBuffer === targetBufferId) // Buscamos el registro del último buffer seleccionado para restaurar su visualización y resultados asociados al reactivar la vista de buffers. Esto mejora la continuidad de la experiencia del usuario al mantener el contexto del último análisis revisado, especialmente en casos donde se hayan aplicado filtros de visibilidad que ocultaron temporalmente los buffers.
+    if (targetBuffer) {
+      void focusStoredBuffer({ ...targetBuffer, bufferChecked: true }, true) // Al reactivar la visualización global de buffers, enfocamos el último buffer seleccionado para restaurar su contexto visual y resultados asociados, mejorando la experiencia del usuario al mantener el seguimiento de su última interacción con los análisis de buffer realizados.
     }
   }
 
@@ -1687,7 +1695,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
     setBufferHistory(prev => prev.map(buffer => {
       const isTargetBuffer = buffer.idBuffer === bufferId
-        ? { ...buffer, checked }
+        ? { ...buffer, bufferChecked: checked }
         : buffer
       return isTargetBuffer
     }))
@@ -1695,14 +1703,16 @@ const Widget = (props: AllWidgetProps<any>) => {
     if (!checked) {
       if (selectedBufferId === bufferId) {
         setSelectedBufferId(null)
-        limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
+        const resetInitialExtent = false // Al cerrar un buffer individual, mantenemos el extent actual para evitar cambios bruscos en la vista del mapa, permitiendo al usuario seguir explorando otros buffers o áreas del mapa sin perder su contexto visual actual. Esto mejora la experiencia de navegación al no forzar una restauración del extent inicial cada vez que se oculta un buffer específico.
+        limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT, resetInitialExtent) 
       }
       return
     }
 
     const targetBuffer = bufferHistory.find(item => item.idBuffer === bufferId)
     if (targetBuffer) {
-      void focusStoredBuffer({ ...targetBuffer, checked }, true)
+      lastSelectedBufferIdRef.current = bufferId // Actualizamos la referencia del último buffer seleccionado para mantener el seguimiento correcto del estado de selección, especialmente en casos donde el usuario pueda interactuar rápidamente con múltiples entradas del historial o cuando se apliquen filtros de visibilidad que oculten temporalmente algunos buffers. Esto asegura que al activar un buffer específico, el sistema recuerde esta selección como la más reciente para futuras interacciones relacionadas con la visualización de buffers.
+      void focusStoredBuffer({ ...targetBuffer, bufferChecked: checked }, true)
     }
   }
 
@@ -1713,14 +1723,20 @@ const Widget = (props: AllWidgetProps<any>) => {
    */
   const onSelectBufferRow = (buffer: StoredBufferRecord) => {
     if(validaLoggerLocalStorage('logger')) {
-      console.log('Buffer - onSelectBufferRow:', {
-        bufferId: buffer.idBuffer,
-        checked: buffer.checked
-      })
+      console.log('Buffer - onSelectBufferRow:', {buffer})
     }
-    if (!buffer.checked || !showAllBuffers) return
+    if (!buffer.bufferChecked || !showAllBuffers) return
+    lastSelectedBufferIdRef.current = buffer.idBuffer
     void focusStoredBuffer(buffer, true)
   }
+
+  /**
+   * Etiqueta del control global de buffers según el estado actual.
+   *
+   * Cuando el checkbox está activo, la acción resultante será ocultar.
+   * Cuando está inactivo, la acción será mostrar.
+   */
+  const showAllBuffersLabel = showAllBuffers ? 'Ocultar todos los buffers' : 'Mostrar todos los buffers'
 
 
 
@@ -1819,6 +1835,9 @@ const Widget = (props: AllWidgetProps<any>) => {
                       <span>Linea</span>
                     </Button>
                   </div>
+                  {drawMode === 'line' && (
+                    <p className='buffer-widget__hint'>Para linea: haga clic en dos puntos del mapa.</p>
+                  )}
                 </>
               )
           }
@@ -1854,14 +1873,14 @@ const Widget = (props: AllWidgetProps<any>) => {
 
           {bufferHistory.length > 0 && (
             <div style={{ marginTop: '10px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+             {/*  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                 <input
                   type='checkbox'
                   checked={showAllBuffers}
                   onChange={onToggleShowAllBuffers}
                 />
-                <span>Mostrar todos los buffers</span>
-              </label>
+                <span>{showAllBuffersLabel}</span>
+              </label> */}
 
               <div className='widget-result-table-container' style={{ maxHeight: '240px', overflow: 'auto' }}>
                 <table className='table table-sm table-striped' style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -1876,16 +1895,16 @@ const Widget = (props: AllWidgetProps<any>) => {
                     {bufferHistory.map(buffer => (
                       <tr
                         key={buffer.idBuffer}
-                        onClick={() => { onSelectBufferRow(buffer) }}
+                        // onClick={() => { onSelectBufferRow(buffer) }}
                         style={{
-                          cursor: buffer.checked && showAllBuffers ? 'pointer' : 'default',
+                          cursor: buffer.bufferChecked && showAllBuffers ? 'pointer' : 'default',
                           backgroundColor: selectedBufferId === buffer.idBuffer ? 'rgba(0, 128, 255, 0.08)' : 'transparent'
                         }}
                       >
                         <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>
                           <input
                             type='checkbox'
-                            checked={buffer.checked}
+                            checked={buffer.bufferChecked}
                             onChange={(event) => {
                               event.stopPropagation()
                               onToggleBufferCheck(buffer.idBuffer, event.target.checked)
@@ -1893,7 +1912,7 @@ const Widget = (props: AllWidgetProps<any>) => {
                           />
                         </td>
                         <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>#{buffer.idBuffer}</td>
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.resultRows.length}</td>
+                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.intersectedFeaturesByBuffer.length}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1902,7 +1921,7 @@ const Widget = (props: AllWidgetProps<any>) => {
             </div>
           )}
 
-          {/* {resultRows.length > 0 && resultFields.length > 0 && (
+          {/* {intersectedFeaturesByBuffer.length > 0 && resultFields.length > 0 && (
             <div className='widget-result-table-container' style={{ marginTop: '10px', maxHeight: '220px', overflow: 'auto' }}>
               <table className='table table-sm table-striped' style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -1915,7 +1934,7 @@ const Widget = (props: AllWidgetProps<any>) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {resultRows.map(row => (
+                  {intersectedFeaturesByBuffer.map(row => (
                     <tr key={row.rowId}>
                       {resultFields.map(field => (
                         <td key={`${row.rowId}-${field.name}`} style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>
@@ -1928,10 +1947,6 @@ const Widget = (props: AllWidgetProps<any>) => {
               </table>
             </div>
           )} */}
-
-          {drawMode === 'line' && (
-            <p className='buffer-widget__hint'>Para linea: haga clic en dos puntos del mapa.</p>
-          )}
         </div>
 
         {isLayerLoading && <OurLoading />}

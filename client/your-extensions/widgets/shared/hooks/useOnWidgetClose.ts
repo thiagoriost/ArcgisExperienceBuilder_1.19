@@ -4,6 +4,8 @@ import { useSelector } from 'react-redux'
 import { goToInitialExtent } from '../utils/export.utils'
 import { JimuMapView } from 'jimu-arcgis'
 
+import { validaLoggerLocalStorage } from '../../shared/utils/export.utils'
+
 /**
  * Hook personalizado que detecta cuando un widget de ArcGIS Experience Builder
  * cambia su estado de `OPENED` a `CLOSED`. Este hook solo detecta cierre del widget.
@@ -47,6 +49,7 @@ export const useOnWidgetClose = (
   initialZoom: number | null,
   initialScale: number | null,
   onClose?: () => void,
+  resetInitialExtent: boolean = true
 ) => {
 
   const widgetState = useSelector((state: IMState) =>
@@ -56,11 +59,14 @@ export const useOnWidgetClose = (
   const prevState = React.useRef(widgetState)
 
   React.useEffect(() => {
+    if(validaLoggerLocalStorage('logger')) console.log('useOnWidgetClose:', { prevState: prevState.current, widgetState })
     if (
       prevState.current === 'OPENED' &&
       widgetState === 'CLOSED'
     ) {
-      goToInitialExtent( jimuMapView, initialExtent, initialZoom, initialScale )
+      if (resetInitialExtent) {
+        goToInitialExtent( jimuMapView, initialExtent, initialZoom, initialScale )        
+      }
       onClose?.()
     }
 
