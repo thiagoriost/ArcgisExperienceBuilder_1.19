@@ -605,14 +605,15 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
         // restoreInitialExtent(jimuMapView, initialExtentRef)
     }
 
-    if (!data) return null
-
-    const resetInitialExtent = data.resetInitialExtent ?? true // por si se quiere controlar desde la configuración del widget si se restaura o no el extent al cerrar o limpiar resultados, se asume que por defecto sí se restaura
+    // Se calcula de forma segura para mantener el orden de hooks aun cuando data sea null.
+    const resetInitialExtent = data?.resetInitialExtent ?? true // por si se quiere controlar desde la configuración del widget si se restaura o no el extent al cerrar o limpiar resultados, se asume que por defecto sí se restaura
     /**
      * Hook que detecta el cierre del widget
      * y ejecuta la función de limpieza.
      */
     useOnWidgetClose(props.id, jimuMapView, initialExtentRef, initialZoomRef.current, initialScaleRef.current, onClose, resetInitialExtent)
+
+    if (!data || !data.features) return null
 
 
 
