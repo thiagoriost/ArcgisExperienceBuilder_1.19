@@ -26,6 +26,8 @@ import { WIDGET_IDS } from '../../../shared/constants/widget-ids'
 import { useSelector } from 'react-redux'
 import OurLoading from '../../../commonWidgets/our_loading/OurLoading'
 
+
+let nameCapa = "" // Variable global para almacenar el nombre de la capa seleccionada, usada en la generación de ID de buffer para resultados y trazas de depuración.
 /**
  * Opcion renderizada en controles tipo select.
  */
@@ -181,8 +183,13 @@ interface StoredIntersectedFeature {
  * Registro de buffer ejecutado por el usuario.
  */
 interface StoredBufferRecord {
-  /** Identificador secuencial del buffer. */
-  idBuffer: number
+  /**
+   * Identificador legible del buffer con formato:
+   * "<nombre de capa> #<consecutivo>".
+   *
+   * Permite diferenciar buffers entre capas distintas en historial y resultados.
+   */
+  idBuffer: string
   /** Extent serializado del buffer para navegación rápida. */
   extent?: __esri.ExtentProperties
   /** Geometría base usada para construir buffer (punto o línea). */
@@ -469,7 +476,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   /** Historial de buffers ejecutados por el usuario. */
   const [bufferHistory, setBufferHistory] = React.useState<StoredBufferRecord[]>([])
   /** Buffer actualmente seleccionado en la tabla de historial. */
-  const [selectedBufferId, setSelectedBufferId] = React.useState<number | null>(null)
+  const [selectedBufferId, setSelectedBufferId] = React.useState<string | null>(null)
   /** Control global para mostrar/ocultar todas las geometrías de buffer. */
   const [showAllBuffers, setShowAllBuffers] = React.useState(true)
   /** Pestaña activa de la interfaz: formulario o historial. */
@@ -492,7 +499,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   /** Consecutivo interno para asignar id secuencial por buffer. */
   const nextBufferIdRef = React.useRef(1)
   /** Guarda el último buffer seleccionado para restaurar su foco al reactivar la vista global. */
-  const lastSelectedBufferIdRef = React.useRef<number | null>(null)
+  const lastSelectedBufferIdRef = React.useRef<string | null>(null)
   /** Extent inicial de la vista para restaurarlo al cerrar el widget. */
   const initialExtentRef = React.useRef<__esri.Extent | null>(null)
   /** Zoom inicial del mapa para restablecer la vista al limpiar. */
@@ -1007,7 +1014,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     setActionError('')
     clearDrawings()
     void restoreInitialExtent()
-
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
   }
 
   /**
@@ -1018,6 +1025,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     setGrupoValue('')
     setCapaValue('')
     setActionError('')
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
   }
 
   /**
@@ -1030,13 +1038,17 @@ const Widget = (props: AllWidgetProps<any>) => {
     setGrupoValue(event.target.value)
     setCapaValue('')
     setActionError('')
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
   }
 
   /**
    * Almacena la capa seleccionada.
    */
   const onCapaChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setCapaValue(event.target.value)
+    const selectedValue = event.target.value
+    setCapaValue(selectedValue)
+    nameCapa = selectedValue
+    if(validaLoggerLocalStorage('logger')) console.log('Buffer - OnCapaChange:', selectedValue)
     setActionError('')
   }
 
@@ -1328,7 +1340,7 @@ const Widget = (props: AllWidgetProps<any>) => {
         props,
         WIDGET_IDS.RESULT,
         buffer.spatialReference,
-        `Intersección por buffer #${buffer.idBuffer}`,
+        `Buffer sobre ${buffer.idBuffer}`,
         {
           showGraphic: false
         }
@@ -1476,7 +1488,13 @@ const Widget = (props: AllWidgetProps<any>) => {
    */
   const drawBuffer = React.useCallback(async (geometry: __esri.GeometryUnion): Promise<void> => {
     if(validaLoggerLocalStorage('logger')) {
-      console.log('Buffer - drawBuffer invoked with geometry:', geometry)
+      console.log('Buffer - drawBuffer invoked with geometry:', {
+        geometry,
+        jimuMapView,
+        distancia,
+        unidad,
+        capaValue
+      })
     }
     const view = jimuMapView?.view
     const graphicsLayer = graphicsLayerRef.current
@@ -1532,8 +1550,15 @@ const Widget = (props: AllWidgetProps<any>) => {
       setIntersectedFeaturesByBuffer(mappedResults.rows)
       setResultFields(mappedResults.fields)
 
+      /**
+       * Identificador compuesto para distinguir buffers por capa origen.
+       *
+       * Ejemplo: "Predios Urbanos #3".
+       */
+      const bufferId = `${nameCapa} #${nextBufferIdRef.current++}`
+
       const storedBuffer: StoredBufferRecord = {
-        idBuffer: nextBufferIdRef.current++,
+        idBuffer: bufferId,
         extent: bufferGeometry.extent?.toJSON?.(),
         sourceGeometry: preparedGeometry.toJSON() as __esri.GeometryProperties,
         bufferGeometry: bufferGeometry.toJSON() as __esri.GeometryProperties,
@@ -1691,7 +1716,7 @@ const Widget = (props: AllWidgetProps<any>) => {
    * @param bufferId Identificador del buffer a actualizar.
    * @param checked Estado de visibilidad solicitado.
    */
-  const onToggleBufferCheck = (bufferId: number, checked: boolean) => {
+  const onToggleBufferCheck = (bufferId: string, checked: boolean) => {
     if(validaLoggerLocalStorage('logger')) {
       console.log('Buffer - onToggleBufferCheck:', {
         bufferId,
