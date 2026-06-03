@@ -605,15 +605,18 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
         // restoreInitialExtent(jimuMapView, initialExtentRef)
     }
 
+    // Se calcula de forma segura para mantener el orden de hooks aun cuando data sea null.
+    const resetInitialExtent = data?.resetInitialExtent ?? true // por si se quiere controlar desde la configuración del widget si se restaura o no el extent al cerrar o limpiar resultados, se asume que por defecto sí se restaura
     /**
      * Hook que detecta el cierre del widget
      * y ejecuta la función de limpieza.
      */
-    useOnWidgetClose(props.id, jimuMapView, initialExtentRef, initialZoomRef.current, initialScaleRef.current, onClose)
+    useOnWidgetClose(props.id, jimuMapView, initialExtentRef, initialZoomRef.current, initialScaleRef.current, onClose, resetInitialExtent)
+
+    if (!data || !data.features) return null
 
 
 
-    if (!data) return null
 
     if(validaLoggerLocalStorage('logger')) console.log('Resultados recibidos en WidgetResult:', data)
     if(validaLoggerLocalStorage('logger')) console.log(data.features)
@@ -1035,11 +1038,13 @@ export const abrirTablaResultados = (
  * Limpia el estado de resultados del widget y ejecuta su cierre.
  *
  * @param widgetResultId Id del widget-result en el layout.
+ * @param resetInitialExtent Indica si se debe restaurar el extent inicial al cerrar el widget.
  */
-export const limpiarYCerrarWidgetResultados = (widgetResultId: string) => {
+export const limpiarYCerrarWidgetResultados = (widgetResultId: string, resetInitialExtent: boolean = true) => {
   // Limpia la data enviada al widget de resultados
+  const data = {resetInitialExtent}
   getAppStore().dispatch(
-    appActions.widgetStatePropChange(widgetResultId, "results", null),
+    appActions.widgetStatePropChange(widgetResultId, "results", data),
   );
   // Cierra el widget de resultados
   getAppStore().dispatch(appActions.closeWidget(widgetResultId));
