@@ -472,6 +472,8 @@ const Widget = (props: AllWidgetProps<any>) => {
   const [selectedBufferId, setSelectedBufferId] = React.useState<number | null>(null)
   /** Control global para mostrar/ocultar todas las geometrías de buffer. */
   const [showAllBuffers, setShowAllBuffers] = React.useState(true)
+  /** Pestaña activa de la interfaz: formulario o historial. */
+  const [activeTab, setActiveTab] = React.useState<'formulario' | 'historial'>('formulario')
   /** Estado de carga de la capa de características seleccionada. */
   const [isLayerLoading, setIsLayerLoading] = React.useState(false)
 
@@ -501,6 +503,8 @@ const Widget = (props: AllWidgetProps<any>) => {
   const clickPopupEnabledRef = React.useRef<boolean | null>(null)
   /** Estado previo de highlight automático por clic para restaurarlo después. */
   const clickHighlightEnabledRef = React.useRef<boolean | null>(null)
+  /** Referencias DOM de pestañas para navegación por teclado con foco controlado. */
+  const tabButtonRefs = React.useRef<Array<HTMLButtonElement | null>>([])
 
   /**
    * Restaura el comportamiento automático de popups por clic del mapa a su estado previo.
@@ -1048,12 +1052,13 @@ const Widget = (props: AllWidgetProps<any>) => {
    * Limpia geometrias dibujadas y estado temporal de interaccion.
    */
   const clearDrawings = React.useCallback((): void => {
+    if (validaLoggerLocalStorage('logger')) console.log('Buffer - clearDrawings', { bufferHistory,intersectedFeaturesByBuffer })
     lineStartPointRef.current = null
     graphicsLayerRef.current?.removeAll()
     setIntersectedFeaturesByBuffer([])
     setResultFields([])
     setResultMessage('')
-    setBufferHistory([])
+    // setBufferHistory([])
     setSelectedBufferId(null)
     setShowAllBuffers(true)
     nextBufferIdRef.current = 1
@@ -1102,7 +1107,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     setSubtemaValue('')
     setGrupoValue('')
     setCapaValue('')
-
+    setActiveTab('formulario')
      const view = jimuMapView?.view
     if (view && activeLayerRef.current && view.map.findLayerById(activeLayerRef.current.id)) {
       view.map.remove(activeLayerRef.current)
@@ -1359,7 +1364,7 @@ const Widget = (props: AllWidgetProps<any>) => {
         bufferHistory
       })
     }
-    if (bufferHistory.length === 0) return
+    if (bufferHistory.length === 0 || props.state === 'CLOSED') return
     const graphicsLayer = graphicsLayerRef.current
     if (!graphicsLayer) return
 
@@ -1738,6 +1743,71 @@ const Widget = (props: AllWidgetProps<any>) => {
    */
   const showAllBuffersLabel = showAllBuffers ? 'Ocultar todos los buffers' : 'Mostrar todos los buffers'
 
+  /**
+   * Cambia la pestaña activa del widget.
+   *
+   * @param tab Identificador de la pestaña a mostrar.
+   */
+  const onTabChange = (tab: 'formulario' | 'historial') => {
+    setActiveTab(tab)
+  }
+
+  /**
+   * Orden fijo de pestañas para navegación con flechas y teclas Home/End.
+   */
+  const tabOrder: Array<'formulario' | 'historial'> = ['formulario', 'historial']
+
+  /**
+   * Enfoca programáticamente una pestaña por índice seguro.
+   *
+   * @param index Índice de la pestaña dentro de tabOrder.
+   */
+  const focusTabByIndex = (index: number): void => {
+    const safeIndex = Math.max(0, Math.min(index, tabOrder.length - 1))
+    const target = tabOrder[safeIndex]
+    setActiveTab(target)
+    tabButtonRefs.current[safeIndex]?.focus()
+  }
+
+  /**
+   * Gestiona accesibilidad avanzada por teclado para tabs.
+   *
+   * Reglas implementadas (WAI-ARIA Tabs):
+   * - ArrowRight: siguiente pestaña
+   * - ArrowLeft: pestaña anterior
+   * - Home: primera pestaña
+   * - End: última pestaña
+   *
+   * @param event Evento de teclado sobre el tab activo/inactivo.
+   * @param currentTab Pestaña desde la cual se dispara el evento.
+   */
+  const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, currentTab: 'formulario' | 'historial'): void => {
+    const currentIndex = tabOrder.indexOf(currentTab)
+
+    if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      focusTabByIndex((currentIndex + 1) % tabOrder.length)
+      return
+    }
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault()
+      focusTabByIndex((currentIndex - 1 + tabOrder.length) % tabOrder.length)
+      return
+    }
+
+    if (event.key === 'Home') {
+      event.preventDefault()
+      focusTabByIndex(0)
+      return
+    }
+
+    if (event.key === 'End') {
+      event.preventDefault()
+      focusTabByIndex(tabOrder.length - 1)
+    }
+  }
+
 
 
   return (
@@ -1750,7 +1820,47 @@ const Widget = (props: AllWidgetProps<any>) => {
       )}
 
       <div className='consulta-widget loading-host'>
-        <div>
+        {/* Navegación principal por pestañas para separar captura (Formulario) e histórico de resultados (Historial). */}
+        <div className='buffer-widget-tabs' role='tablist' aria-label='Secciones del widget Buffer'>
+          <button
+            type='button'
+            role='tab'
+            id='buffer-tab-formulario'
+            aria-selected={activeTab === 'formulario'}
+            aria-controls='buffer-tabpanel-formulario'
+            tabIndex={activeTab === 'formulario' ? 0 : -1}
+            className={`buffer-widget-tab ${activeTab === 'formulario' ? 'is-active' : ''}`}
+            ref={(element) => { tabButtonRefs.current[0] = element }}
+            onKeyDown={(event) => { onTabKeyDown(event, 'formulario') }}
+            onClick={() => { onTabChange('formulario') }}
+          >
+            Formulario
+          </button>
+          <button
+            type='button'
+            role='tab'
+            id='buffer-tab-historial'
+            aria-selected={activeTab === 'historial'}
+            aria-controls='buffer-tabpanel-historial'
+            tabIndex={activeTab === 'historial' ? 0 : -1}
+            className={`buffer-widget-tab ${activeTab === 'historial' ? 'is-active' : ''}`}
+            ref={(element) => { tabButtonRefs.current[1] = element }}
+            onKeyDown={(event) => { onTabKeyDown(event, 'historial') }}
+            onClick={() => { onTabChange('historial') }}
+          >
+            Historial ({bufferHistory.length})
+          </button>
+        </div>
+
+        {/* Contenedor de paneles con altura controlada para habilitar desplazamiento vertical interno. */}
+        <div className='buffer-widget-panels'>
+        {/* Panel de captura y configuración del análisis espacial por buffer. */}
+        <section
+          id='buffer-tabpanel-formulario'
+          role='tabpanel'
+          aria-labelledby='buffer-tab-formulario'
+          className={`buffer-widget-panel ${activeTab === 'formulario' ? 'is-active' : ''}`}
+        >
           <Label>Temas:</Label>
           <Select value={temaValue} onChange={onTemaChange} onClick={checkifDOTexist}>
             <Option value=''>Seleccione...</Option>
@@ -1791,7 +1901,6 @@ const Widget = (props: AllWidgetProps<any>) => {
             ))}
           </Select>
 
-          
           {
               capaValue!=="" && (
                 <>
@@ -1870,7 +1979,15 @@ const Widget = (props: AllWidgetProps<any>) => {
           {!isProcessing && resultMessage && (
             <p className='buffer-widget__hint'>{resultMessage}</p>
           )}
+        </section>
 
+        {/* Panel de revisión del historial de buffers, visibilidad y selección de resultados. */}
+        <section
+          id='buffer-tabpanel-historial'
+          role='tabpanel'
+          aria-labelledby='buffer-tab-historial'
+          className={`buffer-widget-panel ${activeTab === 'historial' ? 'is-active' : ''}`}
+        >
           {bufferHistory.length > 0 && (
             <div style={{ marginTop: '10px' }}>
              {/*  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
@@ -1921,32 +2038,10 @@ const Widget = (props: AllWidgetProps<any>) => {
             </div>
           )}
 
-          {/* {intersectedFeaturesByBuffer.length > 0 && resultFields.length > 0 && (
-            <div className='widget-result-table-container' style={{ marginTop: '10px', maxHeight: '220px', overflow: 'auto' }}>
-              <table className='table table-sm table-striped' style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    {resultFields.map(field => (
-                      <th key={field.name} style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>
-                        {field.alias}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {intersectedFeaturesByBuffer.map(row => (
-                    <tr key={row.rowId}>
-                      {resultFields.map(field => (
-                        <td key={`${row.rowId}-${field.name}`} style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>
-                          {String(row.attributes[field.name] ?? '')}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )} */}
+          {bufferHistory.length === 0 && (
+            <p className='buffer-widget__hint'>Aún no hay buffers generados. Realice un análisis desde la pestaña Formulario.</p>
+          )}
+        </section>
         </div>
 
         {isLayerLoading && <OurLoading />}

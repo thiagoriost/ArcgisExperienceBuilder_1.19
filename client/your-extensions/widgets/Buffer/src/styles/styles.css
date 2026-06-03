@@ -43,3 +43,74 @@
   font-size: 12px;
   color: #5f6368;
 }
+
+/*
+ * Sistema de pestañas del widget Buffer.
+ * Se apoya en variables del preset de Quindio para conservar coherencia visual global.
+ */
+.buffer-widget-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 2px 0 12px;
+  padding: 6px;
+  background: linear-gradient(135deg, rgba(32, 91, 76, 0.12), rgba(32, 91, 76, 0.03));
+  border: 1px solid rgba(32, 91, 76, 0.24);
+  border-radius: 12px;
+}
+
+/*
+ * Contenedor flexible para paneles de tabs.
+ * Permite que el panel activo use su propia barra de desplazamiento vertical.
+ */
+.buffer-widget-panels {
+  flex: 1;
+  min-height: 0;
+}
+
+.buffer-widget-tab {
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--text-color, #2b2b2b);
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  cursor: pointer;
+  transition: transform 180ms ease, background-color 180ms ease, box-shadow 220ms ease, color 180ms ease;
+}
+
+.buffer-widget-tab:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.buffer-widget-tab.is-active {
+  background: linear-gradient(135deg, var(--color-primary-light, #3f8e7a), var(--color-primary, #2b6d5d));
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(32, 91, 76, 0.28);
+}
+
+/*
+ * Paneles animados:
+ * - el panel activo se expande y aparece con fade/slide
+ * - el inactivo colapsa sin ocupar espacio visual
+ */
+.buffer-widget-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: max-height 340ms ease, opacity 260ms ease, transform 260ms ease;
+}
+
+.buffer-widget-panel.is-active {
+  max-height: 100%;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+}
