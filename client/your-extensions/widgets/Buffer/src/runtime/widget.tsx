@@ -25,6 +25,8 @@ import { goToInitialExtent, validaLoggerLocalStorage } from '../../../shared/uti
 import { WIDGET_IDS } from '../../../shared/constants/widget-ids'
 import { useSelector } from 'react-redux'
 import OurLoading from '../../../commonWidgets/our_loading/OurLoading'
+import { AlertContainer } from '../../../shared/components/alert-container'
+import { alertService } from '../../../shared/services/alert.service'
 
 
 let nameCapa = "" // Variable global para almacenar el nombre de la capa seleccionada, usada en la generación de ID de buffer para resultados y trazas de depuración.
@@ -830,6 +832,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   React.useEffect(() => {
     const view = jimuMapView?.view
     if (!view) return
+    let isCancelled = false
 
     const existing = view.map.findLayerById('buffer-graphics-layer') as GraphicsLayer | null
     if (existing) {
@@ -936,6 +939,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   React.useEffect(() => {
     const view = jimuMapView?.view
     if (!view) return
+    let isCancelled = false
 
     if (activeLayerRef.current && view.map.findLayerById(activeLayerRef.current.id)) {
       view.map.remove(activeLayerRef.current)
@@ -967,7 +971,30 @@ const Widget = (props: AllWidgetProps<any>) => {
        * @param {FeatureLayer} layer Capa de características cargada.
        * @returns {void}
        */
-      layer.when(() => {
+      layer.when(async () => {
+        if (isCancelled) return
+
+        /**
+         * Enfoca el mapa hacia la capa recién renderizada.
+         *
+         * Estrategia:
+         * 1. Intentar usar `fullExtent` si viene disponible.
+         * 2. Si no existe, consultar extent con `queryExtent()`.
+         * 3. Aplicar un pequeño `expand` para dar contexto visual al usuario.
+         */
+        try {
+          const queryExtentResult = await layer.queryExtent()
+          const targetExtent = layer.fullExtent ?? queryExtentResult?.extent ?? null
+
+          if (!isCancelled && targetExtent) {
+            await view.goTo(targetExtent.expand(1.15))
+          }
+        } catch (extentError) {
+          if (validaLoggerLocalStorage('logger')) {
+            console.warn('Buffer: no fue posible enfocar la capa activa por extent.', extentError)
+          }
+        }
+
         setTimeout(() => {
           setIsLayerLoading(false)          
         }, 8000);
@@ -995,6 +1022,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
 
     return () => {
+      isCancelled = true
       if (activeLayerRef.current && view.map.findLayerById(activeLayerRef.current.id)) {
         view.map.remove(activeLayerRef.current)
       }
@@ -1050,6 +1078,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     nameCapa = selectedValue
     if(validaLoggerLocalStorage('logger')) console.log('Buffer - OnCapaChange:', selectedValue)
     setActionError('')
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
   }
 
   /**
@@ -1058,6 +1087,9 @@ const Widget = (props: AllWidgetProps<any>) => {
   const onDrawModeSelect = (nextMode: 'point' | 'line') => {
     setDrawMode(currentMode => currentMode === nextMode ? null : nextMode)
     setActionError('')
+    
+    alertService.info('info:', 'Haz clic en el mapa para ubicar la geometría desde el cual se generará el buffer; para desactivar el modo de dibujo, haz clic nuevamente en el botón de la geoemtría seleccionada.')
+    
   }
 
   /**
@@ -2053,7 +2085,7 @@ const Widget = (props: AllWidgetProps<any>) => {
                             }}
                           />
                         </td>
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>#{buffer.idBuffer}</td>
+                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.idBuffer}</td>
                         <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.intersectedFeaturesByBuffer.length}</td>
                       </tr>
                     ))}
@@ -2071,6 +2103,7 @@ const Widget = (props: AllWidgetProps<any>) => {
 
         {isLayerLoading && <OurLoading />}
       </div>
+      <AlertContainer />
     </div>
   )
 }
