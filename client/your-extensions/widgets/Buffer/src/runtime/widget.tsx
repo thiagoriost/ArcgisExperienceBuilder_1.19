@@ -1814,6 +1814,94 @@ const Widget = (props: AllWidgetProps<any>) => {
   }
 
   /**
+   * Limpia el estado derivado del historial de buffers y, opcionalmente, reinicia
+   * el consecutivo interno para la siguiente ejecución.
+   *
+   * Este helper se usa tanto para el borrado total como para el escenario en el que
+   * el último buffer visible desaparece del historial, de modo que el widget quede
+   * en un estado consistente y sin geometrías residuales sobre el mapa.
+   *
+   * @param options Opciones de limpieza adicional.
+   * @returns {void}
+   */
+  const clearStoredBufferArtifacts = React.useCallback((options?: { resetSequence?: boolean }): void => {
+    graphicsLayerRef.current?.removeAll()
+    setSelectedBufferId(null)
+    lastSelectedBufferIdRef.current = null
+    setIntersectedFeaturesByBuffer([])
+    setResultFields([])
+    setResultMessage('')
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
+
+    if (options?.resetSequence) {
+      nextBufferIdRef.current = 1
+    }
+  }, [])
+
+  /**
+   * Elimina un buffer específico del historial y sincroniza selección/resultados.
+   *
+   * Comportamiento:
+   * 1. Remueve el registro del arreglo bufferHistory.
+   * 2. Si se elimina el buffer seleccionado, intenta enfocar otro buffer visible.
+   * 3. Si no quedan buffers, limpia resultados y restablece referencias de selección.
+   *
+   * @param bufferId Identificador del buffer a eliminar.
+   * @returns {void}
+   */
+  const onDeleteStoredBuffer = (bufferId: string): void => {
+    if (validaLoggerLocalStorage('logger')) {
+      console.log('Buffer - onDeleteStoredBuffer:', { bufferId, selectedBufferId, bufferHistory })
+    }
+
+    const updatedHistory = bufferHistory.filter(buffer => buffer.idBuffer !== bufferId)
+    const wasSelectedBuffer = selectedBufferId === bufferId
+    const wasLastFocusedBuffer = lastSelectedBufferIdRef.current === bufferId
+
+    graphicsLayerRef.current?.removeAll()
+    setBufferHistory(updatedHistory)
+
+    if (updatedHistory.length === 0) {
+      clearStoredBufferArtifacts({ resetSequence: true })
+      return
+    }
+
+    if (!wasSelectedBuffer && !wasLastFocusedBuffer) {
+      return
+    }
+
+    const fallbackBuffer = [...updatedHistory].reverse().find(buffer => buffer.bufferChecked)
+
+    if (!fallbackBuffer || !showAllBuffers) {
+      clearStoredBufferArtifacts()
+      return
+    }
+
+    lastSelectedBufferIdRef.current = fallbackBuffer.idBuffer
+    void focusStoredBuffer(fallbackBuffer, true)
+  }
+
+  /**
+   * Elimina todos los buffers almacenados y limpia estado derivado del historial.
+   *
+   * Además de vaciar bufferHistory, cierra la tabla de resultados y limpia
+   * cualquier geometría residual renderizada en la capa temporal.
+   *
+   * @returns {void}
+   */
+  const onDeleteAllStoredBuffers = (): void => {
+    if (validaLoggerLocalStorage('logger')) {
+      console.log('Buffer - onDeleteAllStoredBuffers:', { bufferHistoryLength: bufferHistory.length })
+    }
+
+    if (bufferHistory.length === 0) return
+
+    setBufferHistory([])
+    setShowAllBuffers(true)
+    clearStoredBufferArtifacts({ resetSequence: true })
+  }
+
+  /**
    * Etiqueta del control global de buffers según el estado actual.
    *
    * Cuando el checkbox está activo, la acción resultante será ocultar.
@@ -2068,6 +2156,20 @@ const Widget = (props: AllWidgetProps<any>) => {
         >
           {bufferHistory.length > 0 && (
             <div style={{ marginTop: '10px' }}>
+              {/* Barra de acciones del historial: permite eliminar masivamente todos los buffers almacenados. */}
+              <div className='buffer-history-toolbar'>
+                <button
+                  type='button'
+                  className='buffer-history-delete-all-btn'
+                  onClick={onDeleteAllStoredBuffers}
+                  title='Borrar todos los buffers almacenados'
+                  aria-label='Borrar todos los buffers almacenados'
+                >
+                  <span aria-hidden='true'>🗑</span>
+                  <span>Borrar todos</span>
+                </button>
+              </div>
+
              {/*  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                 <input
                   type='checkbox'
@@ -2084,6 +2186,7 @@ const Widget = (props: AllWidgetProps<any>) => {
                       <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Ver</th>
                       <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Buffer</th>
                       <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Intersecciones</th>
+                      <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2108,6 +2211,21 @@ const Widget = (props: AllWidgetProps<any>) => {
                         </td>
                         <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.idBuffer}</td>
                         <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.intersectedFeaturesByBuffer.length}</td>
+                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>
+                          {/* Acción de borrado individual del buffer actual de la fila. */}
+                          <button
+                            type='button'
+                            className='buffer-history-delete-btn'
+                            title={`Borrar ${buffer.idBuffer}`}
+                            aria-label={`Borrar ${buffer.idBuffer}`}
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              onDeleteStoredBuffer(buffer.idBuffer)
+                            }}
+                          >
+                            <span aria-hidden='true'>🗑</span>
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

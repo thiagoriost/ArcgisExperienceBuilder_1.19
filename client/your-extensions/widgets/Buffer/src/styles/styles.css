@@ -114,3 +114,54 @@
   overflow-x: hidden;
   scrollbar-gutter: stable;
 }
+
+/*
+ * Barra de acciones del historial de buffers.
+ * Aloja el control de borrado masivo para limpiar todo el historial.
+ */
+.buffer-history-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+/*
+ * Botón principal para eliminar todos los buffers del historial.
+ */
+.buffer-history-delete-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #cc4d4d;
+  background: #fff3f3;
+  color: #8f1f1f;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.buffer-history-delete-all-btn:hover {
+  background: #ffe4e4;
+}
+
+/*
+ * Acción compacta de borrado por fila dentro de la tabla del historial.
+ */
+.buffer-history-delete-btn {
+  border: 1px solid #d8d8d8;
+  background: #ffffff;
+  color: #8f1f1f;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.buffer-history-delete-btn:hover {
+  background: #fff2f2;
+  border-color: #cc4d4d;
+}
