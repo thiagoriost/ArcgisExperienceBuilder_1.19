@@ -27,6 +27,7 @@ import { useSelector } from 'react-redux'
 import OurLoading from '../../../commonWidgets/our_loading/OurLoading'
 import { AlertContainer } from '../../../shared/components/alert-container'
 import { alertService } from '../../../shared/services/alert.service'
+import BufferHistoryPanel from './components/BufferHistoryPanel'
 
 
 let nameCapa = "" // Variable global para almacenar el nombre de la capa seleccionada, usada en la generación de ID de buffer para resultados y trazas de depuración.
@@ -2154,89 +2155,14 @@ const Widget = (props: AllWidgetProps<any>) => {
           aria-labelledby='buffer-tab-historial'
           className={`buffer-widget-panel ${activeTab === 'historial' ? 'is-active' : ''}`}
         >
-          {bufferHistory.length > 0 && (
-            <div style={{ marginTop: '10px' }}>
-              {/* Barra de acciones del historial: permite eliminar masivamente todos los buffers almacenados. */}
-              <div className='buffer-history-toolbar'>
-                <button
-                  type='button'
-                  className='buffer-history-delete-all-btn'
-                  onClick={onDeleteAllStoredBuffers}
-                  title='Borrar todos los buffers almacenados'
-                  aria-label='Borrar todos los buffers almacenados'
-                >
-                  <span aria-hidden='true'>🗑</span>
-                  <span>Borrar todos</span>
-                </button>
-              </div>
-
-             {/*  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                <input
-                  type='checkbox'
-                  checked={showAllBuffers}
-                  onChange={onToggleShowAllBuffers}
-                />
-                <span>{showAllBuffersLabel}</span>
-              </label> */}
-
-              <div className='widget-result-table-container' style={{ maxHeight: '240px', overflow: 'auto' }}>
-                <table className='table table-sm table-striped' style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Ver</th>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Buffer</th>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Intersecciones</th>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bufferHistory.map(buffer => (
-                      <tr
-                        key={buffer.idBuffer}
-                        // onClick={() => { onSelectBufferRow(buffer) }}
-                        style={{
-                          cursor: buffer.bufferChecked && showAllBuffers ? 'pointer' : 'default',
-                          backgroundColor: selectedBufferId === buffer.idBuffer ? 'rgba(0, 128, 255, 0.08)' : 'transparent'
-                        }}
-                      >
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>
-                          <input
-                            type='checkbox'
-                            checked={buffer.bufferChecked}
-                            onChange={(event) => {
-                              event.stopPropagation()
-                              onToggleBufferCheck(buffer.idBuffer, event.target.checked)
-                            }}
-                          />
-                        </td>
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.idBuffer}</td>
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.intersectedFeaturesByBuffer.length}</td>
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>
-                          {/* Acción de borrado individual del buffer actual de la fila. */}
-                          <button
-                            type='button'
-                            className='buffer-history-delete-btn'
-                            title={`Borrar ${buffer.idBuffer}`}
-                            aria-label={`Borrar ${buffer.idBuffer}`}
-                            onClick={(event) => {
-                              event.stopPropagation()
-                              onDeleteStoredBuffer(buffer.idBuffer)
-                            }}
-                          >
-                            <span aria-hidden='true'>🗑</span>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {bufferHistory.length === 0 && (
-            <p className='buffer-widget__hint'>Aún no hay buffers generados. Realice un análisis desde la pestaña Formulario.</p>
-          )}
+          <BufferHistoryPanel
+            bufferHistory={bufferHistory}
+            selectedBufferId={selectedBufferId}
+            showAllBuffers={showAllBuffers}
+            onToggleBufferCheck={onToggleBufferCheck}
+            onDeleteStoredBuffer={onDeleteStoredBuffer}
+            onDeleteAllStoredBuffers={onDeleteAllStoredBuffers}
+          />
         </section>
         </div>
 
