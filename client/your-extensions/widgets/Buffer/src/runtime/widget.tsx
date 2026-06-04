@@ -1,10 +1,6 @@
 import { appActions, getAppStore, type AllWidgetProps, WidgetState } from 'jimu-core'
 import React from 'react'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis'
-import { Button, Label, Option, Select, TextInput } from 'jimu-ui'
-// import { SelectLineOutlined } from 'jimu-icons/outlined/gis/select-line'
-import { DataLineOutlined } from 'jimu-icons/outlined/gis/data-line'
-import { SelectPointOutlined } from 'jimu-icons/outlined/gis/select-point'
 import esriConfig from '@arcgis/core/config'
 import Graphic from '@arcgis/core/Graphic'
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
@@ -15,7 +11,6 @@ import * as geometryJsonUtils from '@arcgis/core/geometry/support/jsonUtils'
 import * as normalizeUtils from '@arcgis/core/geometry/support/normalizeUtils'
 import * as geometryServiceRest from '@arcgis/core/rest/geometryService'
 import BufferParameters from '@arcgis/core/rest/support/BufferParameters'
-import { SearchActionBar } from '../../../shared/components/search-action-bar'
 import { urls } from '../../../api/serviciosQuindio'
 import { abrirTablaResultados, limpiarYCerrarWidgetResultados } from '../../../widget-result/src/runtime/widget'
 
@@ -28,6 +23,7 @@ import OurLoading from '../../../commonWidgets/our_loading/OurLoading'
 import { AlertContainer } from '../../../shared/components/alert-container'
 import { alertService } from '../../../shared/services/alert.service'
 import BufferHistoryPanel from './components/BufferHistoryPanel'
+import BufferFormPanel from './components/BufferFormPanel'
 
 
 let nameCapa = "" // Variable global para almacenar el nombre de la capa seleccionada, usada en la generación de ID de buffer para resultados y trazas de depuración.
@@ -1975,6 +1971,31 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
   }
 
+  /**
+   * Valida condiciones mínimas antes de ejecutar el flujo de búsqueda.
+   *
+   * Reglas:
+   * 1. Debe existir una capa seleccionada con URL válida.
+   * 2. Debe existir un modo de dibujo activo.
+   *
+   * Si falta alguna condición, registra el mensaje en la barra de acciones.
+   *
+   * @returns {void}
+   */
+  const onValidateSearchAction = (): void => {
+    if (!selectedCapa?.layerUrl) {
+      setActionError('Seleccione una capa para ejecutar la intersección espacial.')
+      return
+    }
+
+    if (!drawMode) {
+      setActionError('Seleccione un modo de dibujo antes de activar.')
+      return
+    }
+
+    setActionError('')
+  }
+
 
 
   return (
@@ -2021,132 +2042,36 @@ const Widget = (props: AllWidgetProps<any>) => {
 
         {/* Contenedor de paneles con altura controlada para habilitar desplazamiento vertical interno. */}
         <div className='buffer-widget-panels'>
-        {/* Panel de captura y configuración del análisis espacial por buffer. */}
-        <section
-          id='buffer-tabpanel-formulario'
-          role='tabpanel'
-          aria-labelledby='buffer-tab-formulario'
-          className={`buffer-widget-panel ${activeTab === 'formulario' ? 'is-active' : ''}`}
-        >
-          <Label>Temas:</Label>
-          <Select value={temaValue} onChange={onTemaChange} onClick={checkifDOTexist}>
-            <Option value=''>Seleccione...</Option>
-            {temaOptions.map(option => (
-              <Option key={option.value} value={option.value}>{option.label}</Option>
-            ))}
-          </Select>
-
-          {!shouldBypassSubtema && (
-            <>
-              <Label>Subtemas:</Label>
-              <Select value={subtemaValue} onChange={onSubtemaChange}>
-                <Option value=''>Seleccione...</Option>
-                {subtemaOptions.map(option => (
-                  <Option key={option.value} value={option.value}>{option.label}</Option>
-                ))}
-              </Select>
-            </>
-          )}
-
-          {shouldShowGrupos && (
-            <>
-              <Label>Grupos:</Label>
-              <Select value={grupoValue} onChange={onGrupoChange}>
-                <Option value=''>Seleccione...</Option>
-                {grupoOptions.map(option => (
-                  <Option key={option.value} value={option.value}>{option.label}</Option>
-                ))}
-              </Select>
-            </>
-          )}
-
-          <Label>Capas:</Label>
-          <Select value={capaValue} onChange={onCapaChange} disabled={shouldShowGrupos && !grupoValue}>
-            <Option value=''>Seleccione...</Option>
-            {capaOptions.map(option => (
-              <Option key={`${option.value}-${option.layerUrl}`} value={option.value}>{option.label}</Option>
-            ))}
-          </Select>
-
-          {
-              capaValue!=="" && (
-                <>
-                  <Label>Distancia:</Label>
-                  <TextInput
-                    type='text'
-                    min='1'
-                    value={distancia}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setDistancia(event.target.value) }}
-                  />
-
-                  <Label>Unidad:</Label>
-                  <Select value={unidad} onChange={(event: React.ChangeEvent<HTMLSelectElement>) => { setUnidad(event.target.value) }}>
-                    <Option value='Metros'>Metros</Option>
-                    <Option value='Kilometros'>Kilometros</Option>
-                  </Select>
-                  <Label>Modo de dibujo:</Label>
-                  <div
-                    role='group'
-                    aria-label='Modo de dibujo'
-                    style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}
-                  >
-                    <Button
-                      type={drawMode === 'point' ? 'primary' : 'default'}
-                      aria-pressed={drawMode === 'point'}
-                      title='Punto'
-                      onClick={() => { onDrawModeSelect('point') }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <SelectPointOutlined width={16} height={16} />
-                      <span>Punto</span>
-                    </Button>
-                    <Button
-                      type={drawMode === 'line' ? 'primary' : 'default'}
-                      aria-pressed={drawMode === 'line'}
-                      title='Linea'
-                      onClick={() => { onDrawModeSelect('line') }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <DataLineOutlined width={16} height={16} />
-                      <span>Linea</span>
-                    </Button>
-                  </div>
-                  {drawMode === 'line' && (
-                    <p className='buffer-widget__hint'>Para linea: haga clic en dos puntos del mapa.</p>
-                  )}
-                </>
-              )
-          }
-
-          <SearchActionBar
-            onSearch={() => {
-              if (!selectedCapa?.layerUrl) {
-                setActionError('Seleccione una capa para ejecutar la intersección espacial.')
-                return
-              }
-              if (!drawMode) {
-                setActionError('Seleccione un modo de dibujo antes de activar.')
-                return
-              }
-              setActionError('')
-            }}
+          <BufferFormPanel
+            isActive={activeTab === 'formulario'}
+            temaValue={temaValue}
+            temaOptions={temaOptions}
+            onTemaChange={onTemaChange}
+            checkifDOTexist={checkifDOTexist}
+            shouldBypassSubtema={shouldBypassSubtema}
+            subtemaValue={subtemaValue}
+            subtemaOptions={subtemaOptions}
+            onSubtemaChange={onSubtemaChange}
+            shouldShowGrupos={shouldShowGrupos}
+            grupoValue={grupoValue}
+            grupoOptions={grupoOptions}
+            onGrupoChange={onGrupoChange}
+            capaValue={capaValue}
+            capaOptions={capaOptions}
+            onCapaChange={onCapaChange}
+            distancia={distancia}
+            onDistanciaChange={(event: React.ChangeEvent<HTMLInputElement>) => { setDistancia(event.target.value) }}
+            unidad={unidad}
+            onUnidadChange={(event: React.ChangeEvent<HTMLSelectElement>) => { setUnidad(event.target.value) }}
+            drawMode={drawMode}
+            onDrawModeSelect={onDrawModeSelect}
+            onSearch={onValidateSearchAction}
             onClear={resetWidget}
             disableSearch={!drawMode || !selectedCapa?.layerUrl || isProcessing}
-            helpText='Seleccione un modo de dibujo para habilitar la captura en el mapa, y haga clic sobre el mapa en donde desea realizar el buffer.'
-            error={actionError}
-            searchLabel='Buscar'
-            clearLabel='Limpiar'
-            hideSearch={true}
+            actionError={actionError}
+            isProcessing={isProcessing}
+            resultMessage={resultMessage}
           />
-
-          {isProcessing && (
-            <p className='buffer-widget__hint'>Procesando buffer e intersección espacial...</p>
-          )}
-
-          {!isProcessing && resultMessage && (
-            <p className='buffer-widget__hint'>{resultMessage}</p>
-          )}
-        </section>
 
         {/* Panel de revisión del historial de buffers, visibilidad y selección de resultados. */}
         <section
