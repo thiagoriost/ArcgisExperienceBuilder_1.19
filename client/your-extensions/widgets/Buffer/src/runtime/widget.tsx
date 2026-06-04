@@ -514,6 +514,12 @@ const Widget = (props: AllWidgetProps<any>) => {
   const clickHighlightEnabledRef = React.useRef<boolean | null>(null)
   /** Referencias DOM de pestañas para navegación por teclado con foco controlado. */
   const tabButtonRefs = React.useRef<Array<HTMLButtonElement | null>>([])
+  /**
+   * Contador de veces que se muestra la alerta informativa de modo de dibujo.
+   *
+   * Se limita a 3 para evitar saturar al usuario con mensajes repetitivos.
+   */
+  const drawModeInfoAlertCountRef = React.useRef(0)
 
   /**
    * Restaura el comportamiento automático de popups por clic del mapa a su estado previo.
@@ -831,8 +837,7 @@ const Widget = (props: AllWidgetProps<any>) => {
    */
   React.useEffect(() => {
     const view = jimuMapView?.view
-    if (!view) return
-    let isCancelled = false
+    if (!view) return    
 
     const existing = view.map.findLayerById('buffer-graphics-layer') as GraphicsLayer | null
     if (existing) {
@@ -939,7 +944,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   React.useEffect(() => {
     const view = jimuMapView?.view
     if (!view) return
-    let isCancelled = false
+    let isCancelled = false // Control de concurrencia para evitar efectos secundarios después de desmontar o cambiar vista
 
     if (activeLayerRef.current && view.map.findLayerById(activeLayerRef.current.id)) {
       view.map.remove(activeLayerRef.current)
@@ -963,25 +968,16 @@ const Widget = (props: AllWidgetProps<any>) => {
       activeLayerRef.current = layer
 
       /**
-       * Monitorea el estado de carga de la capa usando layer.when(),
-       * que retorna una promesa que se resuelve cuando la capa ha terminado
-       * de cargar completamente. Cuando se resuelve, ocultamos el indicador
-       * de carga (OurLoading).
-       * 
-       * @param {FeatureLayer} layer Capa de características cargada.
-       * @returns {void}
+       * Enfoca el mapa hacia la capa recién renderizada.
+       *
+       * Estrategia:
+       * 1. Intentar usar `fullExtent` si viene disponible.
+       * 2. Si no existe, consultar extent con `queryExtent()`.
+       * 3. Aplicar un pequeño `expand` para dar contexto visual al usuario.
+       *
+       * @returns {Promise<void>} Promesa resuelta cuando finaliza el intento de enfoque.
        */
-      layer.when(async () => {
-        if (isCancelled) return
-
-        /**
-         * Enfoca el mapa hacia la capa recién renderizada.
-         *
-         * Estrategia:
-         * 1. Intentar usar `fullExtent` si viene disponible.
-         * 2. Si no existe, consultar extent con `queryExtent()`.
-         * 3. Aplicar un pequeño `expand` para dar contexto visual al usuario.
-         */
+      const focusMapOnRenderedLayer = async (): Promise<void> => {
         try {
           const queryExtentResult = await layer.queryExtent()
           const targetExtent = layer.fullExtent ?? queryExtentResult?.extent ?? null
@@ -994,6 +990,21 @@ const Widget = (props: AllWidgetProps<any>) => {
             console.warn('Buffer: no fue posible enfocar la capa activa por extent.', extentError)
           }
         }
+      }
+
+      /**
+       * Monitorea el estado de carga de la capa usando layer.when(),
+       * que retorna una promesa que se resuelve cuando la capa ha terminado
+       * de cargar completamente. Cuando se resuelve, ocultamos el indicador
+       * de carga (OurLoading).
+       * 
+       * @param {FeatureLayer} layer Capa de características cargada.
+       * @returns {void}
+       */
+      layer.when(async () => {
+        if (isCancelled) return
+
+        await focusMapOnRenderedLayer()
 
         setTimeout(() => {
           setIsLayerLoading(false)          
@@ -1085,10 +1096,19 @@ const Widget = (props: AllWidgetProps<any>) => {
    * Activa/desactiva el modo de dibujo seleccionado desde el formulario.
    */
   const onDrawModeSelect = (nextMode: 'point' | 'line') => {
+    const willActivateMode = drawMode !== nextMode
+
     setDrawMode(currentMode => currentMode === nextMode ? null : nextMode)
     setActionError('')
-    
-    alertService.info('info:', 'Haz clic en el mapa para ubicar la geometría desde el cual se generará el buffer; para desactivar el modo de dibujo, haz clic nuevamente en el botón de la geoemtría seleccionada.')
+
+    /**
+     * La alerta informativa se muestra solo cuando se activa un modo y
+     * únicamente durante las primeras 3 activaciones del widget.
+     */
+    if (willActivateMode && drawModeInfoAlertCountRef.current < 3) {
+      alertService.info('info:', 'Haz clic en el mapa para ubicar la geometría desde el cual se generará el buffer; para desactivar el modo de dibujo, haz clic nuevamente en el botón de la geoemtría seleccionada.')
+      drawModeInfoAlertCountRef.current += 1
+    }
     
   }
 
@@ -1162,6 +1182,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     restoreClickHighlight(jimuMapView)
 
     void restoreInitialExtent()   
+    setAllBufferChecks(false)
   }
 
   /**
