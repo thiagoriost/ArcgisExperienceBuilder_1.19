@@ -2042,6 +2042,10 @@ const Widget = (props: AllWidgetProps<any>) => {
 
         {/* Contenedor de paneles con altura controlada para habilitar desplazamiento vertical interno. */}
         <div className='buffer-widget-panels'>
+          {/*
+            Panel externo del formulario de captura Buffer.
+            Se renderiza aquí para mantener el runtime limpio y separar lógica de layout.
+          */}
           <BufferFormPanel
             isActive={activeTab === 'formulario'}
             temaValue={temaValue}
