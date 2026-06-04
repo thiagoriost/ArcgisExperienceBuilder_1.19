@@ -1,5 +1,32 @@
 @import '../../../utils/styles/presetsQuindio.css';
 
+/*
+ * Tabla de mapeo de tokens (presetsQuindio.css)
+ * --------------------------------------------------------------
+ * Bloque visual                 | Tokens principales
+ * --------------------------------------------------------------
+ * Contenedor general            | --bg-color-light, --border-color-light,
+ *                               | --border-radius-lg, --shadow-light, --spacing-sm
+ * Etiquetas y ayuda             | --font-size-md, --font-size-sm,
+ *                               | --text-color-primary, --text-color-secondary,
+ *                               | --spacing-xs, --spacing-sm
+ * Inputs / selects              | --bg-color-white, --border-color-medium,
+ *                               | --border-radius-md
+ * Rail de pestañas              | --bg-color-gray, --border-color-light,
+ *                               | --spacing-sm
+ * Botón de pestaña (normal)     | --bg-color-white, --text-color-primary,
+ *                               | --border-radius-lg
+ * Botón de pestaña (hover)      | --color-primary-light
+ * Botón de pestaña (activo)     | --color-primary, --text-color-white
+ * Panel de contenido            | --bg-color-white, --spacing-sm, --spacing-md
+ * Botones de borrado            | --color-danger, --bg-color-white,
+ *                               | --border-color-light, --border-radius-md,
+ *                               | --border-radius-lg
+ * Responsive (mobile tabs)      | --spacing-sm, --spacing-md, --spacing-xl,
+ *                               | --border-color-light
+ * --------------------------------------------------------------
+ */
+
 .consulta-widget {
   width: 100%;
   height: 100%;
