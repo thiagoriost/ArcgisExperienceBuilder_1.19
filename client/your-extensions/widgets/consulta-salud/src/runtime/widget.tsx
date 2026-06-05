@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { React, jsx, AllWidgetProps } from 'jimu-core'
+import { Button } from 'jimu-ui'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis'
 import '../../../utils/styles/consulta-widget.css'
 const { useEffect, useState, useRef, useCallback } = React
@@ -10,7 +11,7 @@ import { ArcgisService } from '../../../shared/services/arcgis.service'
 import { HttpService } from '../../../shared/services/http.service'
 import { useCancelableHttp } from '../../../shared/hooks/useCancelableHttp'
 import stethoscopeIcon from '../assets/stethoscope-solid-full.svg'
-
+import starIcon from '../assets/star-solid-full.svg'
 
 import {
     abrirTablaResultados,
@@ -22,13 +23,12 @@ import ConsultaGeneral  from './components/ConsultaGeneral'
 import ConsultaIndicadores from './components/ConsultaIndicadores'
 import ConsultaTematicas from './components/ConsultaTematicas'
 import { SearchActionBar } from '../../../shared/components/search-action-bar'
-import { useDibujarFeatures } from '../../../shared/hooks/useDibujarFeatures'
+import { dibujarFeatures, limpiarFeatures } from '../../../shared/utils/dibujar-features-utils'
 import { captureInitialMapView, resetToDefaultMapView } from '../../../shared/utils/widget-limpieza-utils'
+import { MAP_DEFAULT_VIEW } from '../../../shared/constants/map-defaults'
 
 import type { ConsultaComponentHandle } from './consulta-general-types'
 import type {
-    ArcGisFeature,
-    ArcGisField,
     SelectOption,
 } from './types'
 import { listaMunicipios } from './components/SelectMunicipio'
@@ -49,22 +49,13 @@ const Widget = (props: AllWidgetProps<any>) => {
     const cancelAllRef = useRef(cancelAll);
     const widgetResultId = WIDGET_IDS.RESULT
 
-    const [tipoConsulta, setTipoConsulta] = useState('general')    
+    const [tipoConsulta, setTipoConsulta] = useState('')    
     const [municipios, setMunicipios] = useState<SelectOption[]>([])
     const [idMunicipio, setIdMunicipio] = useState<string>('')
     const [jimuMapView, setJimuMapView] = useState<JimuMapView>();
     const initialExtentRef = useRef<__esri.Extent | null>(null)
     const initialZoomRef = useRef<number | null>(null)
     const initialScaleRef = useRef<number | null>(null)
-    const [resultadoGeneralDibujar, setResultadoGeneralDibujar] = useState<{
-        features: ArcGisFeature[]
-        fields: ArcGisField[]
-        spatialReference?: __esri.SpatialReference
-    }>({
-        features: [],
-        fields: [],
-        spatialReference: undefined
-    })
 
     const activeViewChangeHandler = (view: JimuMapView) => {
         if (!view) return
@@ -78,20 +69,9 @@ const Widget = (props: AllWidgetProps<any>) => {
         indicadores: useRef<ConsultaComponentHandle>(null),
         tematicas: useRef<ConsultaComponentHandle>(null)
     };
+    const previousWidgetStateRef = useRef(props.state)
 
     const refDatos = useRef({});
-
-    useDibujarFeatures({
-        jimuMapView,
-        features: resultadoGeneralDibujar.features,
-        fields: resultadoGeneralDibujar.fields,
-        spatialReference: resultadoGeneralDibujar.spatialReference,
-        layerId: 'consulta-salud-general-feature',
-        title: 'Consulta salud',
-        enabled: tipoConsulta === 'general' && resultadoGeneralDibujar.features.length > 0,
-        scale:40000,
-        expandFactor:1.5
-    })
 
     useEffect(() => {
         const cargarMunicipios = async () => {
@@ -118,26 +98,34 @@ const Widget = (props: AllWidgetProps<any>) => {
     // Esto se usa para limpieza
     const clearResults = useCallback(() => {
         limpiarYCerrarWidgetResultados(widgetResultId)
-        setResultadoGeneralDibujar({
-            features: [],
-            fields: [],
-            spatialReference: undefined
-        })
-    }, [widgetResultId])
+        limpiarFeatures(jimuMapView, 'consulta-salud-general-feature')
+    }, [jimuMapView, widgetResultId])
 
     // Esto se usa para limpieza
     const resetMapView = useCallback(() => {
         resetToDefaultMapView(jimuMapView, { initialExtentRef, initialZoomRef, initialScaleRef })
     }, [jimuMapView])
 
-    const consultar = async ()=> {        
+   
+    const consultar = async ()=> {   
+        // Limpieza        
+        limpiarYCerrarwidgetLeyenda(WIDGET_IDS.LEYENDA);
+        limpiarYCerrarWidgetResultados(widgetResultId);
+        limpiarFeatures(jimuMapView, 'consulta-salud-general-feature');
+        void jimuMapView?.view?.goTo(MAP_DEFAULT_VIEW);
+
         const result = await refs[tipoConsulta].current.consultar();
 
         if (tipoConsulta === 'general') {
-            setResultadoGeneralDibujar({
+            await dibujarFeatures({
+                jimuMapView,
                 features: result.features,
                 fields: result.fields,
-                spatialReference: result.spatialReference
+                spatialReference: result.spatialReference,
+                layerId: 'consulta-salud-general-feature',
+                title: 'Consulta salud',
+                scale: 40000,
+                expandFactor: 1.5
             })
             setMostrarBusqueda(false);
             refDatos.current = {...result};
@@ -152,28 +140,45 @@ const Widget = (props: AllWidgetProps<any>) => {
                 "Resultados - Consulta de salud",
                 result.withGraphic
             )            
-        }
+        }              
     }
 
     // Esto se usa para limpieza
     const onLimpiar = useCallback(() => {
+        if (tipoConsulta == '') 
+            return;
+
         refs[tipoConsulta].current?.limpiar()
 
+        setTipoConsulta('');
         setMostrarBusqueda(true)
         setMessage('')
 
         clearResults()
         resetMapView()
-        limpiarYCerrarwidgetLeyenda(WIDGET_IDS.LEYENDA)
     }, [clearResults, resetMapView, tipoConsulta])
 
     // Esto se usa para limpieza
     useEffect(() => {
-        if (props.state === 'CLOSED') {
-            cancelAll()
-            onLimpiar()
-        }
-    }, [props.state, cancelAll, onLimpiar])
+        const wasClosed = previousWidgetStateRef.current === 'CLOSED'
+        const isClosed = props.state === 'CLOSED'
+
+        previousWidgetStateRef.current = props.state
+
+        if (!isClosed || wasClosed) return
+
+        cancelAllRef.current()
+        limpiarYCerrarWidgetResultados(widgetResultId)
+        limpiarFeatures(jimuMapView, 'consulta-salud-general-feature')
+        void jimuMapView?.view?.goTo(MAP_DEFAULT_VIEW)
+
+        if (tipoConsulta === '') return
+
+        refs[tipoConsulta].current?.limpiar()
+        setTipoConsulta('')
+        setMostrarBusqueda(true)
+        setMessage('')
+    }, [props.state])
 
     const tiposConsulta = [
         { value: 'general', label: 'General' },
@@ -202,26 +207,27 @@ const Widget = (props: AllWidgetProps<any>) => {
                     onActiveViewChange={activeViewChangeHandler}
                 />
             </div>
-            {mostrarBusqueda ? (
+            <div style={{ display: mostrarBusqueda ? 'block' : 'none' }}>
                 <FormularioDeBusqueda
-                tiposConsulta={tiposConsulta}
-                tipoConsulta={tipoConsulta}
-                setTipoConsulta={setTipoConsulta}
-                refs={refs}
-                loading={loading}
-                setLoading={setLoading}
-                execute={execute}
-                props={props}
-                idMunicipio={idMunicipio}
-                setIdMunicipio={setIdMunicipio}
-                municipios={municipios}
-                message={message}
-                setMessage={setMessage}
-                consultar={consultar}
-                limpiar={onLimpiar}/>
-            ) : (
-                <div className="consulta-widget">                
-                    <PanelInformativo
+                    tiposConsulta={tiposConsulta}
+                    tipoConsulta={tipoConsulta}
+                    setTipoConsulta={setTipoConsulta}
+                    refs={refs}
+                    loading={loading}
+                    setLoading={setLoading}
+                    execute={execute}
+                    props={props}
+                    idMunicipio={idMunicipio}
+                    setIdMunicipio={setIdMunicipio}
+                    municipios={municipios}
+                    message={message}
+                    setMessage={setMessage}
+                    consultar={consultar}
+                    limpiar={onLimpiar}/>
+            </div>
+
+            <div className="consulta-widget" style={{ display: mostrarBusqueda ? 'none' : 'block' }}>                
+                <PanelInformativo
                     imagenUrl={refs.general.current?.getFeatures()?.[0]?.attributes?.['FOTOS']
                         ? `https://sigquindio.gov.co/ArchivosQuindioIII/${refs.general.current.getFeatures()[0].attributes['FOTOS']}`
                         : ''
@@ -243,8 +249,7 @@ const Widget = (props: AllWidgetProps<any>) => {
                     chipsTextoTitulo={"servicios"}
                     chipsTextoItems={serviciosItems}              
                     botonOnClick={() => setMostrarBusqueda(true)} />
-                </div>
-            )}
+            </div>
         </div>
     )
 }

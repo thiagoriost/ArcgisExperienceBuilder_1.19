@@ -306,6 +306,7 @@ export default function PanelInformativo({
 }
 
 
+
 /**
  * Construye la lista de items de contacto para el panel informativo.
  * @param params - Valores de contacto obtenidos del servicio.
@@ -314,7 +315,7 @@ export default function PanelInformativo({
 export function itemsContacto({
     telefono,
     direccion,
-    horario,
+    horario,   
     nit,
     registroMercantil,
     rnt,

@@ -13,10 +13,11 @@ import '../../../utils/styles/consulta-widget.css';
 import { loadLayers } from '../../../shared/services/queryMapServer.service';
 import type { LayerInfo } from '../../../shared/types/types_consultaAvanzadaAlfanumerica';
 import { WIDGET_IDS } from '../../../shared/constants/widget-ids';
+import { MAP_DEFAULT_VIEW } from '../../../shared/constants/map-defaults';
 import { adjustFieldsForResultsWidget, featuresFixed } from '../../../shared/utils/export.utils';
 import { abrirTablaResultados, limpiarYCerrarWidgetResultados } from '../../../widget-result/src/runtime/widget';
 
-const { useEffect, useRef, useState } = React
+const { useCallback, useEffect, useRef, useState } = React
 
 const RECTANGLE_SELECT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="currentColor" d="M3 4h10v8H3V4Zm1 1v6h8V5H4Z"/><path fill="currentColor" d="M1 1h3v1H2v2H1V1Zm11 0h3v3h-1V2h-2V1ZM1 12h1v2h2v1H1v-3Zm13 0h1v3h-3v-1h2v-2Z"/></svg>'
 const POLYGON_SELECT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="currentColor" d="M7.8 1.2 14 4.5v6.2l-5.7 4.1-6.3-2.6V5.7l5.8-4.5Zm.1 1.2L3 6.2v5.3l5.1 2.1 4.9-3.5v-5L7.9 2.4Z"/><path fill="currentColor" d="M7 1h2v2H7V1ZM1 5h3v3H1V5Zm11-1h3v3h-3V4ZM1 10h3v3H1v-3Zm6 3h3v3H7v-3Zm6-4h2v3h-2V9Z"/></svg>'
@@ -37,6 +38,8 @@ const Widget = (props: AllWidgetProps<any>) => {
     const selectionLayerRef = useRef<GraphicsLayer | null>(null);
     const sketchViewModelRef = useRef<SketchViewModel | null>(null);
     const selectedHighlightRef = useRef<any>(null);
+    const previousWidgetStateRef = useRef(props.state);
+    const selectionRunRef = useRef(0);
     const widgetResultId = WIDGET_IDS.RESULT;
 
     const servicios = [
@@ -67,15 +70,64 @@ const Widget = (props: AllWidgetProps<any>) => {
         setSelectionCount(null)
     }
 
+    const limpiarMapaConsultaEspacial = useCallback(() => {
+        const view = jimuMapView?.view
+        selectionRunRef.current += 1
+
+        selectedHighlightRef.current?.remove?.()
+        selectedHighlightRef.current = null
+
+        sketchViewModelRef.current?.destroy()
+        sketchViewModelRef.current = null
+
+        if (view) {
+            const featureLayer = view.map.findLayerById('consulta-espacial-featurelayer')
+            if (featureLayer) {
+                view.map.remove(featureLayer)
+                featureLayer.destroy?.()
+            }
+
+            const selectionLayer = selectionLayerRef.current ?? view.map.findLayerById('consulta-espacial-selection-layer') as GraphicsLayer | null
+            if (selectionLayer) {
+                selectionLayer.removeAll()
+                view.map.remove(selectionLayer)
+                selectionLayer.destroy?.()
+            }
+        } else {
+            selectionLayerRef.current?.removeAll()
+            selectionLayerRef.current?.destroy?.()
+        }
+
+        featureLayerRef.current = null
+        selectionLayerRef.current = null
+        setSelectionActive(null)
+        setSelectionCount(null)
+    }, [jimuMapView])
+
+    const limpiarTodo = useCallback(() => {
+        limpiarYCerrarWidgetResultados(widgetResultId)
+        limpiarMapaConsultaEspacial()
+        setLoading(false)
+        setLoadingMessage('')
+        setIdServicio('')
+        setIdGrupo('')
+        setGrupos([])
+        setIdCapa('')
+        setCapas([])
+        setLayers([])
+    }, [limpiarMapaConsultaEspacial, widgetResultId])
+
     const activarSeleccion = (tipoSeleccion: 'rectangle' | 'polygon') => {
         const view = jimuMapView?.view
         const layer = featureLayerRef.current
+        const selectionRunId = selectionRunRef.current + 1
 
         if (!view || !layer) {
             alert('Seleccione una capa antes de usar la seleccion espacial.')
             return
         }
 
+        selectionRunRef.current = selectionRunId
         limpiarSeleccion()
         setSelectionActive(tipoSeleccion)
 
@@ -118,7 +170,11 @@ const Widget = (props: AllWidgetProps<any>) => {
                 query.outFields = ['*']
 
                 const result = await layer.queryFeatures(query)
+                if (selectionRunRef.current !== selectionRunId) return
+
                 const layerView = await view.whenLayerView(layer)
+                if (selectionRunRef.current !== selectionRunId) return
+
                 const objectIds = result.features
                     .map(feature => feature.attributes?.[layer.objectIdField])
                     .filter(objectId => objectId !== undefined && objectId !== null)
@@ -146,8 +202,12 @@ const Widget = (props: AllWidgetProps<any>) => {
                     limpiarYCerrarWidgetResultados(widgetResultId)
                 }
             } catch (error) {
-                alert('No fue posible seleccionar los elementos con la geometria dibujada.')
+                if (selectionRunRef.current === selectionRunId) {
+                    alert('No fue posible seleccionar los elementos con la geometria dibujada.')
+                }
             } finally {
+                if (selectionRunRef.current !== selectionRunId) return
+
                 setSelectionActive(null)
                 setLoading(false)
                 setLoadingMessage('')
@@ -160,6 +220,8 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
 
     useEffect(() => {
+        let cancelled = false
+
         const cargarGrupos = async () => {
             if (!urlServicioSeleccionado) {
                 return;
@@ -169,6 +231,8 @@ const Widget = (props: AllWidgetProps<any>) => {
 
             try {
                 const resp = await loadLayers(urlServicioSeleccionado);
+                if (cancelled) return
+
                 const layers = resp.layers ?? [];
 
                 const opcionesGrupos = layers
@@ -193,13 +257,17 @@ const Widget = (props: AllWidgetProps<any>) => {
                 setCapas(tieneGroupLayers ? [] : opcionesCapas);
                 setIdCapa('');
             } catch (error) {
+                if (cancelled) return
+
                 setLayers([]);
                 setGrupos([]);
                 setIdGrupo('');
                 setCapas([]);
                 setIdCapa('');
             } finally {
-                setLoading(false);
+                if (!cancelled) {
+                    setLoading(false);
+                }
             }
         }
 
@@ -209,7 +277,23 @@ const Widget = (props: AllWidgetProps<any>) => {
         setCapas([]);
         setIdCapa('');
         void cargarGrupos();
+
+        return () => {
+            cancelled = true
+        }
     }, [idServicio]);
+
+    useEffect(() => {
+        const wasClosed = previousWidgetStateRef.current === 'CLOSED'
+        const isClosed = props.state === 'CLOSED'
+
+        previousWidgetStateRef.current = props.state
+
+        if (!isClosed || wasClosed) return
+
+        limpiarTodo()
+        void jimuMapView?.view?.goTo(MAP_DEFAULT_VIEW)
+    }, [props.state, limpiarTodo, jimuMapView])
 
     useEffect(() => {
         if (!tieneGroupLayers) return;
@@ -251,6 +335,7 @@ const Widget = (props: AllWidgetProps<any>) => {
         }
 
         featureLayerRef.current = null
+        selectionRunRef.current += 1
         limpiarSeleccion()
         sketchViewModelRef.current?.destroy()
         sketchViewModelRef.current = null

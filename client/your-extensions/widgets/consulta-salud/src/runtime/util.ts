@@ -31,7 +31,7 @@ export async function cargarDesdeArcgisService(execute, arcgisService, url, idCa
     try {
         const response = await queryCapa(execute, arcgisService, url, idCapa, propsQuery)
             if (handleError(response) === -1) {
-            throw("Error accediendo a la capa");
+            throw new Error(`Error accediendo a la capa: ${response.error}` );
         }
         
         return { ...response.data };
@@ -46,10 +46,12 @@ export function handleError(response, setMessage=null) {
     if (response.success) 
         return 0;
     
+    // Desactivo el mensaje de error.
+    /*
     if (setMessage) {
         setMessage(response.error ?? 'No fue posible consultar el servicio')
     }
-
+    */
     return -1    
 }
 
