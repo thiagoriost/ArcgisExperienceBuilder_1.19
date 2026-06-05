@@ -32,7 +32,9 @@
   height: 100%;
   min-height: 0;
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  /* Layout principal: tabs arriba + paneles debajo. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 0;
   padding: var(--spacing-sm);
   background: var(--bg-color-light);
@@ -80,18 +82,18 @@
 }
 
 /*
- * Sistema de pestañas vertical tipo side-rail, similar a la referencia visual.
- * Se apoya en variables del preset Quindio para mantener consistencia temática.
+ * Barra de pestañas horizontal en la parte superior del widget.
+ * Solo cambia la ubicación; se conservan colores y tokens ya homologados.
  */
 .buffer-widget-tabs {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
   gap: calc(var(--spacing-sm) - 2px);
   padding: var(--spacing-sm) calc(var(--spacing-sm) - 2px);
   background: var(--bg-color-gray);
-  border-right: 1px solid var(--border-color-light);
+  border-bottom: 1px solid var(--border-color-light);
 }
 
 /*
@@ -99,7 +101,7 @@
  * Permite que el panel activo use su propia barra de desplazamiento vertical.
  */
 .buffer-widget-panels {
-  flex: 1;
+  /* Segunda fila del grid: ocupa el alto restante con scroll interno por panel. */
   min-height: 0;
   background-color: var(--bg-color-white);
   padding: var(--spacing-sm) var(--spacing-md);
@@ -108,15 +110,12 @@
 .buffer-widget-tab {
   border: 0;
   border-radius: var(--border-radius-lg);
-  min-height: 92px;
-  padding: var(--spacing-sm) var(--spacing-xs);
+  min-height: calc(var(--spacing-xl) * 2);
+  padding: var(--spacing-sm) var(--spacing-md);
   background: var(--bg-color-white);
   color: var(--text-color-primary);
   font-weight: 700;
   letter-spacing: 0.2px;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  text-orientation: mixed;
   cursor: pointer;
   transition: background-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
 }
@@ -208,26 +207,22 @@
 }
 
 /*
- * Ajuste responsivo: en pantallas estrechas las pestañas vuelven a layout horizontal
- * para evitar recorte del texto vertical y facilitar interacción táctil.
+ * Ajuste responsivo: mantiene tabs superiores y permite compactar interacción táctil.
  */
 @media (max-width: 640px) {
   .consulta-widget {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .buffer-widget-tabs {
-    flex-direction: row;
-    border-right: 0;
+    flex-wrap: wrap;
     border-bottom: 1px solid var(--border-color-light);
     padding: calc(var(--spacing-sm) - 2px);
   }
 
   .buffer-widget-tab {
-    min-height: calc(var(--spacing-xl) * 2);
-    writing-mode: horizontal-tb;
-    transform: none;
+    min-height: calc(var(--spacing-xl) + var(--spacing-md));
     padding: var(--spacing-sm) var(--spacing-md);
   }
 }

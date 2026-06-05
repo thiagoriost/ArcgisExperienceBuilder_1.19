@@ -97,8 +97,8 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
     verticalLabelAngleDeg = 45,
     horizontalLabelAngleDeg = 45,
     verticalLabelTopOffsetMm = 2,
-    verticalLabelBottomOffsetMm = 20,
-    horizontalLabelSideOffsetMm = 5
+    verticalLabelBottomOffsetMm = 10, // Se reduce el espacio inferior para etiquetas y se ajusta el cajetín en consecuencia.
+    horizontalLabelSideOffsetMm = 5 // Se reduce el espacio lateral para etiquetas horizontales y se ajusta el layout en consecuencia.
   } = gridOptions
 
   // Convierte coordenadas del mapa (extent) al espacio del PDF para que la grilla
@@ -135,8 +135,7 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
   const formatCoordinateLabel = (value: number): string => value.toFixed(decimals)
 
   // Separación de etiquetas respecto al borde del mapa.
-  // Inferior se define en 25 mm (5 mm base + 20 mm extra solicitados).
-  const pageFrameInset = 10.5
+  const pageFrameInset = 11
 
   for (let xCoord = firstVertical; xCoord < extent.xmax; xCoord += intervalUnits) {
     const { xPdf } = mapCoordToPdf(xCoord, extent.ymin)
@@ -259,9 +258,9 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   const mapOuterMarginMm = 15
   const horizontalLabelReserveMm = 5
   const verticalLabelTopOffsetMm = 2
-  const verticalLabelBottomOffsetMm = 15
+  const verticalLabelBottomOffsetMm = 8 // Se reduce el espacio inferior para etiquetas y se ajusta el cajetín en consecuencia.
   const horizontalLabelAngleDeg = 45
-  const horizontalLabelSideOffsetMm = 5
+  const horizontalLabelSideOffsetMm = 5 // Se aumenta el espacio lateral para etiquetas horizontales y se ajusta el layout en consecuencia.
   const verticalLabelAngleDeg = 45
 
   // Calcular dimensiones del mapa manteniendo la relación de aspecto.
@@ -320,8 +319,14 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
     const sourceWkid = sourceExtent.spatialReference?.wkid
     const measuredWkid = measuredGridExtent.spatialReference?.wkid
 
-    // 1) Retícula base en negro (coarser): referencia visual similar a graticule.
-    drawGridOnMap(doc, {
+    // 1) Dibujo de retículas en negro.
+    // Este bloque traza las líneas de referencia (graticule) sobre el mapa,
+    // usando el SR original de la vista para conservar correspondencia visual
+    // con la imagen base capturada.
+    // - gridColor: "#000000" -> líneas negras
+    // - majorLineFactor: 5 -> retícula más espaciada que la cuadrícula medida
+    // - lineWidth: 0.25 -> grosor de línea de retícula
+    /* drawGridOnMap(doc, {
       mapLeft: mapLeftCentered,
       mapTop,
       mapWidth,
@@ -335,7 +340,7 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       horizontalLabelAngleDeg,
       verticalLabelTopOffsetMm,
       verticalLabelBottomOffsetMm
-    })
+    }) */
 
     // 2) Cuadrícula medida en SR 9377.
     // Si la reproyección falla, se usa la extensión original como contingencia.
