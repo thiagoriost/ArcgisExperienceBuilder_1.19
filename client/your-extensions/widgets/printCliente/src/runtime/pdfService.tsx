@@ -245,7 +245,17 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   const mapLeft = 15
   const mapTop = 30
   const maxMapWidth = pageWidth - 30
-  const maxMapHeight = pageHeight - 90
+
+  // Configuración del cajetín para evitar desbordes y mantener un margen superior mayor.
+  const footerGapFromMap = 10
+  const footerTextStartOffset = 10
+  const footerLineGap = 8
+  const footerBottomPadding = 8
+  const footerLineCount = options.showGrid
+    ? (options.author ? 5 : 4)
+    : (options.author ? 4 : 3)
+  const desiredFooterHeight = footerTextStartOffset + ((footerLineCount - 1) * footerLineGap) + footerBottomPadding
+  const maxMapHeight = pageHeight - mapTop - footerGapFromMap - desiredFooterHeight - 15
 
   // Relación de aspecto de la imagen original
   const imageAspectRatio = options.imageWidth / options.imageHeight
@@ -272,6 +282,9 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   // Marco del mapa para delimitar visualmente la captura dentro del layout.
   doc.rect(mapLeftCentered, mapTop, mapWidth, mapHeight)
 
+  let measuredGridExtent: __esri.Extent | undefined
+
+
   // Dibujar grilla solo cuando el usuario la activa desde el widget.
   if (options.showGrid) {
     const cellSizeMm = options.gridCellSizeMm && options.gridCellSizeMm > 0
@@ -279,7 +292,7 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       : 12
     const gridColor = options.gridColor || "#787878"
     const sourceExtent = options.view.extent
-    const measuredGridExtent = await getMeasuredGridExtent9377(sourceExtent)
+    measuredGridExtent = await getMeasuredGridExtent9377(sourceExtent)
     const sourceWkid = sourceExtent.spatialReference?.wkid
     const measuredWkid = measuredGridExtent.spatialReference?.wkid
 
@@ -319,20 +332,32 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   ========================================== */
 
   // Posicionar el cajetín debajo del mapa con un margen
-  const footerTop = mapTop + mapHeight + 5
-  const footerHeight = Math.min(35, pageHeight - footerTop - 15)
+  const footerTop = mapTop + mapHeight + footerGapFromMap
+  const availableFooterHeight = pageHeight - footerTop - 15
+  const footerHeight = Math.min(desiredFooterHeight, availableFooterHeight)
 
   doc.rect(15, footerTop, pageWidth - 30, footerHeight)
 
   doc.setFontSize(10)
   doc.setFont("helvetica", "normal")
 
-  doc.text(`Escala: 1:${Math.round(options.scale)}`, 20, footerTop + 10)
-  doc.text(`Sistema Ref.: ${options.spatialReference}`, 20, footerTop + 18)
-  doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, footerTop + 26)
+  const footerLines: string[] = [
+    `Escala: 1:${Math.round(options.scale)}`,
+    `Sistema Referencia mapa base.: ${options.spatialReference}`
+  ]
+
+  if (options.showGrid) {
+    footerLines.push(`Proyección SR cuadrícula: ${measuredGridExtent?.spatialReference?.wkid ?? 'desconocido'}`)
+  }
+
+  footerLines.push(`Fecha: ${new Date().toLocaleDateString()}`)
 
   if (options.author) {
-    doc.text(`Autor: ${options.author}`, 20, footerTop + 32)
+    footerLines.push(`Autor: ${options.author}`)
+  }
+
+  for (let i = 0; i < footerLines.length; i++) {
+    doc.text(footerLines[i], 20, footerTop + footerTextStartOffset + (i * footerLineGap))
   }
 
   // Norte
