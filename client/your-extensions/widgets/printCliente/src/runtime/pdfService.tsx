@@ -7,6 +7,8 @@
  */
 
 import JsPDF from "jspdf"
+import SpatialReference from "@arcgis/core/geometry/SpatialReference"
+import * as projection from "@arcgis/core/geometry/projection"
 import { buildLegendItems } from "./legendService"
 import { validaLoggerLocalStorage } from "../../../shared/utils/export.utils"
 
@@ -71,26 +73,116 @@ interface GridDrawingOptions {
   mapHeight: number;
   cellSizeMm: number;
   gridColor: string;
+  extent: __esri.Extent;
+  majorLineFactor?: number;
+  lineWidth?: number;
 }
 
 const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
-  const { mapLeft, mapTop, mapWidth, mapHeight, cellSizeMm, gridColor } = gridOptions
+  const {
+    mapLeft,
+    mapTop,
+    mapWidth,
+    mapHeight,
+    cellSizeMm,
+    gridColor,
+    extent,
+    majorLineFactor = 1,
+    lineWidth = 0.15
+  } = gridOptions
+
+  // Convierte coordenadas del mapa (extent) al espacio del PDF para que la grilla
+  // quede anclada a coordenadas proyectadas y no solo a separación visual.
+  const mapCoordToPdf = (x: number, y: number): { xPdf: number, yPdf: number } => {
+    const xRatio = (x - extent.xmin) / extent.width
+    const yRatio = (y - extent.ymin) / extent.height
+
+    const xPdf = mapLeft + (xRatio * mapWidth)
+    const yPdf = mapTop + mapHeight - (yRatio * mapHeight)
+
+    return { xPdf, yPdf }
+  }
+
+  // Relación entre mm en el marco del mapa y unidades del sistema de referencia.
+  // Esto permite conservar la preferencia visual (p.e. 12 mm), pero alineando líneas
+  // en coordenadas reales del mapa.
+  const unitsPerMmX = extent.width / mapWidth
+  const unitsPerMmY = extent.height / mapHeight
+  const intervalUnits = Math.max(1e-9, ((unitsPerMmX + unitsPerMmY) / 2) * cellSizeMm * majorLineFactor)
+
+  const firstVertical = Math.ceil(extent.xmin / intervalUnits) * intervalUnits
+  const firstHorizontal = Math.ceil(extent.ymin / intervalUnits) * intervalUnits
   const [r, g, b] = hexToRgb(gridColor)
 
   doc.setDrawColor(r, g, b)
-  doc.setLineWidth(0.15)
+  doc.setLineWidth(lineWidth)
+  // Las etiquetas de coordenadas fuera del mapa deben verse en negro.
+  doc.setTextColor(0, 0, 0)
+  doc.setFontSize(6)
 
-  for (let x = mapLeft + cellSizeMm; x < mapLeft + mapWidth; x += cellSizeMm) {
-    doc.line(x, mapTop, x, mapTop + mapHeight)
+  // Formatea la etiqueta según el tamaño del intervalo para no perder legibilidad.
+  const decimals = intervalUnits >= 100 ? 0 : intervalUnits >= 1 ? 2 : 4
+  const formatCoordinateLabel = (value: number): string => value.toFixed(decimals)
+
+  // Separación requerida respecto al borde del mapa: 5 mm hacia el exterior.
+  const outerOffsetMm = 5
+  const pageFrameInset = 10.5
+
+  for (let xCoord = firstVertical; xCoord < extent.xmax; xCoord += intervalUnits) {
+    const { xPdf } = mapCoordToPdf(xCoord, extent.ymin)
+    doc.line(xPdf, mapTop, xPdf, mapTop + mapHeight)
+
+    // Etiquetas al inicio (arriba) y al final (abajo) fuera del mapa.
+    const xLabel = formatCoordinateLabel(xCoord)
+    const xLabelWidth = doc.getTextWidth(xLabel)
+    const xText = Math.max(pageFrameInset, Math.min(xPdf - (xLabelWidth / 2), (doc.internal.pageSize.getWidth() - pageFrameInset - xLabelWidth)))
+    doc.text(xLabel, xText, mapTop - outerOffsetMm)
+    doc.text(xLabel, xText, mapTop + mapHeight + outerOffsetMm)
   }
 
-  for (let y = mapTop + cellSizeMm; y < mapTop + mapHeight; y += cellSizeMm) {
-    doc.line(mapLeft, y, mapLeft + mapWidth, y)
+  for (let yCoord = firstHorizontal; yCoord < extent.ymax; yCoord += intervalUnits) {
+    const { yPdf } = mapCoordToPdf(extent.xmin, yCoord)
+    doc.line(mapLeft, yPdf, mapLeft + mapWidth, yPdf)
+
+    // Etiquetas al inicio (izquierda) y al final (derecha) fuera del mapa.
+    const yLabel = formatCoordinateLabel(yCoord)
+    const yLabelWidth = doc.getTextWidth(yLabel)
+    const yText = Math.max(pageFrameInset + 2.5, Math.min(yPdf + 2, doc.internal.pageSize.getHeight() - pageFrameInset))
+    doc.text(yLabel, Math.max(pageFrameInset, mapLeft - outerOffsetMm - yLabelWidth), yText)
+    doc.text(yLabel, Math.min(doc.internal.pageSize.getWidth() - pageFrameInset - yLabelWidth, mapLeft + mapWidth + outerOffsetMm), yText)
   }
 
   // Restablecer estilos para no afectar otros elementos del PDF.
   doc.setDrawColor(0, 0, 0)
   doc.setLineWidth(1)
+  doc.setTextColor(0, 0, 0)
+}
+
+/**
+ * Reproyecta la extensión al SR 9377 para construir una cuadrícula medida homogénea.
+ * Si no es posible proyectar, retorna la extensión original para no bloquear la salida.
+ */
+const getMeasuredGridExtent9377 = async (extent: __esri.Extent): Promise<__esri.Extent> => {
+  const currentWkid = extent.spatialReference?.wkid
+  if (currentWkid === 9377) return extent
+
+  try {
+    await projection.load()
+    const projectedExtent = projection.project(
+      extent,
+      new SpatialReference({ wkid: 9377 })
+    ) as __esri.Extent | null
+
+    if (projectedExtent) {
+      return projectedExtent
+    }
+  } catch (error) {
+    if (validaLoggerLocalStorage('logger')) {
+      console.warn("[generatePdf] No fue posible reproyectar la extensión a WKID 9377.", error)
+    }
+  }
+
+  return extent
 }
 
 
@@ -186,6 +278,29 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       ? options.gridCellSizeMm
       : 12
     const gridColor = options.gridColor || "#787878"
+    const sourceExtent = options.view.extent
+    const measuredGridExtent = await getMeasuredGridExtent9377(sourceExtent)
+    const sourceWkid = sourceExtent.spatialReference?.wkid
+    const measuredWkid = measuredGridExtent.spatialReference?.wkid
+
+    // 1) Retícula base en negro (coarser): referencia visual similar a graticule.
+    drawGridOnMap(doc, {
+      mapLeft: mapLeftCentered,
+      mapTop,
+      mapWidth,
+      mapHeight,
+      cellSizeMm,
+      gridColor: "#000000",
+      extent: sourceExtent,
+      majorLineFactor: 5,
+      lineWidth: 0.25
+    })
+
+    // 2) Cuadrícula medida en azul forzado, construida en SR 9377.
+    // Si la reproyección falla, se usa la extensión original como contingencia.
+    if (sourceWkid !== 9377 && validaLoggerLocalStorage('logger')) {
+      console.info(`[generatePdf] Extensión de entrada WKID ${sourceWkid ?? 'desconocido'} proyectada a WKID ${measuredWkid ?? 'desconocido'} para cuadrícula medida azul.`)
+    }
 
     drawGridOnMap(doc, {
       mapLeft: mapLeftCentered,
@@ -193,7 +308,9 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       mapWidth,
       mapHeight,
       cellSizeMm,
-      gridColor
+      gridColor,
+      extent: measuredGridExtent,
+      lineWidth: 0.35
     })
   }
 

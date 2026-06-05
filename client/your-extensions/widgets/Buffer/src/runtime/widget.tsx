@@ -1,10 +1,6 @@
 import { appActions, getAppStore, type AllWidgetProps, WidgetState } from 'jimu-core'
 import React from 'react'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis'
-import { Button, Label, Option, Select, TextInput } from 'jimu-ui'
-// import { SelectLineOutlined } from 'jimu-icons/outlined/gis/select-line'
-import { DataLineOutlined } from 'jimu-icons/outlined/gis/data-line'
-import { SelectPointOutlined } from 'jimu-icons/outlined/gis/select-point'
 import esriConfig from '@arcgis/core/config'
 import Graphic from '@arcgis/core/Graphic'
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
@@ -15,7 +11,6 @@ import * as geometryJsonUtils from '@arcgis/core/geometry/support/jsonUtils'
 import * as normalizeUtils from '@arcgis/core/geometry/support/normalizeUtils'
 import * as geometryServiceRest from '@arcgis/core/rest/geometryService'
 import BufferParameters from '@arcgis/core/rest/support/BufferParameters'
-import { SearchActionBar } from '../../../shared/components/search-action-bar'
 import { urls } from '../../../api/serviciosQuindio'
 import { abrirTablaResultados, limpiarYCerrarWidgetResultados } from '../../../widget-result/src/runtime/widget'
 
@@ -25,7 +20,13 @@ import { goToInitialExtent, validaLoggerLocalStorage } from '../../../shared/uti
 import { WIDGET_IDS } from '../../../shared/constants/widget-ids'
 import { useSelector } from 'react-redux'
 import OurLoading from '../../../commonWidgets/our_loading/OurLoading'
+import { AlertContainer } from '../../../shared/components/alert-container'
+import { alertService } from '../../../shared/services/alert.service'
+import BufferHistoryPanel from './components/BufferHistoryPanel'
+import BufferFormPanel from './components/BufferFormPanel'
 
+
+let nameCapa = "" // Variable global para almacenar el nombre de la capa seleccionada, usada en la generación de ID de buffer para resultados y trazas de depuración.
 /**
  * Opcion renderizada en controles tipo select.
  */
@@ -181,8 +182,13 @@ interface StoredIntersectedFeature {
  * Registro de buffer ejecutado por el usuario.
  */
 interface StoredBufferRecord {
-  /** Identificador secuencial del buffer. */
-  idBuffer: number
+  /**
+   * Identificador legible del buffer con formato:
+   * "<nombre de capa> #<consecutivo>".
+   *
+   * Permite diferenciar buffers entre capas distintas en historial y resultados.
+   */
+  idBuffer: string
   /** Extent serializado del buffer para navegación rápida. */
   extent?: __esri.ExtentProperties
   /** Geometría base usada para construir buffer (punto o línea). */
@@ -469,9 +475,11 @@ const Widget = (props: AllWidgetProps<any>) => {
   /** Historial de buffers ejecutados por el usuario. */
   const [bufferHistory, setBufferHistory] = React.useState<StoredBufferRecord[]>([])
   /** Buffer actualmente seleccionado en la tabla de historial. */
-  const [selectedBufferId, setSelectedBufferId] = React.useState<number | null>(null)
+  const [selectedBufferId, setSelectedBufferId] = React.useState<string | null>(null)
   /** Control global para mostrar/ocultar todas las geometrías de buffer. */
   const [showAllBuffers, setShowAllBuffers] = React.useState(true)
+  /** Pestaña activa de la interfaz: formulario o historial. */
+  const [activeTab, setActiveTab] = React.useState<'formulario' | 'historial'>('formulario')
   /** Estado de carga de la capa de características seleccionada. */
   const [isLayerLoading, setIsLayerLoading] = React.useState(false)
 
@@ -490,7 +498,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   /** Consecutivo interno para asignar id secuencial por buffer. */
   const nextBufferIdRef = React.useRef(1)
   /** Guarda el último buffer seleccionado para restaurar su foco al reactivar la vista global. */
-  const lastSelectedBufferIdRef = React.useRef<number | null>(null)
+  const lastSelectedBufferIdRef = React.useRef<string | null>(null)
   /** Extent inicial de la vista para restaurarlo al cerrar el widget. */
   const initialExtentRef = React.useRef<__esri.Extent | null>(null)
   /** Zoom inicial del mapa para restablecer la vista al limpiar. */
@@ -501,6 +509,14 @@ const Widget = (props: AllWidgetProps<any>) => {
   const clickPopupEnabledRef = React.useRef<boolean | null>(null)
   /** Estado previo de highlight automático por clic para restaurarlo después. */
   const clickHighlightEnabledRef = React.useRef<boolean | null>(null)
+  /** Referencias DOM de pestañas para navegación por teclado con foco controlado. */
+  const tabButtonRefs = React.useRef<Array<HTMLButtonElement | null>>([])
+  /**
+   * Contador de veces que se muestra la alerta informativa de modo de dibujo.
+   *
+   * Se limita a 3 para evitar saturar al usuario con mensajes repetitivos.
+   */
+  const drawModeInfoAlertCountRef = React.useRef(0)
 
   /**
    * Restaura el comportamiento automático de popups por clic del mapa a su estado previo.
@@ -818,7 +834,7 @@ const Widget = (props: AllWidgetProps<any>) => {
    */
   React.useEffect(() => {
     const view = jimuMapView?.view
-    if (!view) return
+    if (!view) return    
 
     const existing = view.map.findLayerById('buffer-graphics-layer') as GraphicsLayer | null
     if (existing) {
@@ -925,6 +941,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   React.useEffect(() => {
     const view = jimuMapView?.view
     if (!view) return
+    let isCancelled = false // Control de concurrencia para evitar efectos secundarios después de desmontar o cambiar vista
 
     if (activeLayerRef.current && view.map.findLayerById(activeLayerRef.current.id)) {
       view.map.remove(activeLayerRef.current)
@@ -948,6 +965,31 @@ const Widget = (props: AllWidgetProps<any>) => {
       activeLayerRef.current = layer
 
       /**
+       * Enfoca el mapa hacia la capa recién renderizada.
+       *
+       * Estrategia:
+       * 1. Intentar usar `fullExtent` si viene disponible.
+       * 2. Si no existe, consultar extent con `queryExtent()`.
+       * 3. Aplicar un pequeño `expand` para dar contexto visual al usuario.
+       *
+       * @returns {Promise<void>} Promesa resuelta cuando finaliza el intento de enfoque.
+       */
+      const focusMapOnRenderedLayer = async (): Promise<void> => {
+        try {
+          const queryExtentResult = await layer.queryExtent()
+          const targetExtent = layer.fullExtent ?? queryExtentResult?.extent ?? null
+
+          if (!isCancelled && targetExtent) {
+            await view.goTo(targetExtent.expand(1.15))
+          }
+        } catch (extentError) {
+          if (validaLoggerLocalStorage('logger')) {
+            console.warn('Buffer: no fue posible enfocar la capa activa por extent.', extentError)
+          }
+        }
+      }
+
+      /**
        * Monitorea el estado de carga de la capa usando layer.when(),
        * que retorna una promesa que se resuelve cuando la capa ha terminado
        * de cargar completamente. Cuando se resuelve, ocultamos el indicador
@@ -956,7 +998,11 @@ const Widget = (props: AllWidgetProps<any>) => {
        * @param {FeatureLayer} layer Capa de características cargada.
        * @returns {void}
        */
-      layer.when(() => {
+      layer.when(async () => {
+        if (isCancelled) return
+
+        await focusMapOnRenderedLayer()
+
         setTimeout(() => {
           setIsLayerLoading(false)          
         }, 8000);
@@ -984,6 +1030,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
 
     return () => {
+      isCancelled = true
       if (activeLayerRef.current && view.map.findLayerById(activeLayerRef.current.id)) {
         view.map.remove(activeLayerRef.current)
       }
@@ -1003,7 +1050,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     setActionError('')
     clearDrawings()
     void restoreInitialExtent()
-
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
   }
 
   /**
@@ -1014,6 +1061,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     setGrupoValue('')
     setCapaValue('')
     setActionError('')
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
   }
 
   /**
@@ -1026,34 +1074,52 @@ const Widget = (props: AllWidgetProps<any>) => {
     setGrupoValue(event.target.value)
     setCapaValue('')
     setActionError('')
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
   }
 
   /**
    * Almacena la capa seleccionada.
    */
   const onCapaChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setCapaValue(event.target.value)
+    const selectedValue = event.target.value
+    setCapaValue(selectedValue)
+    nameCapa = selectedValue
+    if(validaLoggerLocalStorage('logger')) console.log('Buffer - OnCapaChange:', selectedValue)
     setActionError('')
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
   }
 
   /**
    * Activa/desactiva el modo de dibujo seleccionado desde el formulario.
    */
   const onDrawModeSelect = (nextMode: 'point' | 'line') => {
+    const willActivateMode = drawMode !== nextMode
+
     setDrawMode(currentMode => currentMode === nextMode ? null : nextMode)
     setActionError('')
+
+    /**
+     * La alerta informativa se muestra solo cuando se activa un modo y
+     * únicamente durante las primeras 3 activaciones del widget.
+     */
+    if (willActivateMode && drawModeInfoAlertCountRef.current < 3) {
+      alertService.info('info:', 'Haz clic en el mapa para ubicar la geometría desde el cual se generará el buffer; para desactivar el modo de dibujo, haz clic nuevamente en el botón de la geoemtría seleccionada.')
+      drawModeInfoAlertCountRef.current += 1
+    }
+    
   }
 
   /**
    * Limpia geometrias dibujadas y estado temporal de interaccion.
    */
   const clearDrawings = React.useCallback((): void => {
+    if (validaLoggerLocalStorage('logger')) console.log('Buffer - clearDrawings', { bufferHistory,intersectedFeaturesByBuffer })
     lineStartPointRef.current = null
     graphicsLayerRef.current?.removeAll()
     setIntersectedFeaturesByBuffer([])
     setResultFields([])
     setResultMessage('')
-    setBufferHistory([])
+    // setBufferHistory([])
     setSelectedBufferId(null)
     setShowAllBuffers(true)
     nextBufferIdRef.current = 1
@@ -1102,7 +1168,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     setSubtemaValue('')
     setGrupoValue('')
     setCapaValue('')
-
+    setActiveTab('formulario')
      const view = jimuMapView?.view
     if (view && activeLayerRef.current && view.map.findLayerById(activeLayerRef.current.id)) {
       view.map.remove(activeLayerRef.current)
@@ -1113,6 +1179,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     restoreClickHighlight(jimuMapView)
 
     void restoreInitialExtent()   
+    setAllBufferChecks(false)
   }
 
   /**
@@ -1323,7 +1390,7 @@ const Widget = (props: AllWidgetProps<any>) => {
         props,
         WIDGET_IDS.RESULT,
         buffer.spatialReference,
-        `Intersección por buffer #${buffer.idBuffer}`,
+        `Buffer sobre ${buffer.idBuffer}`,
         {
           showGraphic: false
         }
@@ -1359,7 +1426,7 @@ const Widget = (props: AllWidgetProps<any>) => {
         bufferHistory
       })
     }
-    if (bufferHistory.length === 0) return
+    if (bufferHistory.length === 0 || props.state === 'CLOSED') return
     const graphicsLayer = graphicsLayerRef.current
     if (!graphicsLayer) return
 
@@ -1471,7 +1538,13 @@ const Widget = (props: AllWidgetProps<any>) => {
    */
   const drawBuffer = React.useCallback(async (geometry: __esri.GeometryUnion): Promise<void> => {
     if(validaLoggerLocalStorage('logger')) {
-      console.log('Buffer - drawBuffer invoked with geometry:', geometry)
+      console.log('Buffer - drawBuffer invoked with geometry:', {
+        geometry,
+        jimuMapView,
+        distancia,
+        unidad,
+        capaValue
+      })
     }
     const view = jimuMapView?.view
     const graphicsLayer = graphicsLayerRef.current
@@ -1527,8 +1600,15 @@ const Widget = (props: AllWidgetProps<any>) => {
       setIntersectedFeaturesByBuffer(mappedResults.rows)
       setResultFields(mappedResults.fields)
 
+      /**
+       * Identificador compuesto para distinguir buffers por capa origen.
+       *
+       * Ejemplo: "Predios Urbanos #3".
+       */
+      const bufferId = `${nameCapa} #${nextBufferIdRef.current++}`
+
       const storedBuffer: StoredBufferRecord = {
-        idBuffer: nextBufferIdRef.current++,
+        idBuffer: bufferId,
         extent: bufferGeometry.extent?.toJSON?.(),
         sourceGeometry: preparedGeometry.toJSON() as __esri.GeometryProperties,
         bufferGeometry: bufferGeometry.toJSON() as __esri.GeometryProperties,
@@ -1686,7 +1766,7 @@ const Widget = (props: AllWidgetProps<any>) => {
    * @param bufferId Identificador del buffer a actualizar.
    * @param checked Estado de visibilidad solicitado.
    */
-  const onToggleBufferCheck = (bufferId: number, checked: boolean) => {
+  const onToggleBufferCheck = (bufferId: string, checked: boolean) => {
     if(validaLoggerLocalStorage('logger')) {
       console.log('Buffer - onToggleBufferCheck:', {
         bufferId,
@@ -1731,12 +1811,190 @@ const Widget = (props: AllWidgetProps<any>) => {
   }
 
   /**
+   * Limpia el estado derivado del historial de buffers y, opcionalmente, reinicia
+   * el consecutivo interno para la siguiente ejecución.
+   *
+   * Este helper se usa tanto para el borrado total como para el escenario en el que
+   * el último buffer visible desaparece del historial, de modo que el widget quede
+   * en un estado consistente y sin geometrías residuales sobre el mapa.
+   *
+   * @param options Opciones de limpieza adicional.
+   * @returns {void}
+   */
+  const clearStoredBufferArtifacts = React.useCallback((options?: { resetSequence?: boolean }): void => {
+    graphicsLayerRef.current?.removeAll()
+    setSelectedBufferId(null)
+    lastSelectedBufferIdRef.current = null
+    setIntersectedFeaturesByBuffer([])
+    setResultFields([])
+    setResultMessage('')
+    limpiarYCerrarWidgetResultados(WIDGET_IDS.RESULT)
+
+    if (options?.resetSequence) {
+      nextBufferIdRef.current = 1
+    }
+  }, [])
+
+  /**
+   * Elimina un buffer específico del historial y sincroniza selección/resultados.
+   *
+   * Comportamiento:
+   * 1. Remueve el registro del arreglo bufferHistory.
+   * 2. Si se elimina el buffer seleccionado, intenta enfocar otro buffer visible.
+   * 3. Si no quedan buffers, limpia resultados y restablece referencias de selección.
+   *
+   * @param bufferId Identificador del buffer a eliminar.
+   * @returns {void}
+   */
+  const onDeleteStoredBuffer = (bufferId: string): void => {
+    if (validaLoggerLocalStorage('logger')) {
+      console.log('Buffer - onDeleteStoredBuffer:', { bufferId, selectedBufferId, bufferHistory })
+    }
+
+    const updatedHistory = bufferHistory.filter(buffer => buffer.idBuffer !== bufferId)
+    const wasSelectedBuffer = selectedBufferId === bufferId
+    const wasLastFocusedBuffer = lastSelectedBufferIdRef.current === bufferId
+
+    graphicsLayerRef.current?.removeAll()
+    setBufferHistory(updatedHistory)
+
+    if (updatedHistory.length === 0) {
+      clearStoredBufferArtifacts({ resetSequence: true })
+      return
+    }
+
+    if (!wasSelectedBuffer && !wasLastFocusedBuffer) {
+      return
+    }
+
+    const fallbackBuffer = [...updatedHistory].reverse().find(buffer => buffer.bufferChecked)
+
+    if (!fallbackBuffer || !showAllBuffers) {
+      clearStoredBufferArtifacts()
+      return
+    }
+
+    lastSelectedBufferIdRef.current = fallbackBuffer.idBuffer
+    void focusStoredBuffer(fallbackBuffer, true)
+  }
+
+  /**
+   * Elimina todos los buffers almacenados y limpia estado derivado del historial.
+   *
+   * Además de vaciar bufferHistory, cierra la tabla de resultados y limpia
+   * cualquier geometría residual renderizada en la capa temporal.
+   *
+   * @returns {void}
+   */
+  const onDeleteAllStoredBuffers = (): void => {
+    if (validaLoggerLocalStorage('logger')) {
+      console.log('Buffer - onDeleteAllStoredBuffers:', { bufferHistoryLength: bufferHistory.length })
+    }
+
+    if (bufferHistory.length === 0) return
+
+    setBufferHistory([])
+    setShowAllBuffers(true)
+    clearStoredBufferArtifacts({ resetSequence: true })
+  }
+
+  /**
    * Etiqueta del control global de buffers según el estado actual.
    *
    * Cuando el checkbox está activo, la acción resultante será ocultar.
    * Cuando está inactivo, la acción será mostrar.
    */
   const showAllBuffersLabel = showAllBuffers ? 'Ocultar todos los buffers' : 'Mostrar todos los buffers'
+
+  /**
+   * Cambia la pestaña activa del widget.
+   *
+   * @param tab Identificador de la pestaña a mostrar.
+   */
+  const onTabChange = (tab: 'formulario' | 'historial') => {
+    setActiveTab(tab)
+  }
+
+  /**
+   * Orden fijo de pestañas para navegación con flechas y teclas Home/End.
+   */
+  const tabOrder: Array<'formulario' | 'historial'> = ['formulario', 'historial']
+
+  /**
+   * Enfoca programáticamente una pestaña por índice seguro.
+   *
+   * @param index Índice de la pestaña dentro de tabOrder.
+   */
+  const focusTabByIndex = (index: number): void => {
+    const safeIndex = Math.max(0, Math.min(index, tabOrder.length - 1))
+    const target = tabOrder[safeIndex]
+    setActiveTab(target)
+    tabButtonRefs.current[safeIndex]?.focus()
+  }
+
+  /**
+   * Gestiona accesibilidad avanzada por teclado para tabs.
+   *
+   * Reglas implementadas (WAI-ARIA Tabs):
+   * - ArrowRight: siguiente pestaña
+   * - ArrowLeft: pestaña anterior
+   * - Home: primera pestaña
+   * - End: última pestaña
+   *
+   * @param event Evento de teclado sobre el tab activo/inactivo.
+   * @param currentTab Pestaña desde la cual se dispara el evento.
+   */
+  const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, currentTab: 'formulario' | 'historial'): void => {
+    const currentIndex = tabOrder.indexOf(currentTab)
+
+    if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      focusTabByIndex((currentIndex + 1) % tabOrder.length)
+      return
+    }
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault()
+      focusTabByIndex((currentIndex - 1 + tabOrder.length) % tabOrder.length)
+      return
+    }
+
+    if (event.key === 'Home') {
+      event.preventDefault()
+      focusTabByIndex(0)
+      return
+    }
+
+    if (event.key === 'End') {
+      event.preventDefault()
+      focusTabByIndex(tabOrder.length - 1)
+    }
+  }
+
+  /**
+   * Valida condiciones mínimas antes de ejecutar el flujo de búsqueda.
+   *
+   * Reglas:
+   * 1. Debe existir una capa seleccionada con URL válida.
+   * 2. Debe existir un modo de dibujo activo.
+   *
+   * Si falta alguna condición, registra el mensaje en la barra de acciones.
+   *
+   * @returns {void}
+   */
+  const onValidateSearchAction = (): void => {
+    if (!selectedCapa?.layerUrl) {
+      setActionError('Seleccione una capa para ejecutar la intersección espacial.')
+      return
+    }
+
+    if (!drawMode) {
+      setActionError('Seleccione un modo de dibujo antes de activar.')
+      return
+    }
+
+    setActionError('')
+  }
 
 
 
@@ -1750,207 +2008,96 @@ const Widget = (props: AllWidgetProps<any>) => {
       )}
 
       <div className='consulta-widget loading-host'>
-        <div>
-          <Label>Temas:</Label>
-          <Select value={temaValue} onChange={onTemaChange} onClick={checkifDOTexist}>
-            <Option value=''>Seleccione...</Option>
-            {temaOptions.map(option => (
-              <Option key={option.value} value={option.value}>{option.label}</Option>
-            ))}
-          </Select>
+        {/* Navegación principal por pestañas para separar captura (Formulario) e histórico de resultados (Historial). */}
+        <div className='buffer-widget-tabs' role='tablist' aria-label='Secciones del widget Buffer'>
+          <button
+            type='button'
+            role='tab'
+            id='buffer-tab-formulario'
+            aria-selected={activeTab === 'formulario'}
+            aria-controls='buffer-tabpanel-formulario'
+            tabIndex={activeTab === 'formulario' ? 0 : -1}
+            className={`buffer-widget-tab ${activeTab === 'formulario' ? 'is-active' : ''}`}
+            ref={(element) => { tabButtonRefs.current[0] = element }}
+            onKeyDown={(event) => { onTabKeyDown(event, 'formulario') }}
+            onClick={() => { onTabChange('formulario') }}
+          >
+            Formulario
+          </button>
+          <button
+            type='button'
+            role='tab'
+            id='buffer-tab-historial'
+            aria-selected={activeTab === 'historial'}
+            aria-controls='buffer-tabpanel-historial'
+            tabIndex={activeTab === 'historial' ? 0 : -1}
+            className={`buffer-widget-tab ${activeTab === 'historial' ? 'is-active' : ''}`}
+            ref={(element) => { tabButtonRefs.current[1] = element }}
+            onKeyDown={(event) => { onTabKeyDown(event, 'historial') }}
+            onClick={() => { onTabChange('historial') }}
+          >
+            Historial ({bufferHistory.length})
+          </button>
+        </div>
 
-          {!shouldBypassSubtema && (
-            <>
-              <Label>Subtemas:</Label>
-              <Select value={subtemaValue} onChange={onSubtemaChange}>
-                <Option value=''>Seleccione...</Option>
-                {subtemaOptions.map(option => (
-                  <Option key={option.value} value={option.value}>{option.label}</Option>
-                ))}
-              </Select>
-            </>
-          )}
-
-          {shouldShowGrupos && (
-            <>
-              <Label>Grupos:</Label>
-              <Select value={grupoValue} onChange={onGrupoChange}>
-                <Option value=''>Seleccione...</Option>
-                {grupoOptions.map(option => (
-                  <Option key={option.value} value={option.value}>{option.label}</Option>
-                ))}
-              </Select>
-            </>
-          )}
-
-          <Label>Capas:</Label>
-          <Select value={capaValue} onChange={onCapaChange} disabled={shouldShowGrupos && !grupoValue}>
-            <Option value=''>Seleccione...</Option>
-            {capaOptions.map(option => (
-              <Option key={`${option.value}-${option.layerUrl}`} value={option.value}>{option.label}</Option>
-            ))}
-          </Select>
-
-          
-          {
-              capaValue!=="" && (
-                <>
-                  <Label>Distancia:</Label>
-                  <TextInput
-                    type='text'
-                    min='1'
-                    value={distancia}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setDistancia(event.target.value) }}
-                  />
-
-                  <Label>Unidad:</Label>
-                  <Select value={unidad} onChange={(event: React.ChangeEvent<HTMLSelectElement>) => { setUnidad(event.target.value) }}>
-                    <Option value='Metros'>Metros</Option>
-                    <Option value='Kilometros'>Kilometros</Option>
-                  </Select>
-                  <Label>Modo de dibujo:</Label>
-                  <div
-                    role='group'
-                    aria-label='Modo de dibujo'
-                    style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}
-                  >
-                    <Button
-                      type={drawMode === 'point' ? 'primary' : 'default'}
-                      aria-pressed={drawMode === 'point'}
-                      title='Punto'
-                      onClick={() => { onDrawModeSelect('point') }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <SelectPointOutlined width={16} height={16} />
-                      <span>Punto</span>
-                    </Button>
-                    <Button
-                      type={drawMode === 'line' ? 'primary' : 'default'}
-                      aria-pressed={drawMode === 'line'}
-                      title='Linea'
-                      onClick={() => { onDrawModeSelect('line') }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                    >
-                      <DataLineOutlined width={16} height={16} />
-                      <span>Linea</span>
-                    </Button>
-                  </div>
-                  {drawMode === 'line' && (
-                    <p className='buffer-widget__hint'>Para linea: haga clic en dos puntos del mapa.</p>
-                  )}
-                </>
-              )
-          }
-
-          <SearchActionBar
-            onSearch={() => {
-              if (!selectedCapa?.layerUrl) {
-                setActionError('Seleccione una capa para ejecutar la intersección espacial.')
-                return
-              }
-              if (!drawMode) {
-                setActionError('Seleccione un modo de dibujo antes de activar.')
-                return
-              }
-              setActionError('')
-            }}
+        {/* Contenedor de paneles con altura controlada para habilitar desplazamiento vertical interno. */}
+        <div className='buffer-widget-panels'>
+          {/*
+            Panel externo del formulario de captura Buffer.
+            Se renderiza aquí para mantener el runtime limpio y separar lógica de layout.
+          */}
+          <BufferFormPanel
+            isActive={activeTab === 'formulario'}
+            temaValue={temaValue}
+            temaOptions={temaOptions}
+            onTemaChange={onTemaChange}
+            checkifDOTexist={checkifDOTexist}
+            shouldBypassSubtema={shouldBypassSubtema}
+            subtemaValue={subtemaValue}
+            subtemaOptions={subtemaOptions}
+            onSubtemaChange={onSubtemaChange}
+            shouldShowGrupos={shouldShowGrupos}
+            grupoValue={grupoValue}
+            grupoOptions={grupoOptions}
+            onGrupoChange={onGrupoChange}
+            capaValue={capaValue}
+            capaOptions={capaOptions}
+            onCapaChange={onCapaChange}
+            distancia={distancia}
+            onDistanciaChange={(event: React.ChangeEvent<HTMLInputElement>) => { setDistancia(event.target.value) }}
+            unidad={unidad}
+            onUnidadChange={(event: React.ChangeEvent<HTMLSelectElement>) => { setUnidad(event.target.value) }}
+            drawMode={drawMode}
+            onDrawModeSelect={onDrawModeSelect}
+            onSearch={onValidateSearchAction}
             onClear={resetWidget}
             disableSearch={!drawMode || !selectedCapa?.layerUrl || isProcessing}
-            helpText='Seleccione un modo de dibujo para habilitar la captura en el mapa, y haga clic sobre el mapa en donde desea realizar el buffer.'
-            error={actionError}
-            searchLabel='Buscar'
-            clearLabel='Limpiar'
-            hideSearch={true}
+            actionError={actionError}
+            isProcessing={isProcessing}
+            resultMessage={resultMessage}
           />
 
-          {isProcessing && (
-            <p className='buffer-widget__hint'>Procesando buffer e intersección espacial...</p>
-          )}
-
-          {!isProcessing && resultMessage && (
-            <p className='buffer-widget__hint'>{resultMessage}</p>
-          )}
-
-          {bufferHistory.length > 0 && (
-            <div style={{ marginTop: '10px' }}>
-             {/*  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                <input
-                  type='checkbox'
-                  checked={showAllBuffers}
-                  onChange={onToggleShowAllBuffers}
-                />
-                <span>{showAllBuffersLabel}</span>
-              </label> */}
-
-              <div className='widget-result-table-container' style={{ maxHeight: '240px', overflow: 'auto' }}>
-                <table className='table table-sm table-striped' style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Ver</th>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Buffer</th>
-                      <th style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>Intersecciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bufferHistory.map(buffer => (
-                      <tr
-                        key={buffer.idBuffer}
-                        // onClick={() => { onSelectBufferRow(buffer) }}
-                        style={{
-                          cursor: buffer.bufferChecked && showAllBuffers ? 'pointer' : 'default',
-                          backgroundColor: selectedBufferId === buffer.idBuffer ? 'rgba(0, 128, 255, 0.08)' : 'transparent'
-                        }}
-                      >
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>
-                          <input
-                            type='checkbox'
-                            checked={buffer.bufferChecked}
-                            onChange={(event) => {
-                              event.stopPropagation()
-                              onToggleBufferCheck(buffer.idBuffer, event.target.checked)
-                            }}
-                          />
-                        </td>
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>#{buffer.idBuffer}</td>
-                        <td style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>{buffer.intersectedFeaturesByBuffer.length}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* {intersectedFeaturesByBuffer.length > 0 && resultFields.length > 0 && (
-            <div className='widget-result-table-container' style={{ marginTop: '10px', maxHeight: '220px', overflow: 'auto' }}>
-              <table className='table table-sm table-striped' style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    {resultFields.map(field => (
-                      <th key={field.name} style={{ textAlign: 'left', borderBottom: '1px solid #d9d9d9', padding: '4px' }}>
-                        {field.alias}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {intersectedFeaturesByBuffer.map(row => (
-                    <tr key={row.rowId}>
-                      {resultFields.map(field => (
-                        <td key={`${row.rowId}-${field.name}`} style={{ borderBottom: '1px solid #efefef', padding: '4px' }}>
-                          {String(row.attributes[field.name] ?? '')}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )} */}
+        {/* Panel de revisión del historial de buffers, visibilidad y selección de resultados. */}
+        <section
+          id='buffer-tabpanel-historial'
+          role='tabpanel'
+          aria-labelledby='buffer-tab-historial'
+          className={`buffer-widget-panel ${activeTab === 'historial' ? 'is-active' : ''}`}
+        >
+          <BufferHistoryPanel
+            bufferHistory={bufferHistory}
+            selectedBufferId={selectedBufferId}
+            showAllBuffers={showAllBuffers}
+            onToggleBufferCheck={onToggleBufferCheck}
+            onDeleteStoredBuffer={onDeleteStoredBuffer}
+            onDeleteAllStoredBuffers={onDeleteAllStoredBuffers}
+          />
+        </section>
         </div>
 
         {isLayerLoading && <OurLoading />}
       </div>
+      <AlertContainer />
     </div>
   )
 }

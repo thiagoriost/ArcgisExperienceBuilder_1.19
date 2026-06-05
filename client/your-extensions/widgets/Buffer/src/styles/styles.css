@@ -1,15 +1,45 @@
 @import '../../../utils/styles/presetsQuindio.css';
 
+/*
+ * Tabla de mapeo de tokens (presetsQuindio.css)
+ * --------------------------------------------------------------
+ * Bloque visual                 | Tokens principales
+ * --------------------------------------------------------------
+ * Contenedor general            | --bg-color-light, --border-color-light,
+ *                               | --border-radius-lg, --shadow-light, --spacing-sm
+ * Etiquetas y ayuda             | --font-size-md, --font-size-sm,
+ *                               | --text-color-primary, --text-color-secondary,
+ *                               | --spacing-xs, --spacing-sm
+ * Inputs / selects              | --bg-color-white, --border-color-medium,
+ *                               | --border-radius-md
+ * Rail de pestañas              | --bg-color-gray, --border-color-light,
+ *                               | --spacing-sm
+ * Botón de pestaña (normal)     | --bg-color-white, --text-color-primary,
+ *                               | --border-radius-lg
+ * Botón de pestaña (hover)      | --color-primary-light
+ * Botón de pestaña (activo)     | --color-primary, --text-color-white
+ * Panel de contenido            | --bg-color-white, --spacing-sm, --spacing-md
+ * Botones de borrado            | --color-danger, --bg-color-white,
+ *                               | --border-color-light, --border-radius-md,
+ *                               | --border-radius-lg
+ * Responsive (mobile tabs)      | --spacing-sm, --spacing-md, --spacing-xl,
+ *                               | --border-color-light
+ * --------------------------------------------------------------
+ */
+
 .consulta-widget {
   width: 100%;
   height: 100%;
   min-height: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 0;
   padding: var(--spacing-sm);
-  /* background-color: var(--bg-color-white); */
-  overflow-y: auto;
-  overflow-x: hidden;
+  background: var(--bg-color-light);
+  border: 1px solid var(--border-color-light);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
 }
 
 .loading-host {
@@ -17,20 +47,25 @@
 }
 
 .consulta-widget .jimu-label {
-  margin-top: 6px;
-  margin-bottom: 4px;
-  font-weight: 600;
+  margin-top: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  color: var(--text-color-primary);
 }
 
 .consulta-widget .jimu-text-input,
 .consulta-widget .jimu-select {
   width: 100%;
+  background-color: var(--bg-color-white);
+  border: 1px solid var(--border-color-medium);
+  border-radius: var(--border-radius-md);
 }
 
 .buffer-widget__buttons {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
+  gap: var(--spacing-sm);
+  margin-top: calc(var(--spacing-sm) + var(--spacing-xs));
   flex-wrap: wrap;
 }
 
@@ -39,7 +74,160 @@
 }
 
 .buffer-widget__hint {
-  margin: 8px 0 0;
-  font-size: 12px;
-  color: #5f6368;
+  margin: var(--spacing-sm) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-color-secondary);
+}
+
+/*
+ * Sistema de pestañas vertical tipo side-rail, similar a la referencia visual.
+ * Se apoya en variables del preset Quindio para mantener consistencia temática.
+ */
+.buffer-widget-tabs {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: calc(var(--spacing-sm) - 2px);
+  padding: var(--spacing-sm) calc(var(--spacing-sm) - 2px);
+  background: var(--bg-color-gray);
+  border-right: 1px solid var(--border-color-light);
+}
+
+/*
+ * Contenedor flexible para paneles de tabs.
+ * Permite que el panel activo use su propia barra de desplazamiento vertical.
+ */
+.buffer-widget-panels {
+  flex: 1;
+  min-height: 0;
+  background-color: var(--bg-color-white);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.buffer-widget-tab {
+  border: 0;
+  border-radius: var(--border-radius-lg);
+  min-height: 92px;
+  padding: var(--spacing-sm) var(--spacing-xs);
+  background: var(--bg-color-white);
+  color: var(--text-color-primary);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-orientation: mixed;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+}
+
+.buffer-widget-tab:hover {
+  background: var(--color-primary-light);
+}
+
+.buffer-widget-tab.is-active {
+  background: var(--color-primary);
+  color: var(--text-color-white);
+  /* box-shadow: inset 0 0 0 1px var(--color-primary-hover); */
+}
+
+/*
+ * Paneles animados:
+ * - el panel activo se expande y aparece con fade/slide
+ * - el inactivo colapsa sin ocupar espacio visual
+ */
+.buffer-widget-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(calc(var(--spacing-sm) - 2px));
+  pointer-events: none;
+  transition: max-height 280ms ease, opacity 220ms ease, transform 220ms ease;
+}
+
+.buffer-widget-panel.is-active {
+  max-height: 100%;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  padding: 2px var(--spacing-xs) var(--spacing-sm);
+}
+
+/*
+ * Barra de acciones del historial de buffers.
+ * Aloja el control de borrado masivo para limpiar todo el historial.
+ */
+.buffer-history-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--spacing-sm);
+}
+
+/*
+ * Botón principal para eliminar todos los buffers del historial.
+ */
+.buffer-history-delete-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--spacing-sm) - 2px);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 70%, #000 0%);
+  background: color-mix(in srgb, var(--color-danger) 12%, var(--bg-color-white));
+  color: color-mix(in srgb, var(--color-danger) 72%, var(--text-color-primary));
+  border-radius: var(--border-radius-lg);
+  padding: calc(var(--spacing-sm) - 2px) var(--spacing-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.buffer-history-delete-all-btn:hover {
+  background: color-mix(in srgb, var(--color-danger) 20%, var(--bg-color-white));
+}
+
+/*
+ * Acción compacta de borrado por fila dentro de la tabla del historial.
+ */
+.buffer-history-delete-btn {
+  border: 1px solid var(--border-color-light);
+  background: var(--bg-color-white);
+  color: var(--color-danger);
+  border-radius: var(--border-radius-md);
+  width: calc(var(--spacing-xl) + var(--spacing-sm));
+  height: calc(var(--spacing-xl) + var(--spacing-sm));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.buffer-history-delete-btn:hover {
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--bg-color-white));
+  border-color: color-mix(in srgb, var(--color-danger) 60%, #000 0%);
+}
+
+/*
+ * Ajuste responsivo: en pantallas estrechas las pestañas vuelven a layout horizontal
+ * para evitar recorte del texto vertical y facilitar interacción táctil.
+ */
+@media (max-width: 640px) {
+  .consulta-widget {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .buffer-widget-tabs {
+    flex-direction: row;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-color-light);
+    padding: calc(var(--spacing-sm) - 2px);
+  }
+
+  .buffer-widget-tab {
+    min-height: calc(var(--spacing-xl) * 2);
+    writing-mode: horizontal-tb;
+    transform: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
 }
