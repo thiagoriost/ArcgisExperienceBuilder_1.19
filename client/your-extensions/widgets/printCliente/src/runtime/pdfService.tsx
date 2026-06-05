@@ -136,8 +136,9 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
     const xLabel = formatCoordinateLabel(xCoord)
     const xLabelWidth = doc.getTextWidth(xLabel)
     const xText = Math.max(pageFrameInset, Math.min(xPdf - (xLabelWidth / 2), (doc.internal.pageSize.getWidth() - pageFrameInset - xLabelWidth)))
-    doc.text(xLabel, xText, mapTop - outerOffsetMm)
-    doc.text(xLabel, xText, mapTop + mapHeight + outerOffsetMm)
+    // Rotación de 45° para evitar sobreposición de etiquetas en líneas verticales.
+    doc.text(xLabel, xText, mapTop - outerOffsetMm, { angle: 45 })
+    doc.text(xLabel, xText, mapTop + mapHeight + outerOffsetMm, { angle: 45 })
   }
 
   for (let yCoord = firstHorizontal; yCoord < extent.ymax; yCoord += intervalUnits) {
@@ -237,13 +238,16 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   /* ===============================
      TÍTULO SUPERIOR
   =============================== */
+    const titleY = 20 // Posicionar el título a 20 mm del borde superior para asegurar separación de etiquetas de coordenadas.
   doc.setFont("helvetica", "bold")
   doc.setFontSize(18)
-  doc.text(options.title.toUpperCase(), pageWidth / 2, 20, { align: "center" })
+  doc.text(options.title.toUpperCase(), pageWidth / 2, titleY, { align: "center" })
 
   // Calcular dimensiones del mapa manteniendo la relación de aspecto
   const mapLeft = 15
-  const mapTop = 30
+    // Se aumenta el margen inferior del título para evitar cruces con etiquetas
+    // de coordenadas ubicadas en la parte superior del mapa.
+    const mapTop = 40
   const maxMapWidth = pageWidth - 30
 
   // Configuración del cajetín para evitar desbordes y mantener un margen superior mayor.
