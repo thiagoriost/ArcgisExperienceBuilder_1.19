@@ -76,6 +76,11 @@ interface GridDrawingOptions {
   extent: __esri.Extent;
   majorLineFactor?: number;
   lineWidth?: number;
+  verticalLabelAngleDeg?: number;
+  horizontalLabelAngleDeg?: number;
+  verticalLabelTopOffsetMm?: number;
+  verticalLabelBottomOffsetMm?: number;
+  horizontalLabelSideOffsetMm?: number;
 }
 
 const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
@@ -88,7 +93,12 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
     gridColor,
     extent,
     majorLineFactor = 1,
-    lineWidth = 0.15
+    lineWidth = 0.15,
+    verticalLabelAngleDeg = 45,
+    horizontalLabelAngleDeg = 45,
+    verticalLabelTopOffsetMm = 2,
+    verticalLabelBottomOffsetMm = 20,
+    horizontalLabelSideOffsetMm = 5
   } = gridOptions
 
   // Convierte coordenadas del mapa (extent) al espacio del PDF para que la grilla
@@ -124,8 +134,8 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
   const decimals = intervalUnits >= 100 ? 0 : intervalUnits >= 1 ? 2 : 4
   const formatCoordinateLabel = (value: number): string => value.toFixed(decimals)
 
-  // Separación requerida respecto al borde del mapa: 5 mm hacia el exterior.
-  const outerOffsetMm = 5
+  // Separación de etiquetas respecto al borde del mapa.
+  // Inferior se define en 25 mm (5 mm base + 20 mm extra solicitados).
   const pageFrameInset = 10.5
 
   for (let xCoord = firstVertical; xCoord < extent.xmax; xCoord += intervalUnits) {
@@ -136,9 +146,9 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
     const xLabel = formatCoordinateLabel(xCoord)
     const xLabelWidth = doc.getTextWidth(xLabel)
     const xText = Math.max(pageFrameInset, Math.min(xPdf - (xLabelWidth / 2), (doc.internal.pageSize.getWidth() - pageFrameInset - xLabelWidth)))
-    // Rotación de 45° para evitar sobreposición de etiquetas en líneas verticales.
-    doc.text(xLabel, xText, mapTop - outerOffsetMm, { angle: 45 })
-    doc.text(xLabel, xText, mapTop + mapHeight + outerOffsetMm, { angle: 45 })
+    // Rotación configurable para evitar sobreposición de etiquetas verticales.
+    doc.text(xLabel, xText, mapTop - verticalLabelTopOffsetMm, { angle: verticalLabelAngleDeg })
+    doc.text(xLabel, xText, mapTop + mapHeight + verticalLabelBottomOffsetMm, { angle: verticalLabelAngleDeg })
   }
 
   for (let yCoord = firstHorizontal; yCoord < extent.ymax; yCoord += intervalUnits) {
@@ -149,8 +159,9 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
     const yLabel = formatCoordinateLabel(yCoord)
     const yLabelWidth = doc.getTextWidth(yLabel)
     const yText = Math.max(pageFrameInset + 2.5, Math.min(yPdf + 2, doc.internal.pageSize.getHeight() - pageFrameInset))
-    doc.text(yLabel, Math.max(pageFrameInset, mapLeft - outerOffsetMm - yLabelWidth), yText)
-    doc.text(yLabel, Math.min(doc.internal.pageSize.getWidth() - pageFrameInset - yLabelWidth, mapLeft + mapWidth + outerOffsetMm), yText)
+    // Rotación de 45° para minimizar colisiones con el mapa y entre etiquetas.
+    doc.text(yLabel, Math.max(pageFrameInset, mapLeft - horizontalLabelSideOffsetMm - yLabelWidth), yText, { angle: horizontalLabelAngleDeg })
+    doc.text(yLabel, Math.min(doc.internal.pageSize.getWidth() - pageFrameInset - yLabelWidth, mapLeft + mapWidth + horizontalLabelSideOffsetMm), yText, { angle: horizontalLabelAngleDeg })
   }
 
   // Restablecer estilos para no afectar otros elementos del PDF.
@@ -243,15 +254,24 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   doc.setFontSize(18)
   doc.text(options.title.toUpperCase(), pageWidth / 2, titleY, { align: "center" })
 
-  // Calcular dimensiones del mapa manteniendo la relación de aspecto
-  const mapLeft = 15
-    // Se aumenta el margen inferior del título para evitar cruces con etiquetas
-    // de coordenadas ubicadas en la parte superior del mapa.
-    const mapTop = 40
-  const maxMapWidth = pageWidth - 30
+  // Constantes de layout para ajustar separaciones y facilitar cambios futuros.
+  const mapTopMarginMm = 35
+  const mapOuterMarginMm = 15
+  const horizontalLabelReserveMm = 5
+  const verticalLabelTopOffsetMm = 2
+  const verticalLabelBottomOffsetMm = 15
+  const horizontalLabelAngleDeg = 45
+  const horizontalLabelSideOffsetMm = 5
+  const verticalLabelAngleDeg = 45
 
-  // Configuración del cajetín para evitar desbordes y mantener un margen superior mayor.
-  const footerGapFromMap = 10
+  // Calcular dimensiones del mapa manteniendo la relación de aspecto.
+  // Se reserva espacio lateral para etiquetas horizontales fuera del mapa.
+  const mapLeft = mapOuterMarginMm + horizontalLabelReserveMm
+  const mapTop = mapTopMarginMm
+  const maxMapWidth = pageWidth - (2 * mapOuterMarginMm) - (2 * horizontalLabelReserveMm)
+
+  // Configuración del cajetín para evitar desbordes y respetar etiquetas inferiores.
+  const footerGapFromMap = options.showGrid ? verticalLabelBottomOffsetMm + 4 : 10
   const footerTextStartOffset = 10
   const footerLineGap = 8
   const footerBottomPadding = 8
@@ -310,13 +330,17 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       gridColor: "#000000",
       extent: sourceExtent,
       majorLineFactor: 5,
-      lineWidth: 0.25
+      lineWidth: 0.25,
+      verticalLabelAngleDeg,
+      horizontalLabelAngleDeg,
+      verticalLabelTopOffsetMm,
+      verticalLabelBottomOffsetMm
     })
 
-    // 2) Cuadrícula medida en azul forzado, construida en SR 9377.
+    // 2) Cuadrícula medida en SR 9377.
     // Si la reproyección falla, se usa la extensión original como contingencia.
     if (sourceWkid !== 9377 && validaLoggerLocalStorage('logger')) {
-      console.info(`[generatePdf] Extensión de entrada WKID ${sourceWkid ?? 'desconocido'} proyectada a WKID ${measuredWkid ?? 'desconocido'} para cuadrícula medida azul.`)
+      console.info(`[generatePdf] Extensión de entrada WKID ${sourceWkid ?? 'desconocido'} proyectada a WKID ${measuredWkid ?? 'desconocido'} para cuadrícula medida.`)
     }
 
     drawGridOnMap(doc, {
@@ -327,7 +351,12 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       cellSizeMm,
       gridColor,
       extent: measuredGridExtent,
-      lineWidth: 0.35
+      lineWidth: 0.35,
+      verticalLabelAngleDeg,
+      horizontalLabelAngleDeg,
+      horizontalLabelSideOffsetMm,
+      verticalLabelTopOffsetMm,
+      verticalLabelBottomOffsetMm
     })
   }
 
