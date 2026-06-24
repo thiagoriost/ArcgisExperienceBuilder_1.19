@@ -137,6 +137,10 @@
 
 .panel-informativo-boton {
     width: fit-content;
-    padding:20px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0 20px;
     align-self: center;
+    line-height: 40px;
+    white-space: nowrap;
 }

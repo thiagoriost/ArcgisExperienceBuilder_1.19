@@ -76,6 +76,11 @@ interface GridDrawingOptions {
   extent: __esri.Extent;
   majorLineFactor?: number;
   lineWidth?: number;
+  verticalLabelAngleDeg?: number;
+  horizontalLabelAngleDeg?: number;
+  verticalLabelTopOffsetMm?: number;
+  verticalLabelBottomOffsetMm?: number;
+  horizontalLabelSideOffsetMm?: number;
 }
 
 const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
@@ -88,7 +93,12 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
     gridColor,
     extent,
     majorLineFactor = 1,
-    lineWidth = 0.15
+    lineWidth = 0.15,
+    verticalLabelAngleDeg = 45,
+    horizontalLabelAngleDeg = 45,
+    verticalLabelTopOffsetMm = 2,
+    verticalLabelBottomOffsetMm = 10, // Se reduce el espacio inferior para etiquetas y se ajusta el cajetín en consecuencia.
+    horizontalLabelSideOffsetMm = 5 // Se reduce el espacio lateral para etiquetas horizontales y se ajusta el layout en consecuencia.
   } = gridOptions
 
   // Convierte coordenadas del mapa (extent) al espacio del PDF para que la grilla
@@ -124,9 +134,8 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
   const decimals = intervalUnits >= 100 ? 0 : intervalUnits >= 1 ? 2 : 4
   const formatCoordinateLabel = (value: number): string => value.toFixed(decimals)
 
-  // Separación requerida respecto al borde del mapa: 5 mm hacia el exterior.
-  const outerOffsetMm = 5
-  const pageFrameInset = 10.5
+  // Separación de etiquetas respecto al borde del mapa.
+  const pageFrameInset = 11
 
   for (let xCoord = firstVertical; xCoord < extent.xmax; xCoord += intervalUnits) {
     const { xPdf } = mapCoordToPdf(xCoord, extent.ymin)
@@ -136,8 +145,9 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
     const xLabel = formatCoordinateLabel(xCoord)
     const xLabelWidth = doc.getTextWidth(xLabel)
     const xText = Math.max(pageFrameInset, Math.min(xPdf - (xLabelWidth / 2), (doc.internal.pageSize.getWidth() - pageFrameInset - xLabelWidth)))
-    doc.text(xLabel, xText, mapTop - outerOffsetMm)
-    doc.text(xLabel, xText, mapTop + mapHeight + outerOffsetMm)
+    // Rotación configurable para evitar sobreposición de etiquetas verticales.
+    doc.text(xLabel, xText, mapTop - verticalLabelTopOffsetMm, { angle: verticalLabelAngleDeg })
+    doc.text(xLabel, xText, mapTop + mapHeight + verticalLabelBottomOffsetMm, { angle: verticalLabelAngleDeg })
   }
 
   for (let yCoord = firstHorizontal; yCoord < extent.ymax; yCoord += intervalUnits) {
@@ -148,8 +158,9 @@ const drawGridOnMap = (doc: JsPDF, gridOptions: GridDrawingOptions): void => {
     const yLabel = formatCoordinateLabel(yCoord)
     const yLabelWidth = doc.getTextWidth(yLabel)
     const yText = Math.max(pageFrameInset + 2.5, Math.min(yPdf + 2, doc.internal.pageSize.getHeight() - pageFrameInset))
-    doc.text(yLabel, Math.max(pageFrameInset, mapLeft - outerOffsetMm - yLabelWidth), yText)
-    doc.text(yLabel, Math.min(doc.internal.pageSize.getWidth() - pageFrameInset - yLabelWidth, mapLeft + mapWidth + outerOffsetMm), yText)
+    // Rotación de 45° para minimizar colisiones con el mapa y entre etiquetas.
+    doc.text(yLabel, Math.max(pageFrameInset, mapLeft - horizontalLabelSideOffsetMm - yLabelWidth), yText, { angle: horizontalLabelAngleDeg })
+    doc.text(yLabel, Math.min(doc.internal.pageSize.getWidth() - pageFrameInset - yLabelWidth, mapLeft + mapWidth + horizontalLabelSideOffsetMm), yText, { angle: horizontalLabelAngleDeg })
   }
 
   // Restablecer estilos para no afectar otros elementos del PDF.
@@ -237,15 +248,37 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   /* ===============================
      TÍTULO SUPERIOR
   =============================== */
+    const titleY = 20 // Posicionar el título a 20 mm del borde superior para asegurar separación de etiquetas de coordenadas.
   doc.setFont("helvetica", "bold")
   doc.setFontSize(18)
-  doc.text(options.title.toUpperCase(), pageWidth / 2, 20, { align: "center" })
+  doc.text(options.title.toUpperCase(), pageWidth / 2, titleY, { align: "center" })
 
-  // Calcular dimensiones del mapa manteniendo la relación de aspecto
-  const mapLeft = 15
-  const mapTop = 30
-  const maxMapWidth = pageWidth - 30
-  const maxMapHeight = pageHeight - 90
+  // Constantes de layout para ajustar separaciones y facilitar cambios futuros.
+  const mapTopMarginMm = 35
+  const mapOuterMarginMm = 15
+  const horizontalLabelReserveMm = 5
+  const verticalLabelTopOffsetMm = 2
+  const verticalLabelBottomOffsetMm = 8 // Se reduce el espacio inferior para etiquetas y se ajusta el cajetín en consecuencia.
+  const horizontalLabelAngleDeg = 45
+  const horizontalLabelSideOffsetMm = 5 // Se aumenta el espacio lateral para etiquetas horizontales y se ajusta el layout en consecuencia.
+  const verticalLabelAngleDeg = 45
+
+  // Calcular dimensiones del mapa manteniendo la relación de aspecto.
+  // Se reserva espacio lateral para etiquetas horizontales fuera del mapa.
+  const mapLeft = mapOuterMarginMm + horizontalLabelReserveMm
+  const mapTop = mapTopMarginMm
+  const maxMapWidth = pageWidth - (2 * mapOuterMarginMm) - (2 * horizontalLabelReserveMm)
+
+  // Configuración del cajetín para evitar desbordes y respetar etiquetas inferiores.
+  const footerGapFromMap = options.showGrid ? verticalLabelBottomOffsetMm + 4 : 10
+  const footerTextStartOffset = 10
+  const footerLineGap = 8
+  const footerBottomPadding = 8
+  const footerLineCount = options.showGrid
+    ? (options.author ? 5 : 4)
+    : (options.author ? 4 : 3)
+  const desiredFooterHeight = footerTextStartOffset + ((footerLineCount - 1) * footerLineGap) + footerBottomPadding
+  const maxMapHeight = pageHeight - mapTop - footerGapFromMap - desiredFooterHeight - 15
 
   // Relación de aspecto de la imagen original
   const imageAspectRatio = options.imageWidth / options.imageHeight
@@ -272,6 +305,9 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   // Marco del mapa para delimitar visualmente la captura dentro del layout.
   doc.rect(mapLeftCentered, mapTop, mapWidth, mapHeight)
 
+  let measuredGridExtent: __esri.Extent | undefined
+
+
   // Dibujar grilla solo cuando el usuario la activa desde el widget.
   if (options.showGrid) {
     const cellSizeMm = options.gridCellSizeMm && options.gridCellSizeMm > 0
@@ -279,12 +315,18 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       : 12
     const gridColor = options.gridColor || "#787878"
     const sourceExtent = options.view.extent
-    const measuredGridExtent = await getMeasuredGridExtent9377(sourceExtent)
+    measuredGridExtent = await getMeasuredGridExtent9377(sourceExtent)
     const sourceWkid = sourceExtent.spatialReference?.wkid
     const measuredWkid = measuredGridExtent.spatialReference?.wkid
 
-    // 1) Retícula base en negro (coarser): referencia visual similar a graticule.
-    drawGridOnMap(doc, {
+    // 1) Dibujo de retículas en negro.
+    // Este bloque traza las líneas de referencia (graticule) sobre el mapa,
+    // usando el SR original de la vista para conservar correspondencia visual
+    // con la imagen base capturada.
+    // - gridColor: "#000000" -> líneas negras
+    // - majorLineFactor: 5 -> retícula más espaciada que la cuadrícula medida
+    // - lineWidth: 0.25 -> grosor de línea de retícula
+    /* drawGridOnMap(doc, {
       mapLeft: mapLeftCentered,
       mapTop,
       mapWidth,
@@ -293,13 +335,17 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       gridColor: "#000000",
       extent: sourceExtent,
       majorLineFactor: 5,
-      lineWidth: 0.25
-    })
+      lineWidth: 0.25,
+      verticalLabelAngleDeg,
+      horizontalLabelAngleDeg,
+      verticalLabelTopOffsetMm,
+      verticalLabelBottomOffsetMm
+    }) */
 
-    // 2) Cuadrícula medida en azul forzado, construida en SR 9377.
+    // 2) Cuadrícula medida en SR 9377.
     // Si la reproyección falla, se usa la extensión original como contingencia.
     if (sourceWkid !== 9377 && validaLoggerLocalStorage('logger')) {
-      console.info(`[generatePdf] Extensión de entrada WKID ${sourceWkid ?? 'desconocido'} proyectada a WKID ${measuredWkid ?? 'desconocido'} para cuadrícula medida azul.`)
+      console.info(`[generatePdf] Extensión de entrada WKID ${sourceWkid ?? 'desconocido'} proyectada a WKID ${measuredWkid ?? 'desconocido'} para cuadrícula medida.`)
     }
 
     drawGridOnMap(doc, {
@@ -310,7 +356,12 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
       cellSizeMm,
       gridColor,
       extent: measuredGridExtent,
-      lineWidth: 0.35
+      lineWidth: 0.35,
+      verticalLabelAngleDeg,
+      horizontalLabelAngleDeg,
+      horizontalLabelSideOffsetMm,
+      verticalLabelTopOffsetMm,
+      verticalLabelBottomOffsetMm
     })
   }
 
@@ -319,20 +370,32 @@ export const generatePdf = async (options: PdfOptions): Promise<void> => {
   ========================================== */
 
   // Posicionar el cajetín debajo del mapa con un margen
-  const footerTop = mapTop + mapHeight + 5
-  const footerHeight = Math.min(35, pageHeight - footerTop - 15)
+  const footerTop = mapTop + mapHeight + footerGapFromMap
+  const availableFooterHeight = pageHeight - footerTop - 15
+  const footerHeight = Math.min(desiredFooterHeight, availableFooterHeight)
 
   doc.rect(15, footerTop, pageWidth - 30, footerHeight)
 
   doc.setFontSize(10)
   doc.setFont("helvetica", "normal")
 
-  doc.text(`Escala: 1:${Math.round(options.scale)}`, 20, footerTop + 10)
-  doc.text(`Sistema Ref.: ${options.spatialReference}`, 20, footerTop + 18)
-  doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 20, footerTop + 26)
+  const footerLines: string[] = [
+    `Escala: 1:${Math.round(options.scale)}`,
+    `Sistema Referencia mapa base.: ${options.spatialReference}`
+  ]
+
+  if (options.showGrid) {
+    footerLines.push(`Proyección SR cuadrícula: ${measuredGridExtent?.spatialReference?.wkid ?? 'desconocido'}`)
+  }
+
+  footerLines.push(`Fecha: ${new Date().toLocaleDateString()}`)
 
   if (options.author) {
-    doc.text(`Autor: ${options.author}`, 20, footerTop + 32)
+    footerLines.push(`Autor: ${options.author}`)
+  }
+
+  for (let i = 0; i < footerLines.length; i++) {
+    doc.text(footerLines[i], 20, footerTop + footerTextStartOffset + (i * footerLineGap))
   }
 
   // Norte

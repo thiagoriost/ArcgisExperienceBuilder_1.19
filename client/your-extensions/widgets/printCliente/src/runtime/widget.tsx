@@ -6,6 +6,7 @@
 
 import { React } from "jimu-core"
 import { JimuMapViewComponent } from "jimu-arcgis"
+import { Label, TextInput } from "jimu-ui"
 import { useClientPrint } from "./useClientPrint"
 import { SearchActionBar } from '../../../shared/components/search-action-bar'
 
@@ -49,60 +50,49 @@ export default function Widget(props: any) {
   }
 
   return (
-    <div style={{ padding: '10px' }}>
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-          Título del mapa:
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => { setTitle(e.target.value) }}
-          placeholder="Ingrese el título del mapa"
-          style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
-        />
-      </div>
-
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-          Autor:
-        </label>
-        <input
-          type="text"
-          value={author}
-          onChange={(e) => { setAuthor(e.target.value) }}
-          placeholder="Ingrese el autor"
-          style={{ width: '100%', padding: '6px', boxSizing: 'border-box' }}
-        />
-      </div>
-
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={showGrid}
-            onChange={(e) => { setShowGrid(e.target.checked) }}
+    <div style={{ height: '100%', padding: '5px', boxSizing: 'border-box' }}>
+      <div className='consulta-widget loading-host'>
+        <div>
+          <Label>Título del mapa:</Label>
+          <TextInput
+            type='text'
+            value={title}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setTitle(event.target.value) }}
+            placeholder='Ingrese el título del mapa'
           />
-          Dibujar grilla
-        </label>
-      </div>
 
-      {/* Controles avanzados de grilla visibles solo cuando la grilla está activada. */}
-      {showGrid && (
-        <div style={{display: 'flex', flexDirection: 'row', gap: '10px' }}>
-          <div style={{ marginBottom: '10px', width: '100%' }}>
-            <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-              Color de grilla:
+          <Label>Autor:</Label>
+          <TextInput
+            type='text'
+            value={author}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setAuthor(event.target.value) }}
+            placeholder='Ingrese el autor'
+          />
+
+          <Label>Dibujar grilla:</Label>
+          <div style={{ marginBottom: '10px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <input
+                type='checkbox'
+                checked={showGrid}
+                onChange={(e) => { setShowGrid(e.target.checked) }}
+              />
+              Activar grilla
             </label>
-            <input
-              type="color"
-              value={gridColor}
-              onChange={(e) => { setGridColor(e.target.value) }}
-              style={{ height: '38px', padding: '4px', boxSizing: 'border-box', width: '100%' }}
-            />
           </div>
-        </div>
-      )}
+
+          {/* Controles avanzados de grilla visibles solo cuando la grilla está activada. */}
+          {showGrid && (
+            <>
+              <Label>Color de grilla:</Label>
+              <input
+                type='color'
+                value={gridColor}
+                onChange={(e) => { setGridColor(e.target.value) }}
+                style={{ height: '38px', padding: '4px', boxSizing: 'border-box', width: '100%', marginBottom: '10px' }}
+              />
+            </>
+          )}
 
       {/* <button
         onClick={print}
@@ -112,19 +102,21 @@ export default function Widget(props: any) {
         {loading ? "Generando..." : "Imprimir PDF"}
       </button> */}
 
-      <SearchActionBar
-        onSearch={print}
-        onClear={handleLimpiar}
-        loading={loading}
-        disableSearch={loading || author.trim() === "" || title.trim() === ""}
-        searchLabel="Imprimir PDF"
-        clearLabel="Limpiar campos"
-      />
+          <SearchActionBar
+            onSearch={print}
+            onClear={handleLimpiar}
+            loading={loading}
+            disableSearch={loading || author.trim() === "" || title.trim() === ""}
+            searchLabel="Imprimir PDF"
+            clearLabel="Limpiar campos"
+          />
 
-      <JimuMapViewComponent
-        useMapWidgetId={props.useMapWidgetIds?.[0]}
-        onActiveViewChange={setJimuMapView}
-      />
+          <JimuMapViewComponent
+            useMapWidgetId={props.useMapWidgetIds?.[0]}
+            onActiveViewChange={setJimuMapView}
+          />
+        </div>
+      </div>
     </div>
   )
 }

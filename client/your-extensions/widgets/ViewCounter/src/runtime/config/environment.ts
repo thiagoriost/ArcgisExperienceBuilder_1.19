@@ -3,7 +3,7 @@ import { validaLoggerLocalStorage } from "../../../../shared/utils/export.utils"
 /**
  * Puerto por defecto del backend Express del contador de visitas.
  */
-export const DEFAULT_VIEW_COUNTER_API_PORT = 3002
+export const DEFAULT_VIEW_COUNTER_API_PORT = 8055
 
 /**
  * Extensión de `Window` para permitir configuración runtime opcional.
@@ -13,7 +13,7 @@ declare global {
     /**
      * Puerto opcional de API configurado dinámicamente en runtime.
      *
-     * Ejemplo: `window.__VIEW_COUNTER_API_PORT__ = 3002`.
+     * Ejemplo: `window.__VIEW_COUNTER_API_PORT__ = 8055`.
      */
     __VIEW_COUNTER_API_PORT__?: string | number
   }
@@ -41,7 +41,7 @@ const normalizePort = (value: string | number | undefined): number | null => {
  * Prioridad:
  * 1. `window.__VIEW_COUNTER_API_PORT__` (runtime).
  * 2. `process.env.VIEW_COUNTER_API_PORT` (build/env).
- * 3. Puerto por defecto 3002.
+ * 3. Puerto por defecto 8055.
  *
  * @returns Puerto de backend para consumir la API de visitas.
  */
@@ -50,8 +50,8 @@ export const getViewCounterApiPort = (): number => {
   if (windowPort != null) return windowPort
 
   const envPortCandidate = typeof process !== 'undefined' ? process.env?.VIEW_COUNTER_API_PORT : undefined
-  if (validaLoggerLocalStorage('logger')) console.log({ envPortCandidate })
   const envPort = normalizePort(envPortCandidate)
+  if (validaLoggerLocalStorage('logger')) console.log({ windowPort, envPortCandidate, envPort })
   if (envPort != null) return envPort
 
   return DEFAULT_VIEW_COUNTER_API_PORT
@@ -61,7 +61,7 @@ export const getViewCounterApiPort = (): number => {
  * Construye el origen absoluto del backend de visitas.
  *
  * Mantiene host/protocolo del visor y desacopla únicamente el puerto,
- * permitiendo ejecutar la API en 3002 y ExB en un puerto distinto.
+ * permitiendo ejecutar la API en 8055 y ExB en un puerto distinto.
  *
  * @returns Origen absoluto del backend Express.
  */
