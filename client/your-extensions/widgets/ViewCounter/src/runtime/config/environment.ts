@@ -70,10 +70,13 @@ export const getViewCounterApiOrigin = (): string => {
   /* if (typeof window === 'undefined') {
     return `http://localhost:${apiPort}`
   } */
+
   const protocol = window.location.protocol // evalua si es http o https
+  const apiProtocol = apiPort === 8055 ? 'http:' : protocol
   // const ApiOrigin = `https//${window.location.hostname}:${apiPort}`
-  const ApiOrigin = `${protocol}//${window.location.hostname}:${apiPort}`
-  if (validaLoggerLocalStorage('logger')) console.log("getViewCounterApiOrigin", { apiPort, ApiOrigin, location: typeof window !== 'undefined' ? window.location : 'no-window' })
+  // const ApiOrigin = `${protocol}//${window.location.hostname}:${apiPort}`
+  const ApiOrigin = `${apiProtocol}//${window.location.hostname}:${apiPort}`
+  if (validaLoggerLocalStorage('logger')) console.log("getViewCounterApiOrigin", { apiPort, protocol, apiProtocol, ApiOrigin, location: typeof window !== 'undefined' ? window.location : 'no-window' })
   return ApiOrigin
 }
 
