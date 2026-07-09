@@ -1,6 +1,7 @@
 import { React , appActions } from "jimu-core"
 import { Button } from "jimu-ui"
 
+// @ts-expect-error
 import "./style.css"
 import { dataFuenteIndicadores } from "./dataFormularioIndicadores"
 import { loadModules } from "esri-loader"
@@ -14,9 +15,9 @@ const initSelectIndicadores = {
   fieldValueDepartal: "",
   fieldValueNal: "",
   fieldValue:'',
-  fieldlabelNal: [],
-  leyendaNal: [],
-  leyenda: [],
+  fieldlabelNal: [] as string[],
+  leyendaNal: [] as string[],
+  leyenda: [] as string[],
   urlNal: "",
   urlNalDataAlfanumerica: "",
   label: "",
@@ -24,7 +25,7 @@ const initSelectIndicadores = {
   descripcion: "",
 }
 
-const initLastLayerDeployed = { graphics: [], graphicsLayers: [] }
+const initLastLayerDeployed = { graphics: [] as any[], graphicsLayers: [] as any[] }
 const initIndiSelected = {
   value: 0,
   label: "",
@@ -33,16 +34,16 @@ const initIndiSelected = {
   urlNal: "",
   urlDepartal: "",
   urlNalDataAlfanumerica: "",
-  fieldlabel: [],
-  fieldlabelNal: [],
-  fieldlabelDepartal: [],
-  leyenda: [],
-  leyendaNal: [],
-  leyendaDepartal: [],
+  fieldlabel: [] as string[],
+  fieldlabelNal: [] as string[],
+  fieldlabelDepartal: [] as string[],
+  leyenda: [] as string[],
+  leyendaNal: [] as string[],
+  leyendaDepartal: [] as string[],
   fieldValue: "",
   fieldValueNal: "",
   fieldValueDepartal: "",
-  quintiles: [],
+  quintiles: [] as string[],
 }
 
 /**
@@ -325,6 +326,16 @@ const TabIndicadores: React.FC<any> = ({
     outStatistics = "",
     fieldValueToSetRangeCoropletico,
     regionSeleccionada = "",
+  }: {
+    _where?: string;
+    indiSelected: InterfaceIndiSelected;
+    target: any;
+    _esIndicador: string;
+    geometrias: any;
+    urlIndicadorToGetData: any;
+    outStatistics?: string;
+    fieldValueToSetRangeCoropletico: string;
+    regionSeleccionada?: string;
   }) => {
     if (!esriModules) {
       console.error("Esri modules are not loaded.")
@@ -334,7 +345,7 @@ const TabIndicadores: React.FC<any> = ({
     const [geometryEngine] = await loadModules([
       "esri/geometry/geometryEngine",
     ])
-    let responseIndicador
+    let responseIndicador: any = null
 
     //Indicador 3.1.5.
     if (indiSelected?.label.includes("3.1.5")) {
@@ -484,16 +495,16 @@ const TabIndicadores: React.FC<any> = ({
         /** Extrae la geometria del servicio municipal q coinciden con el cod_municipio y fuciona los atributos del servicio de datos con la geometria*/
         const geometriasNoEncontradas: Array<{ attributes: { mpcodigo: string } }> =
           []
-        responseIndicador = responseIndicador.features.map((RIN) => {
+        responseIndicador = responseIndicador.features.map((RIN: any) => {
           let geom: typeGeometria | undefined | null
           if (regionSeleccionada === "Municipal") {
             geom = geometrias?.features?.find(
-              (GM) => GM.attributes.mpcodigo === RIN.attributes.mpcodigo
+              (GM: { attributes: { mpcodigo: any } }) => GM.attributes.mpcodigo === RIN.attributes.mpcodigo
             )
           } else if (_esIndicador === "es=1.7.") {
             // las geometrias que vienen desde el servicio departamental, solo traen los rings, mas no el exteny demas, en comparacion con el municipal
             geom = geometrias?.features?.find(
-              (GM) => GM.attributes.decodigo === RIN.attributes.cod_departamento
+              (GM: { attributes: { decodigo: any } }) => GM.attributes.decodigo === RIN.attributes.cod_departamento
             )
           } else if (
             _esIndicador === "Nacional" ||
@@ -510,7 +521,7 @@ const TabIndicadores: React.FC<any> = ({
                 { RIN }
               ) }
             geom = geometrias?.features?.find(
-              (GM) => GM.attributes.mpcodigo === codMun
+              (GM: { attributes: { mpcodigo: any } }) => GM.attributes.mpcodigo === codMun
             )
             if (!geom) {
               // le apunta a traer geometria departamental
@@ -566,7 +577,7 @@ const TabIndicadores: React.FC<any> = ({
       }
 
       if (
-        responseIndicador.map((e) => e.geometry).length !==
+        responseIndicador.map((e: { geometry: any }) => e.geometry).length !==
         responseIndicador.length
       ) {
         setMensajeModal({
@@ -670,10 +681,10 @@ const TabIndicadores: React.FC<any> = ({
    * @param servicios - Objeto con URLs de servicios
    * @returns Promise con las geometrías obtenidas
    */
-  const obtenerGeometriasUnicas = async (responseIndicador: typeof obtenerGeometriasUnicas): Promise<any> => {
+  const obtenerGeometriasUnicas = async (responseIndicador: any): Promise<any> => {
     // 1. Extraer y filtrar códigos únicos
     const mpCodigos = responseIndicador.features.map(
-      (feature) => feature.attributes.mpcodigo
+      (feature: { attributes: { mpcodigo: any } }) => feature.attributes.mpcodigo
     )
     const codigosUnicos = [...new Set(mpCodigos)]
 
@@ -772,6 +783,10 @@ const TabIndicadores: React.FC<any> = ({
     dataToRenderGraphic,
     responseIndicador,
     geometryEngine,
+  }: {
+    dataToRenderGraphic: any;
+    responseIndicador: any;
+    geometryEngine: any;
   }) => {
     if (!geometryEngine) {
       console.error("geometryEngine no está definido. Verificar importación.")
@@ -785,7 +800,7 @@ const TabIndicadores: React.FC<any> = ({
       return null
     }
 
-    const geometriaDepto = geometriaFeatu.map(feature => feature.geometry)
+    const geometriaDepto = geometriaFeatu.map((feature: { geometry: any }) => feature.geometry)
     if (!geometriaDepto.length) {
       console.warn("No se encontraron geometrías válidas en los datos proporcionados.")
       return null
@@ -826,7 +841,7 @@ const TabIndicadores: React.FC<any> = ({
     _where: string;
     regionSeleccionada: string;
   }) => {
-    let fieldlabel, fieldValue, url
+    let fieldlabel, fieldValue: string, url: any
 
     if (regionSeleccionada === "Nacional") {
       fieldlabel = indiSelected?.fieldlabelNal
@@ -854,7 +869,7 @@ const TabIndicadores: React.FC<any> = ({
       //Validador para generar promedio aplicado para indicadores 3.1.5, 3.1.6 y 3.1.7
       if (indiSelected.label.includes("3.1.5") || indiSelected?.label.includes("3.1.6") || indiSelected?.label.includes("3.1.7")) {
         const dataTorenderGraphics = await Promise.all(
-          indiSelected.fieldlabelNal.map(async (fln) => {
+          indiSelected.fieldlabelNal.map(async (fln: string) => {
             const outStatistics: OutStatistics = [
               {
                 statisticType: "avg",
@@ -921,11 +936,11 @@ const TabIndicadores: React.FC<any> = ({
    * @changes Creación atributo where, el cual contendra el filtro inicial asociado al departamento seleccionado del campo Departamento
    * @changes Construcción filtro asociado a los indicadores 3.1.5 3.1.6 y 3.1.7 con el indicado en el atributo where
    */
-  const handleDepartamentoSelected = async ({ target }) => {
+  const handleDepartamentoSelected = async ({ target }: { target: { value: any } }) => {
     let where: string = ""
     const targetDepartment = target.value
     const itemSelected: interfa_itemSelected = departamentos.find(
-      (departamento) => departamento.value === targetDepartment
+      (departamento: { value: any }) => departamento.value === targetDepartment
     )
     if (itemSelected.value === 0) return
     setDepartmentSelect(itemSelected) // se utiliza para sacar el label en la grafica, widget indicadores y control el valor en el campo departamento
@@ -1070,7 +1085,7 @@ const TabIndicadores: React.FC<any> = ({
    * captura el municipio seleccionado en el intput, ajusta extend, resalta el poligono seleccionado
    * @param param0
    */
-  const handleMunicipioSelected = async ({ target }) => {
+  const handleMunicipioSelected = async ({ target }: { target: { value: any } }) => {
     setIsLoading(true)
 
     try {
@@ -1115,7 +1130,7 @@ const TabIndicadores: React.FC<any> = ({
 
   // Funciones auxiliares handleMunicipioSelected:
 
-  const findSelectedMunicipio = (targetValue) => {
+  const findSelectedMunicipio = (targetValue: any) => {
     // Buscar por value directo
     let item = municipios.find((m) => m.value === targetValue)
 
@@ -1132,7 +1147,7 @@ const TabIndicadores: React.FC<any> = ({
     return item
   }
 
-  const processMunicipioIndicator = async (itemSelected) => {
+  const processMunicipioIndicator = async (itemSelected: any) => {
     await handleIndicadorSelectedContinua({
       _where: `mpcodigo = '${itemSelected?.mpcodigo}'`,
       indiSelected: {
@@ -1579,15 +1594,26 @@ interface typeGeometria {
 }
 
 interface IndicadorSeleccionado {
-  fieldlabel: string[];
-  fieldlabelNal: string[];
-  fieldlabelDepartal: string[];
-  url: string;
-  urlNal: string;
-  urlDepartal: string;
-  fieldValue: string;
-  fieldValueNal: string;
-  fieldValueDepartal: string;
+  value?: number;
+  label?: string;
+  descripcion?: string;
+  url?: string;
+  urlNal?: string;
+  urlDepartal?: string;
+  urlNalDataAlfanumerica?: string;
+  fieldlabel?: string[];
+  fieldlabelNal?: string[];
+  fieldlabelDepartal?: string[];
+  leyenda?: string[];
+  leyendaNal?: string[];
+  leyendaDepartal?: string[];
+  fieldValue?: string;
+  fieldValueNal?: string;
+  fieldValueDepartal?: string;
+  quintiles?: Array<Array<number | string>>;
+  deparmetSelected?: string; // Nombre del departamento seleccionado
+  municipioSelected?: string; // Nombre del municipio seleccionado
+
 }
 
 interface Interface_SpatialReference {
@@ -1693,11 +1719,7 @@ interface DatasetItem {
 interface AjustarDatasetParams {
   dataToRenderGraphic: ChartData[];
   regionSeleccionada: string;
-  indiSelected: {
-    leyendaNal: string[];
-    leyenda: string[];
-    leyendaDepartal: string[];
-  };
+  indiSelected?: IndicadorSeleccionado;
 }
 
 interface interface_Feature {

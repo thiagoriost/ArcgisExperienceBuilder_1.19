@@ -20,9 +20,10 @@ import type { JimuMapView } from 'jimu-arcgis'
 import { Button } from 'jimu-ui'
 import DragAndDrop from './DragAndDrop'
 import type { InterfaceContextMenu, InterfaceFeaturesLayersDeployed, ItemResponseTablaContenido, TreeNode } from '../../types/interfaces'
-import 'rc-slider/assets/index.css'; import 'react-tabs/style/react-tabs.css'
-import '../../styles/style.css'
-import '../../styles/styles_widgetTree.css'
+// import '../../rc-slider/assets/index.css';
+// import 'react-tabs/style/react-tabs.css'
+// import '../../styles/styles.css'
+// import '../../styles/styles_widgetTree.css'
 
 /**
  * Construye un árbol jerárquico a partir de un array plano de datos.

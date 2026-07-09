@@ -493,7 +493,7 @@ export const dataFuenteIndicadores = [
             ]
           }
         ]
-      }, 
+      },
       {
         value: 5,
         label: '1.8 Gestión de procesos de restitución de tierras',
@@ -839,6 +839,30 @@ export const dataFuenteIndicadores = [
                   [0.3, 0.6, 'Entre 30% y 60% del área'],
                   [0.6, 0.9, 'Entre 60% y 90% del área'],
                   [0.9, '=>', 'Más del 90% del área']
+                ]
+              }
+            ]
+          },
+          {
+            value: 2,
+            label: 'Fragmentación predial rural',
+            descripcion: 'Fragmentación predial rural',
+            filtro4_AreaAdministrativa:[
+              {
+                value: 1,
+                label: 'Departamental',
+                filtro5_AreaDeEstudio:[
+                  {
+                    value: 1,
+                    label: 'Predios rurales privados',
+                    indicador:[
+                      {
+                        value: 1,
+                        label: 'Participación porcentual de latifundio por área',
+                        urlFuente: 'v_predios_latifundio_mun', // data municipal
+                      }
+                    ]
+                  }
                 ]
               }
             ]

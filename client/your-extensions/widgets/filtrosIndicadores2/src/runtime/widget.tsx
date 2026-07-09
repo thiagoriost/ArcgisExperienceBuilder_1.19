@@ -1,14 +1,15 @@
 import { React, type AllWidgetProps } from "jimu-core"
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis' // The map object can be accessed using the JimuMapViewComponent
 import { useEffect, useState } from "react"
-// import "../styles/styles.css"
+
+// @ts-expect-error
 import "../styles/style.css"
 
 const Widget = (props: AllWidgetProps<any>) => {
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
   // const [initialExtent, setInitialExtent] = useState(null)
   const [widgetModules, setWidgetModules] = useState(null)
-  const [servicios, setServicios] = useState<InterfaceServicios>(undefined)
+  const [servicios, setServicios] = useState(null)
   const [utilsModule, setUtilsModule] = useState(null)
   const [departamentos, setDepartamentos] = useState([])
 
@@ -43,7 +44,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   useEffect(() => {
       import('../../../commonWidgets/widgetsModule').then(modulo => { setWidgetModules(modulo) })
       import('../../../utils/module').then(modulo => { setUtilsModule(modulo) })
-      import('../../../api/servicios').then(modulo => { setServicios(modulo.default) })
+      import('../../../api/servicios').then(modulo => { setServicios(modulo.urls) })
 
   }, [])
 
