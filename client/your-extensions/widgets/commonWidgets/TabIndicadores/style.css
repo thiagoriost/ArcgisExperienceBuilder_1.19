@@ -41,3 +41,19 @@
   .jimu-loading {
     position: fixed !important;
   }
+
+  .nuevos-filtros-card {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, rgba(19, 56, 78, 0.2), rgba(14, 27, 44, 0.18));
+  }
+
+  .nuevos-filtros-card h4 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #f2f7ff;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
