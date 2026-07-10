@@ -842,30 +842,6 @@ export const dataFuenteIndicadores = [
                 ]
               }
             ]
-          },
-          {
-            value: 2,
-            label: 'Fragmentación predial rural',
-            descripcion: 'Fragmentación predial rural',
-            filtro4_AreaAdministrativa:[
-              {
-                value: 1,
-                label: 'Departamental',
-                filtro5_AreaDeEstudio:[
-                  {
-                    value: 1,
-                    label: 'Predios rurales privados',
-                    indicador:[
-                      {
-                        value: 1,
-                        label: 'Participación porcentual de latifundio por área',
-                        urlFuente: 'v_predios_latifundio_mun', // data municipal
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
           }
         ]
       }
@@ -985,6 +961,450 @@ export const dataFuenteIndicadores = [
                   [30000, '=>', 'Más de 30,000 ha']
                 ]
               }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
+
+/**
+ * @dateUpdated 2026-07-08
+ * @changes Adición estructura jerárquica de nuevos indicadores para el objeto value=3.
+ * @remarks Estructura basada en FILTRO 3, FILTRO 4, FILTRO 5 e Indicador del archivo Estructura_Visor(Hoja1).csv.
+ */
+export const dataFuenteIndicadoresObjeto3Nuevos = [
+  {
+    value: 'ordenamiento_territorial_y_solucion_de_conflictos_socioambientales_para_la_reforma_agraria',
+    label: 'De ordenamiento territorial y solución de conﬂictos socioambientales para la reforma agraria',
+    AREAS_ADMINISTRATIVAS: [
+      {
+        value: 'departamental',
+        label: 'Departamental',
+        AREAS_ESTUDIO: [
+          {
+            value: 'distribucion_de_la_tierra',
+            label: 'Distribución de la tierra',
+            INDICADORES: [
+              {
+                value: '3_1_1_gini_propiedad',
+                label: '3.1.1 Índice de Gini de la propiedad',
+                serviceKey: 'v_indice_gini_ids_depto',
+                layerId: 9
+              },
+              {
+                value: '3_1_2_ids',
+                label: '3.1.2 Índice de Disparidad Superior - IDS',
+                serviceKey: 'v_indice_gini_ids_depto',
+                layerId: 0
+              },
+              {
+                value: '3_1_3_predios_uaf_minima',
+                label: '3.1.3 Porcentaje de predios con área por debajo de la UAF mínima municipal',
+                serviceKey: 'v_predios_uaf_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_4_area_uaf_minima',
+                label: '3.1.4 Porcentaje de área de predios por debajo de la UAF mínima municipal',
+                serviceKey: 'v_predios_uaf_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_5_gini_privados_2024',
+                label: '3.1.5.Coeficiente de Gini para predios privados rurales del año 2024',
+                serviceKey: 'v_indice_gini_predios_dest',
+                layerId: 0
+              },
+              {
+                value: '3_1_6_gini_frontera_agricola_2024',
+                label: '3.1.6.Coeficiente de Gini para predios privados rurales dentro de frontera agrícola del año 2024',
+                serviceKey: 'v_indice_gini_predios_frontAgric',
+                layerId: 0
+              },
+              {
+                value: '3_1_7_gini_frontera_agricola_destino_2024',
+                label: '3.1.7.Coeficiente de Gini para predios privados rurales dentro de frontera agrícola con destino agropecuario del año 2024',
+                serviceKey: 'v_indice_gini_predios_frontAgric_dest',
+                layerId: 0
+              }
+            ]
+          },
+          {
+            value: 'conflictos_de_uso',
+            label: 'Conflictos de uso',
+            INDICADORES: [
+              {
+                value: '3_1_5_subutilizacion_suelo',
+                label: '3.1.5 Porcentaje de predios con presunta subutilización en el uso del suelo',
+                serviceKey: 'v_predios_conflicto_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_6_territorios_ley_2da',
+                label: '3.1.6 Porcentaje de predios en Territorios con ley 2da',
+                serviceKey: 'v_predios_ley2da_mun',
+                layerId: 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        value: 'municipal',
+        label: 'Municipal',
+        AREAS_ESTUDIO: [
+          {
+            value: 'distribucion_de_la_tierra',
+            label: 'Distribución de la tierra',
+            INDICADORES: [
+              {
+                value: '3_1_1_gini_propiedad',
+                label: '3.1.1 Índice de Gini de la propiedad',
+                serviceKey: 'v_indice_gini_ids_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_2_ids',
+                label: '3.1.2 Índice de Disparidad Superior - IDS',
+                serviceKey: 'v_indice_gini_ids_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_3_predios_uaf_minima',
+                label: '3.1.3 Porcentaje de predios con área por debajo de la UAF mínima municipal',
+                serviceKey: 'v_predios_uaf_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_4_area_uaf_minima',
+                label: '3.1.4 Porcentaje de área de predios por debajo de la UAF mínima municipal',
+                serviceKey: 'v_predios_uaf_mun',
+                layerId: 0
+              }
+            ]
+          },
+          {
+            value: 'conflictos_de_uso',
+            label: 'Conflictos de uso',
+            INDICADORES: [
+              {
+                value: '3_1_5_subutilizacion_suelo',
+                label: '3.1.5 Porcentaje de predios con presunta subutilización en el uso del suelo',
+                serviceKey: 'v_predios_conflicto_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_6_territorios_ley_2da',
+                label: '3.1.6 Porcentaje de predios en Territorios con ley 2da',
+                serviceKey: 'v_predios_ley2da_mun',
+                layerId: 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        value: 'nacional',
+        label: 'Nacional',
+        AREAS_ESTUDIO: [
+          {
+            value: 'distribucion_de_la_tierra',
+            label: 'Distribución de la tierra',
+            INDICADORES: [
+              {
+                value: '3_1_1_gini_propiedad',
+                label: '3.1.1 Índice de Gini de la propiedad',
+                serviceKey: 'v_indice_gini_ids_nac_tot',
+                layerId: 0
+              },
+              {
+                value: '3_1_2_ids',
+                label: '3.1.2 Índice de Disparidad Superior - IDS',
+                serviceKey: 'v_indice_gini_ids_nac_tot',
+                layerId: 0
+              },
+              {
+                value: '3_1_3_predios_uaf_minima',
+                label: '3.1.3 Porcentaje de predios con área por debajo de la UAF mínima municipal',
+                serviceKey: 'v_predios_uaf_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_4_area_uaf_minima',
+                label: '3.1.4 Porcentaje de área de predios por debajo de la UAF mínima municipal',
+                serviceKey: 'v_predios_uaf_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_5_gini_privados_2024',
+                label: '3.1.5.Coeficiente de Gini para predios privados rurales del año 2024',
+                serviceKey: 'v_indice_gini_predios_dest',
+                layerId: 0
+              },
+              {
+                value: '3_1_6_gini_frontera_agricola_2024',
+                label: '3.1.6.Coeficiente de Gini para predios privados rurales dentro de frontera agrícola del año 2024',
+                serviceKey: 'v_indice_gini_predios_frontAgric',
+                layerId: 0
+              },
+              {
+                value: '3_1_7_gini_frontera_agricola_destino_2024',
+                label: '3.1.7.Coeficiente de Gini para predios privados rurales dentro de frontera agrícola con destino agropecuario del año 2024',
+                serviceKey: 'v_indice_gini_predios_frontAgric_dest',
+                layerId: 0
+              }
+            ]
+          },
+          {
+            value: 'conflictos_de_uso',
+            label: 'Conflictos de uso',
+            INDICADORES: [
+              {
+                value: '3_1_5_subutilizacion_suelo',
+                label: '3.1.5 Porcentaje de predios con presunta subutilización en el uso del suelo',
+                serviceKey: 'v_predios_conflicto_mun',
+                layerId: 0
+              },
+              {
+                value: '3_1_6_territorios_ley_2da',
+                label: '3.1.6 Porcentaje de predios en Territorios con ley 2da',
+                serviceKey: 'v_predios_ley2da_mun',
+                layerId: 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+
+  {
+    value: 'fragmentacion_predial_rural',
+    label: 'Fragmentación predial rural',
+    AREAS_ADMINISTRATIVAS: [
+      {
+        value: 'departamental',
+        label: 'Departamental',
+        AREAS_ESTUDIO: [
+          {
+            value: 'predios_rurales_privados',
+            label: 'Predios rurales privados',
+            INDICADORES: [
+              { value: 'frag_dep_priv_1', label: 'Participación porcentual de microfundios por cantidad', serviceKey: 'frag_dep_priv', layerId: 1 },
+              { value: 'frag_dep_priv_2', label: 'Participación porcentual de microfundios por área', serviceKey: 'frag_dep_priv', layerId: 2 },
+              { value: 'frag_dep_priv_3', label: 'Participación porcentual de minifundios por cantidad', serviceKey: 'frag_dep_priv', layerId: 3 },
+              { value: 'frag_dep_priv_4', label: 'Participación porcentual de minifundios por área', serviceKey: 'frag_dep_priv', layerId: 4 },
+              { value: 'frag_dep_priv_5', label: 'Participación porcentual de pequeña propiedad por cantidad', serviceKey: 'frag_dep_priv', layerId: 5 },
+              { value: 'frag_dep_priv_6', label: 'Participación porcentual de pequeña propiedad por área', serviceKey: 'frag_dep_priv', layerId: 6 },
+              { value: 'frag_dep_priv_7', label: 'Participación porcentual de mediana propiedad por cantidad', serviceKey: 'frag_dep_priv', layerId: 7 },
+              { value: 'frag_dep_priv_8', label: 'Participación porcentual de mediana propiedad por área', serviceKey: 'frag_dep_priv', layerId: 8 },
+              { value: 'frag_dep_priv_9', label: 'Participación porcentual de latifundio por cantidad', serviceKey: 'frag_dep_priv', layerId: 9 },
+              { value: 'frag_dep_priv_10', label: 'Participación porcentual de latifundio por área', serviceKey: 'frag_dep_priv', layerId: 10 }
+            ]
+          },
+          {
+            value: 'predios_rurales_privados_fa',
+            label: 'Predios rurales privados dentro de frontera agrícola',
+            INDICADORES: [
+              { value: 'frag_dep_fa_1', label: 'Participación porcentual de microfundios por cantidad', serviceKey: 'frag_dep_fa', layerId: 0 },
+              { value: 'frag_dep_fa_2', label: 'Participación porcentual de microfundios por área', serviceKey: 'frag_dep_fa', layerId: 1 },
+              { value: 'frag_dep_fa_3', label: 'Participación porcentual de minifundios por cantidad', serviceKey: 'frag_dep_fa', layerId: 2 },
+              { value: 'frag_dep_fa_4', label: 'Participación porcentual de minifundios por área', serviceKey: 'frag_dep_fa', layerId: 3 },
+              { value: 'frag_dep_fa_5', label: 'Participación porcentual de pequeña propiedad por cantidad', serviceKey: 'frag_dep_fa', layerId: 4 },
+              { value: 'frag_dep_fa_6', label: 'Participación porcentual de pequeña propiedad por área', serviceKey: 'frag_dep_fa', layerId: 5 },
+              { value: 'frag_dep_fa_7', label: 'Participación porcentual de mediana propiedad por cantidad', serviceKey: 'frag_dep_fa', layerId: 6 },
+              { value: 'frag_dep_fa_8', label: 'Participación porcentual de mediana propiedad por área', serviceKey: 'frag_dep_fa', layerId: 7 },
+              { value: 'frag_dep_fa_9', label: 'Participación porcentual de latifundio por cantidad', serviceKey: 'frag_dep_fa', layerId: 8 },
+              { value: 'frag_dep_fa_10', label: 'Participación porcentual de latifundio por área', serviceKey: 'frag_dep_fa', layerId: 9 }
+            ]
+          },
+          {
+            value: 'predios_rurales_privados_faa',
+            label: 'Predios rurales privados dentro de frontera agrícola con uso agropecuario',
+            INDICADORES: [
+              { value: 'frag_dep_faa_1', label: 'Participación porcentual de microfundios por cantidad', serviceKey: 'frag_dep_faa', layerId: 0 },
+              { value: 'frag_dep_faa_2', label: 'Participación porcentual de microfundios por área', serviceKey: 'frag_dep_faa', layerId: 1 },
+              { value: 'frag_dep_faa_3', label: 'Participación porcentual de minifundios por cantidad', serviceKey: 'frag_dep_faa', layerId: 2 },
+              { value: 'frag_dep_faa_4', label: 'Participación porcentual de minifundios por área', serviceKey: 'frag_dep_faa', layerId: 3 },
+              { value: 'frag_dep_faa_5', label: 'Participación porcentual de pequeña propiedad por cantidad', serviceKey: 'frag_dep_faa', layerId: 4 },
+              { value: 'frag_dep_faa_6', label: 'Participación porcentual de pequeña propiedad por área', serviceKey: 'frag_dep_faa', layerId: 5 },
+              { value: 'frag_dep_faa_7', label: 'Participación porcentual de mediana propiedad por cantidad', serviceKey: 'frag_dep_faa', layerId: 6 },
+              { value: 'frag_dep_faa_8', label: 'Participación porcentual de mediana propiedad por área', serviceKey: 'frag_dep_faa', layerId: 7 },
+              { value: 'frag_dep_faa_9', label: 'Participación porcentual de latifundio por cantidad', serviceKey: 'frag_dep_faa', layerId: 8 },
+              { value: 'frag_dep_faa_10', label: 'Participación porcentual de latifundio por área', serviceKey: 'frag_dep_faa', layerId: 9 }
+            ]
+          }
+        ]
+      },
+      {
+        value: 'municipal',
+        label: 'Municipal',
+        AREAS_ESTUDIO: [
+          {
+            value: 'predios_rurales_privados',
+            label: 'Predios rurales privados',
+            INDICADORES: [
+              { value: 'frag_mun_priv_1', label: 'Participación porcentual de microfundios por cantidad', serviceKey: 'frag_mun_priv', layerId: 1 },
+              { value: 'frag_mun_priv_2', label: 'Participación porcentual de microfundios por área', serviceKey: 'frag_mun_priv', layerId: 2 },
+              { value: 'frag_mun_priv_3', label: 'Participación porcentual de minifundios por cantidad', serviceKey: 'frag_mun_priv', layerId: 3 },
+              { value: 'frag_mun_priv_4', label: 'Participación porcentual de minifundios por área', serviceKey: 'frag_mun_priv', layerId: 4 },
+              { value: 'frag_mun_priv_5', label: 'Participación porcentual de pequeña propiedad por cantidad', serviceKey: 'frag_mun_priv', layerId: 5 },
+              { value: 'frag_mun_priv_6', label: 'Participación porcentual de pequeña propiedad por área', serviceKey: 'frag_mun_priv', layerId: 6 },
+              { value: 'frag_mun_priv_7', label: 'Participación porcentual de mediana propiedad por cantidad', serviceKey: 'frag_mun_priv', layerId: 7 },
+              { value: 'frag_mun_priv_8', label: 'Participación porcentual de mediana propiedad por área', serviceKey: 'frag_mun_priv', layerId: 8 },
+              { value: 'frag_mun_priv_9', label: 'Participación porcentual de latifundio por cantidad', serviceKey: 'frag_mun_priv', layerId: 9 },
+              { value: 'frag_mun_priv_10', label: 'Participación porcentual de latifundio por área', serviceKey: 'frag_mun_priv', layerId: 10 },
+              { value: 'frag_mun_priv_11', label: 'Área promedio predial', serviceKey: 'area_promedio_predial', layerId: 1 }
+            ]
+          },
+          {
+            value: 'predios_rurales_privados_fa',
+            label: 'Predios rurales privados dentro de frontera agrícola',
+            INDICADORES: [
+              { value: 'frag_mun_fa_1', label: 'Participación porcentual de microfundios por cantidad', serviceKey: 'frag_mun_fa', layerId: 0 },
+              { value: 'frag_mun_fa_2', label: 'Participación porcentual de microfundios por área', serviceKey: 'frag_mun_fa', layerId: 1 },
+              { value: 'frag_mun_fa_3', label: 'Participación porcentual de minifundios por cantidad', serviceKey: 'frag_mun_fa', layerId: 2 },
+              { value: 'frag_mun_fa_4', label: 'Participación porcentual de minifundios por área', serviceKey: 'frag_mun_fa', layerId: 3 },
+              { value: 'frag_mun_fa_5', label: 'Participación porcentual de pequeña propiedad por cantidad', serviceKey: 'frag_mun_fa', layerId: 4 },
+              { value: 'frag_mun_fa_6', label: 'Participación porcentual de pequeña propiedad por área', serviceKey: 'frag_mun_fa', layerId: 5 },
+              { value: 'frag_mun_fa_7', label: 'Participación porcentual de mediana propiedad por cantidad', serviceKey: 'frag_mun_fa', layerId: 6 },
+              { value: 'frag_mun_fa_8', label: 'Participación porcentual de mediana propiedad por área', serviceKey: 'frag_mun_fa', layerId: 7 },
+              { value: 'frag_mun_fa_9', label: 'Participación porcentual de latifundio por cantidad', serviceKey: 'frag_mun_fa', layerId: 8 },
+              { value: 'frag_mun_fa_10', label: 'Participación porcentual de latifundio por área', serviceKey: 'frag_mun_fa', layerId: 9 },
+              { value: 'frag_mun_fa_11', label: 'Área promedio predial', serviceKey: 'area_promedio_predial', layerId: 2 }
+            ]
+          },
+          {
+            value: 'predios_rurales_privados_faa',
+            label: 'Predios rurales privados dentro de frontera agrícola con uso agropecuario',
+            INDICADORES: [
+              { value: 'frag_mun_faa_1', label: 'Participación porcentual de microfundios por cantidad', serviceKey: 'frag_mun_faa', layerId: 0 },
+              { value: 'frag_mun_faa_2', label: 'Participación porcentual de microfundios por área', serviceKey: 'frag_mun_faa', layerId: 1 },
+              { value: 'frag_mun_faa_3', label: 'Participación porcentual de minifundios por cantidad', serviceKey: 'frag_mun_faa', layerId: 2 },
+              { value: 'frag_mun_faa_4', label: 'Participación porcentual de minifundios por área', serviceKey: 'frag_mun_faa', layerId: 3 },
+              { value: 'frag_mun_faa_5', label: 'Participación porcentual de pequeña propiedad por cantidad', serviceKey: 'frag_mun_faa', layerId: 4 },
+              { value: 'frag_mun_faa_6', label: 'Participación porcentual de pequeña propiedad por área', serviceKey: 'frag_mun_faa', layerId: 5 },
+              { value: 'frag_mun_faa_7', label: 'Participación porcentual de mediana propiedad por cantidad', serviceKey: 'frag_mun_faa', layerId: 6 },
+              { value: 'frag_mun_faa_8', label: 'Participación porcentual de mediana propiedad por área', serviceKey: 'frag_mun_faa', layerId: 7 },
+              { value: 'frag_mun_faa_9', label: 'Participación porcentual de latifundio por cantidad', serviceKey: 'frag_mun_faa', layerId: 8 },
+              { value: 'frag_mun_faa_10', label: 'Participación porcentual de latifundio por área', serviceKey: 'frag_mun_faa', layerId: 9 },
+              { value: 'frag_mun_faa_11', label: 'Área promedio predial', serviceKey: 'area_promedio_predial', layerId: 3 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    value: 'distribucion_concentracion_tierra',
+    label: 'Distribución y concentración de la tierra',
+    AREAS_ADMINISTRATIVAS: [
+      {
+        value: 'departamental',
+        label: 'Departamental',
+        AREAS_ESTUDIO: [
+          { value: 'predios_rurales_privados', label: 'Predios rurales privados', INDICADORES: [{ value: 'dist_dep_1', label: 'Coeficiente de GINI', serviceKey: 'gini_departamental', layerId: 0 }] },
+          { value: 'predios_rurales_privados_fa', label: 'Predios rurales privados dentro de frontera agrícola', INDICADORES: [{ value: 'dist_dep_2', label: 'Coeficiente de GINI', serviceKey: 'gini_departamental', layerId: 1 }] },
+          { value: 'predios_rurales_privados_faa', label: 'Predios rurales privados dentro de frontera agrícola con uso agropecuario', INDICADORES: [{ value: 'dist_dep_3', label: 'Coeficiente de GINI', serviceKey: 'gini_departamental', layerId: 2 }] }
+        ]
+      },
+      {
+        value: 'municipal',
+        label: 'Municipal',
+        AREAS_ESTUDIO: [
+          { value: 'predios_rurales_privados', label: 'Predios rurales privados', INDICADORES: [{ value: 'dist_mun_1', label: 'Coeficiente de GINI', serviceKey: 'gini_municipal', layerId: 1 }] },
+          { value: 'predios_rurales_privados_fa', label: 'Predios rurales privados dentro de frontera agrícola', INDICADORES: [{ value: 'dist_mun_2', label: 'Coeficiente de GINI', serviceKey: 'gini_municipal', layerId: 2 }] },
+          { value: 'predios_rurales_privados_faa', label: 'Predios rurales privados dentro de frontera agrícola con uso agropecuario', INDICADORES: [{ value: 'dist_mun_3', label: 'Coeficiente de GINI', serviceKey: 'gini_municipal', layerId: 3 }] }
+        ]
+      }
+    ]
+  },
+  {
+    value: 'conflictos_uso_suelo',
+    label: 'Conflictos de uso del suelo rural (fragmentación, concentración)',
+    AREAS_ADMINISTRATIVAS: [
+      {
+        value: 'no_aplica',
+        label: 'No aplica',
+        AREAS_ESTUDIO: [
+          {
+            value: 'clasificacion_suelo',
+            label: 'Clasificación del suelo',
+            INDICADORES: [
+              { value: 'cls_1', label: 'Vocación de Uso', serviceKey: 'clasificacion_suelo', layerId: 7 },
+              { value: 'cls_2', label: 'Restricciones al apoyo de las actividades agropecuarias', serviceKey: 'clasificacion_suelo', layerId: 1 },
+              { value: 'cls_3', label: 'Oferta del suelo', serviceKey: 'clasificacion_suelo', layerId: 3 },
+              { value: 'cls_4', label: 'Cobertura de la tierra', serviceKey: 'clasificacion_suelo', layerId: 8 },
+              { value: 'cls_5', label: 'Conflicto de uso del suelo', serviceKey: 'clasificacion_suelo', layerId: 9 },
+              { value: 'cls_6', label: 'Conflicto de uso del suelo en frontera agrícola', serviceKey: 'clasificacion_suelo', layerId: 10 }
+            ]
+          },
+          {
+            value: 'participaciones_sobreutilizacion',
+            label: 'Participaciones porcentuales en sobreutilización',
+            INDICADORES: [
+              { value: 'sob_1', label: 'Participación porcentual de microfundios en sobreutilización por cantidad en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 0 },
+              { value: 'sob_2', label: 'Participación porcentual de microfundios en sobreutilización por área  en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 1 },
+              { value: 'sob_3', label: 'Participación porcentual de minifundios en sobreutilización por cantidad en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 2 },
+              { value: 'sob_4', label: 'Participación porcentual de minifundios en sobreutilización por área  en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 3 },
+              { value: 'sob_5', label: 'Participación porcentual de pequeña propiedad en sobreutilización por cantidad  en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 4 },
+              { value: 'sob_6', label: 'Participación porcentual de pequeña propiedad en sobreutilización por área en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 5 },
+              { value: 'sob_7', label: 'Participación porcentual de mediana propiedad en sobreutilización por cantidad en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 6 },
+              { value: 'sob_8', label: 'Participación porcentual de mediana propiedad en sobreutilización por área en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 7 },
+              { value: 'sob_9', label: 'Participación porcentual de latifundio en sobreutilización por cantidad en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 8 },
+              { value: 'sob_10', label: 'Participación porcentual de latifundio en sobreutilización por área en frontera agrícola', serviceKey: 'sobreutilizacion', layerId: 9 }
+            ]
+          },
+          {
+            value: 'participaciones_subutilizacion',
+            label: 'Participaciones porcentuales en subutilización',
+            INDICADORES: [
+              { value: 'sub_1', label: 'Participación porcentual de microfundios en subutilización por cantidad en frontera agrícola', serviceKey: 'subutilizacion', layerId: 1 },
+              { value: 'sub_2', label: 'Participación porcentual de microfundios en subutilización por área en frontera agrícola', serviceKey: 'subutilizacion', layerId: 3 },
+              { value: 'sub_3', label: 'Participación porcentual de minifundios en subutilización por cantidad en frontera agrícola', serviceKey: 'subutilizacion', layerId: 4 },
+              { value: 'sub_4', label: 'Participación porcentual de minifundios en subutilización por área en frontera agrícola', serviceKey: 'subutilizacion', layerId: 5 },
+              { value: 'sub_5', label: 'Participación porcentual de pequeña propiedad en subutilización por cantidad en frontera agrícola', serviceKey: 'subutilizacion', layerId: 6 },
+              { value: 'sub_6', label: 'Participación porcentual de pequeña propiedad en subutilización por área en frontera agrícola', serviceKey: 'subutilizacion', layerId: 7 },
+              { value: 'sub_7', label: 'Participación porcentual de mediana propiedad en subutilización por cantidad en frontera agrícola', serviceKey: 'subutilizacion', layerId: 8 },
+              { value: 'sub_8', label: 'Participación porcentual de mediana propiedad en subutilización por área en frontera agrícola', serviceKey: 'subutilizacion', layerId: 9 },
+              { value: 'sub_9', label: 'Participación porcentual de latifundio en subutilización por cantidad en frontera agrícola', serviceKey: 'subutilizacion', layerId: 10 },
+              { value: 'sub_10', label: 'Participación porcentual de latifundio en subutilización por área en frontera agrícola', serviceKey: 'subutilizacion', layerId: 11 }
+            ]
+          },
+          {
+            value: 'concentracion',
+            label: 'Concentración',
+            INDICADORES: [
+              { value: 'con_1', label: 'Coeficiente de GINI en áreas de conflicto por subutilización', serviceKey: 'gini_conflicto_uso', layerId: 0 },
+              { value: 'con_2', label: 'Coeficiente de GINI en áreas de conflicto por sobreutilización', serviceKey: 'gini_conflicto_uso', layerId: 1 }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    value: 'analisis_genero_propiedad',
+    label: 'Análisis de género en la propiedad',
+    AREAS_ADMINISTRATIVAS: [
+      {
+        value: 'municipal',
+        label: 'Municipal',
+        AREAS_ESTUDIO: [
+          {
+            value: 'no_aplica',
+            label: 'No aplica',
+            INDICADORES: [
+              { value: 'gen_1', label: 'Participación porcentual de predios rurales en copropiedad', serviceKey: 'analisis_genero', layerId: 1 },
+              { value: 'gen_2', label: 'Participación porcentual de predios rurales de mujeres', serviceKey: 'analisis_genero', layerId: 2 },
+              { value: 'gen_3', label: 'Participación porcentual de predios rurales en copropiedad de solo mujeres', serviceKey: 'analisis_genero', layerId: 3 },
+              { value: 'gen_4', label: 'Participación porcentual de microfundios de única persona propietaria', serviceKey: 'analisis_genero', layerId: 4 },
+              { value: 'gen_5', label: 'Participación porcentual de microfundios en copropiedad de solo mujeres', serviceKey: 'analisis_genero', layerId: 5 },
+              { value: 'gen_6', label: 'Participación porcentual de predios rurales agropecuarios de mujeres', serviceKey: 'analisis_genero', layerId: 6 },
+              { value: 'gen_7', label: 'Participación porcentual de predios rurales agropecuarios en copropiedad de solo mujeres', serviceKey: 'analisis_genero', layerId: 7 }
             ]
           }
         ]
