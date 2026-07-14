@@ -30,6 +30,8 @@
  * @changes Actualización objeto api_host 172.19.3.245 => dev-catalogofirmas.igac.gov.co
  * @dateUpdated 2025-08-06
  * @changes Adición URL acceso servicio de consulta tipos de cobertura (tipo_cobertura), objeto firmasEspTCober
+ * @dateUpdated 2026-07-08
+ * @changes Adición objeto indicadoresObjeto3Nuevos con URLs de servicios para nuevos filtros jerárquicos del subsistema 3.
  **/
 // const servicioMadre = 'https: //pruebassig.igac.gov.co/server/rest/services/Indicadores/MapServer'
 const mapServerNal = 'https://pruebassig.igac.gov.co/server/rest/services/Indicadores_nacionales_municipales/MapServer'
@@ -72,6 +74,28 @@ const urls = {
   api_getFileNameByIdFileFlds: "?fields=filename_download",
   Municipios: `${MapServerMunicipal}/0`,
   Departamentos: `${MapServerMunicipal}/1`,
+
+  /**
+   * @description URLs base de servicios ArcGIS para nuevos indicadores del objeto value=3.
+   */
+  indicadoresObjeto3Nuevos: {
+    frag_dep_priv: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Fragmentacion_en_predios_rurales_privados_a_nivel_departamental/FeatureServer',
+    frag_dep_fa: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Fragmentacion_en_predios_rurales_privados_dentro_de_frontera_agricola_a_nivel_departamental/FeatureServer',
+    frag_dep_faa: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Fragmentacion_en_predios_rurales_privados_en_frontera_agricola_con_uso_agropecuario/FeatureServer',
+    frag_mun_priv: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Fragmentacion_en_predios_rurales_privados_a_nivel_municipal/FeatureServer',
+    frag_mun_fa: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Fragmentacion_en_predios_rurales_privados_dentro_de_frontera_agricola_a_nivel_municipal/FeatureServer',
+    frag_mun_faa: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Fragmentacion_en_predios_rurales_privados_dentro_de_frontera_agricola_con_uso_agropecuario/FeatureServer',
+    area_promedio_predial: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Area_promedio_predial_a_nivel_municipal/FeatureServer',
+    gini_departamental: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Coeficiente_de_GINI_a_nivel_departamental/FeatureServer',
+    gini_municipal: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Coeficiente_de_GINI_a_nivel_municipal/FeatureServer',
+    clasificacion_suelo: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Clasificacion_del_suelo/FeatureServer',
+    sobreutilizacion: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Participaciones_porcentuales_en_sobreutilizacion/FeatureServer',
+    subutilizacion: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Participaciones_porcentuales_en_subutilizacion/FeatureServer',
+    gini_conflicto_uso: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/GINI_en_areas_de_conflicto_de_uso/FeatureServer',
+    analisis_genero: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Analisis_de_genero_en_la_propiedad/FeatureServer',
+    v_indice_gini_ids_depto: mapServerDepartal,
+
+  },
 
   indicadores: { // municipales  Indicadores_municipios (MapServer)
     v_predios_campesinos_orip_mun: `${MapServerMunicipal}/3`,
@@ -197,11 +221,10 @@ const urls = {
     BASE: 'https://pruebassig.igac.gov.co/server/rest/services/Indicadores_municipios/MapServer',
     MUNICIPIOS: 0,
   },
-
   Catastro_Nuevo1: {
     BASE: 'https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Catastro_Nuevo1/MapServer',
-  }
- ,
+  },
+
 
 }
 

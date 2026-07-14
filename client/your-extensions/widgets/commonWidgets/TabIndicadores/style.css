@@ -10,34 +10,51 @@
 }
 
 .legend {
-    font-family: Arial, sans-serif;
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: center;
-    /* width: 200px; */
-  }
-  .legend h3 {
-    margin: 0 0 10px;
-    font-size: 14px;
-  }
-  .legend ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .legend li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-  }
-  .legend span {
-    border-top-right-radius: 30px;
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin-right: 10px;
-  }
+  border: 1px solid #ccc;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding: 10px;
+  text-align: center;
+  /* width: 200px; */
+}
+.legend h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
+.legend ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.legend li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.legend span {
+  border-top-right-radius: 30px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
 
-  .jimu-loading {
-    position: fixed !important;
-  }
+.jimu-loading {
+  position: fixed !important;
+}
+
+.nuevos-filtros-card {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, rgba(19, 56, 78, 0.2), rgba(14, 27, 44, 0.18));
+}
+
+.nuevos-filtros-card h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #f2f7ff;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
