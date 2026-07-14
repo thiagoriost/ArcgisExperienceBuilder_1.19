@@ -9,49 +9,10 @@ import {
 } from "./dataFormularioIndicadores";
 import { loadModules } from "esri-loader";
 import { validaLoggerLocalStorage } from "../../shared/utils/export.utils";
+import { AjustarDatasetParams, CategoriaTematica, ChartData, DatasetItem, GeographicExtent, GraphicFeature, HandleIndicadorParams, IndicadorSeleccionado, IndicatorConfig, initApuestaEstrategica, initAreaEstudioNueva, initIndiSelected, initLastLayerDeployed, initSelectIndicadores, InitSelectIndicadores, inter_EsriModules, inter_poligonoSeleccionado, interf_APUESTA_ESTRATEGICA, interf_SUBSISTEMA, interfa_geometriasDepartamentos, interfa_indicadores, interfa_itemSelected, interface_Extent, interface_Feature, InterfaceConstantes, InterfaceIndiSelected, LayerDeployed, NuevoFiltroAreaAdministrativa, NuevoFiltroAreaEstudio, NuevoFiltroCategoria, NuevoFiltroIndicador, OutStatistics, PoblarMunicipiosParams, ProcessedData, SelectionTarget, typeGeometria, typeMSM } from "./utilsTabIndicadores";
 const { useEffect, useState } = React;
 
 const widgetIdIndicadores = "widget_48"; // se genera al ingresar al widget objetivo y generarlo en el effect de inicio con props.id
-
-const initSelectIndicadores = {
-  url: "",
-  urlDepartal: "",
-  fieldValueDepartal: "",
-  fieldValueNal: "",
-  fieldValue: "",
-  fieldlabelNal: [] as string[],
-  leyendaNal: [] as string[],
-  leyenda: [] as string[],
-  urlNal: "",
-  urlNalDataAlfanumerica: "",
-  label: "",
-  value: 0,
-  descripcion: "",
-};
-
-const initLastLayerDeployed = {
-  graphics: [] as any[],
-  graphicsLayers: [] as any[],
-};
-const initIndiSelected = {
-  value: 0,
-  label: "",
-  descripcion: "",
-  url: "",
-  urlNal: "",
-  urlDepartal: "",
-  urlNalDataAlfanumerica: "",
-  fieldlabel: [] as string[],
-  fieldlabelNal: [] as string[],
-  fieldlabelDepartal: [] as string[],
-  leyenda: [] as string[],
-  leyendaNal: [] as string[],
-  leyendaDepartal: [] as string[],
-  fieldValue: "",
-  fieldValueNal: "",
-  fieldValueDepartal: "",
-  quintiles: [] as Array<Array<number | string>>,
-};
 
 /**
  * @dateUpdated 2025-10-16
@@ -89,7 +50,7 @@ const TabIndicadores: React.FC<any> = ({
   const [poligonoSeleccionado, setPoligonoSeleccionado] = useState<inter_poligonoSeleccionado | undefined>(undefined);
   const [geometriaMunicipios, setGeometriaMunicipios] = useState<{ features: typeGeometria[] } | undefined>(undefined);
   const [geometriasDepartamentos, setGeometriasDepartamentos] = useState<interfa_geometriasDepartamentos | undefined>(undefined);
-  const [apuestaEstrategica, setApuestaEstrategica] = useState<interf_SUBSISTEMA | undefined>(undefined);
+  const [apuestaEstrategica, setApuestaEstrategica] = useState<interf_SUBSISTEMA>(initApuestaEstrategica);
   const [selectApuestaEstategica, setSelectApuestaEstategica] = useState<interf_APUESTA_ESTRATEGICA | undefined>(undefined);
   const [selectCategoriaTematica, setSelectCategoriaTematica] = useState<CategoriaTematica | undefined>(undefined);
   const [indicadores, setIndicadores] = useState<interfa_indicadores[] | null>(null);
@@ -107,8 +68,9 @@ const TabIndicadores: React.FC<any> = ({
   //Estados para el flujo de filtros jerárquicos de nuevos indicadores (objeto value=3)
   const [categoriaTematicaNueva, setCategoriaTematicaNueva] = useState<NuevoFiltroCategoria | undefined>(undefined);
   const [areaAdministrativaNueva, setAreaAdministrativaNueva] = useState<NuevoFiltroAreaAdministrativa | undefined>(undefined);
-  const [areaEstudioNueva, setAreaEstudioNueva] = useState<NuevoFiltroAreaEstudio | undefined>(undefined);
+  const [areaEstudioNueva, setAreaEstudioNueva] = useState<NuevoFiltroAreaEstudio>(initAreaEstudioNueva);
   const [indicadorNuevoSeleccionado, setIndicadorNuevoSeleccionado] = useState<NuevoFiltroIndicador | undefined>(undefined);
+  const [layerNuevoIndicador, setLayerNuevoIndicador] = useState<any>(null);
 
   // 2. Función de utilidad común
   const resetCommonState = () => {
@@ -124,7 +86,7 @@ const TabIndicadores: React.FC<any> = ({
     if (validaLoggerLocalStorage("logger")) console.log("Resetting new flow indicators state...");
     setCategoriaTematicaNueva(undefined);
     setAreaAdministrativaNueva(undefined);
-    setAreaEstudioNueva(undefined);
+    setAreaEstudioNueva(initAreaEstudioNueva);
     setIndicadorNuevoSeleccionado(undefined);
   };
 
@@ -139,7 +101,6 @@ const TabIndicadores: React.FC<any> = ({
 
     const findSubSistema = dataFuenteIndicadores.find((e) => e.value === target.value,);
     utilsModule?.logger() && console.log(findSubSistema);
-
     setApuestaEstrategica(findSubSistema);
     setIndicadores(null);
     resetCommonState();
@@ -204,7 +165,7 @@ const TabIndicadores: React.FC<any> = ({
       });
     setCategoriaTematicaNueva(categoria);
     setAreaAdministrativaNueva(undefined);
-    setAreaEstudioNueva(undefined);
+    setAreaEstudioNueva(initAreaEstudioNueva);
     setIndicadorNuevoSeleccionado(undefined);
     clearGraphigs();
     setSelectIndicadores(initSelectIndicadores);
@@ -225,7 +186,7 @@ const TabIndicadores: React.FC<any> = ({
         categoriaTematicaNueva
       });
     setAreaAdministrativaNueva(areaAdmin);
-    setAreaEstudioNueva(undefined);
+    setAreaEstudioNueva(initAreaEstudioNueva);
     setIndicadorNuevoSeleccionado(undefined);
     clearGraphigs();
     setSelectIndicadores(initSelectIndicadores);
@@ -405,7 +366,49 @@ const TabIndicadores: React.FC<any> = ({
   };
 
   /**
+   * @description Elimina la capa temporal del flujo de nuevos indicadores.
+   */
+  const limpiarLayerNuevoIndicador = () => {
+    if (!jimuMapView?.view?.map || !layerNuevoIndicador) return;
+
+    if (validaLoggerLocalStorage("logger")) {
+      console.log("limpiarLayerNuevoIndicador:", { layerNuevoIndicador });
+    }
+
+    jimuMapView.view.map.remove(layerNuevoIndicador);
+    layerNuevoIndicador.destroy?.();
+    setLayerNuevoIndicador(null);
+  };
+
+  /**
+   * @description Resuelve la URL final de la capa para un nuevo indicador.
+   * @remarks Soporta URL base FeatureServer/MapServer y también URLs directas a capa (.../MapServer/{id}).
+   */
+  const resolverUrlCapaNuevoIndicador = (
+    indicador: NuevoFiltroIndicador,
+  ): string => {
+    const fromNuevo =
+      servicios?.urls?.indicadoresObjeto3Nuevos?.[indicador.serviceKey];
+    const fromMunicipal = servicios?.urls?.indicadores?.[indicador.serviceKey];
+    const fromNacional = servicios?.urls?.indicadoresNaci?.[indicador.serviceKey];
+    const fromDepartamental =
+      servicios?.urls?.indicadoresDepartal?.[indicador.serviceKey];
+
+    const serviceBase =
+      fromNuevo || fromMunicipal || fromNacional || fromDepartamental;
+
+    if (!serviceBase) return "";
+
+    const esUrlDeCapa = /(MapServer|FeatureServer)\/\d+$/i.test(serviceBase);
+    if (validaLoggerLocalStorage("logger")) {
+      console.log("resolverUrlCapaNuevoIndicador:", { fromNuevo, fromMunicipal, fromNacional, fromDepartamental, serviceBase, esUrlDeCapa });
+    }
+    return esUrlDeCapa ? serviceBase : `${serviceBase}/${indicador.layerId}`;
+  };
+
+  /**
    * @description Renderiza un nuevo indicador basado en el flujo jerárquico del objeto 3.
+   * @remarks Para servicios del nuevo flujo no se calcula leyenda ni simbología coroplética.
    */
   const handleIndicadorNuevoSelected = async ({ target }: SelectionTarget) => {
     if (target.value === "3_1_1_gini_propiedad") {
@@ -429,11 +432,19 @@ const TabIndicadores: React.FC<any> = ({
         areaEstudioNueva,
         target,
       });
-    if ( !indicador || !servicios?.urls?.indicadoresObjeto3Nuevos || !utilsModule || !esriModules ) { return; }
+    if (!indicador || !servicios?.urls || !utilsModule || !jimuMapView) {
+      return;
+    }
 
-    const serviceBase =
-      servicios.urls.indicadoresObjeto3Nuevos[indicador.serviceKey];
-    if (!serviceBase) {
+    const queryUrl = resolverUrlCapaNuevoIndicador(indicador);
+    if (validaLoggerLocalStorage("logger")) {
+      console.log("handleIndicadorNuevoSelected queryUrl:", {
+        indicador,
+        queryUrl,
+      });
+    }
+
+    if (!queryUrl) {
       setMensajeModal({
         deployed: true,
         type: typeMSM.warning,
@@ -451,97 +462,67 @@ const TabIndicadores: React.FC<any> = ({
     setMunicipioSelect(undefined);
     setMunicipios([]);
 
-    const queryUrl = `${serviceBase}/${indicador.layerId}/query`;
-    const responseIndicador = await utilsModule.realizarConsulta({
-      url: queryUrl,
-      where: "1=1",
-      returnGeometry: true,
-      outFields: "*",
-    });
+    setRangosLeyenda([]);
+    limpiarLayerNuevoIndicador();
 
-    if (!responseIndicador?.features?.length) {
-      setMensajeModal({
-        deployed: true,
-        type: typeMSM.warning,
-        tittle: "Info",
-        body: "Sin información para el indicador seleccionado",
-        subBody: "",
+    try {
+      const responseLayer = await utilsModule.renderLayer(queryUrl, jimuMapView);
+      if (validaLoggerLocalStorage("logger")) console.log("handleIndicadorNuevoSelected responseLayer:", { responseLayer, queryUrl });
+      const layerRenderizado = responseLayer?.layer;
+
+      if (!layerRenderizado) {
+        setMensajeModal({
+          deployed: true,
+          type: typeMSM.warning,
+          tittle: "Info",
+          body: "No fue posible renderizar la capa del indicador seleccionado",
+          subBody: "",
+        });
+        return;
+      }
+
+      const indicadorCompat = {
+        ...initIndiSelected,
+        value: 9999,
+        label: indicador.label,
+        descripcion: indicador.label,
+        quintiles: [] as Array<Array<number | string>>,
+      };
+
+      setSelectIndicadores(indicadorCompat);
+      setEsIndicador("Nuevo");
+      setLayerNuevoIndicador(layerRenderizado);
+
+      const dataToRender = JSON.stringify({
+        nacional: {
+          dataAlfanumericaNal: [],
+          indiSelected: indicadorCompat,
+          regionSeleccionada: areaAdministrativaNueva?.label || "Nacional",
+        },
       });
-      setIsLoading(false);
-      return;
-    }
 
-    const firstAttributes = responseIndicador.features[0]?.attributes || {};
-    const fieldValueToSetRangeCoropletico = resolverCampoValorNuevoIndicador(
-      indicador.label,
-      firstAttributes,
-    );
-    if (!fieldValueToSetRangeCoropletico) {
+      dispatch(
+        appActions.widgetStatePropChange(
+          widgetIdIndicadores,
+          "dataFromDispatch",
+          dataToRender,
+        ),
+      );
+    } catch (error) {
+      console.error("Error renderizando capa de nuevo indicador:", {
+        error,
+        queryUrl,
+      });
       setMensajeModal({
         deployed: true,
         type: typeMSM.error,
         tittle: "Error",
-        body: "No fue posible determinar el campo de valor del indicador",
+        body: "No fue posible consultar/renderizar la capa del indicador seleccionado",
         subBody: "",
       });
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    const featuresNormalizados = responseIndicador.features.map(
-      (feature: any) => ({
-        ...feature,
-        attributes: normalizarAtributosNuevoIndicador(feature.attributes || {}),
-      }),
-    );
-
-    const indicadorCompat = {
-      ...initIndiSelected,
-      value: 9999,
-      label: indicador.label,
-      descripcion: indicador.label,
-      fieldValue: fieldValueToSetRangeCoropletico,
-      fieldValueNal: fieldValueToSetRangeCoropletico,
-      fieldValueDepartal: fieldValueToSetRangeCoropletico,
-      quintiles: [] as Array<Array<number | string>>,
-    };
-
-    setSelectIndicadores(indicadorCompat);
-    setEsIndicador("Nuevo");
-
-    const { SimpleFillSymbol, Polygon, Graphic, GraphicsLayer } = esriModules;
-    utilsModule.dibujarPoligono({
-      features: featuresNormalizados,
-      jimuMapView,
-      fieldValueToSetRangeCoropletico,
-      lastLayerDeployed,
-      Polygon,
-      Graphic,
-      GraphicsLayer,
-      SimpleFillSymbol,
-      setPoligonoSeleccionado,
-      setClickHandler,
-      setRangosLeyenda,
-      setLastLayerDeployed,
-      setIsLoading,
-      indiSelected: indicadorCompat,
-    });
-
-    const dataToRender = JSON.stringify({
-      nacional: {
-        dataAlfanumericaNal: [],
-        indiSelected: indicadorCompat,
-        regionSeleccionada: areaAdministrativaNueva?.label || "Nacional",
-      },
-    });
-    dispatch(
-      appActions.widgetStatePropChange(
-        widgetIdIndicadores,
-        "dataFromDispatch",
-        dataToRender,
-      ),
-    );
-    setIsLoading(false);
   };
 
   // Maneja el indicadores seleccionado a nivel nacional
@@ -651,6 +632,7 @@ const TabIndicadores: React.FC<any> = ({
       indiSelected?.label.includes("3.1.6") ||
       indiSelected?.label.includes("3.1.7")
     ) {
+
       return {
         ...baseConfig,
         _esIndicador: "es=1.7.",
@@ -1658,6 +1640,7 @@ const TabIndicadores: React.FC<any> = ({
       borrarSoloGraficas();
       cerrarPopUps();
     }
+    limpiarLayerNuevoIndicador();
   };
 
   const borrarSoloGraficas = () => {
@@ -1726,25 +1709,31 @@ const TabIndicadores: React.FC<any> = ({
   };
 
   const formularioIndicadores = () => {
-    const habilitaNuevosFiltrosObjeto3 =
-      apuestaEstrategica?.value === 3 && selectApuestaEstategica?.value === 0;
-    const usandoNuevoFlujoIndicadores =
-      !!categoriaTematicaNueva ||
-      !!areaAdministrativaNueva ||
-      !!areaEstudioNueva ||
-      !!indicadorNuevoSeleccionado;
-
+    const habilitaNuevosFiltrosObjeto3 = apuestaEstrategica?.value === 3 && selectApuestaEstategica?.value === 0;
+    const usandoNuevoFlujoIndicadores = !!categoriaTematicaNueva || !!areaAdministrativaNueva || !!areaEstudioNueva || !!indicadorNuevoSeleccionado;
+    if (utilsModule?.logger()) {
+      console.log({
+        habilitaNuevosFiltrosObjeto3,
+        usandoNuevoFlujoIndicadores,
+        categoriaTematicaNueva,
+        areaAdministrativaNueva,
+        areaEstudioNueva,
+        indicadorNuevoSeleccionado,
+      });
+    }
     return (
       <>
-        {widgetModules?.INPUTSELECT(
-          dataFuenteIndicadores,
-          handleSubsistemaSelected,
-          apuestaEstrategica?.value,
-          "Sub Sistema",
-          "",
-        )}
+        {
+          widgetModules?.INPUTSELECT(
+            dataFuenteIndicadores,
+            handleSubsistemaSelected,
+            apuestaEstrategica?.value,
+            "Sub Sistema",
+            "",
+          )
+        }
 
-        {apuestaEstrategica &&
+        {apuestaEstrategica.value !== 0 &&
           widgetModules &&
           widgetModules.INPUTSELECT(
             apuestaEstrategica,
@@ -1753,26 +1742,25 @@ const TabIndicadores: React.FC<any> = ({
             "Línea estratégica",
             "APUESTA_ESTRATEGICA",
           )}
-        {selectApuestaEstategica &&
-          widgetModules &&
-          selectApuestaEstategica.CATEGORIA_TEMATICA.length >= 1 &&
-          selectApuestaEstategica.CATEGORIA_TEMATICA[0].label !== "" &&
-          widgetModules.INPUTSELECT(
-            selectApuestaEstategica,
-            handleCategoriaTematicaSelected,
-            selectCategoriaTematica?.value,
-            "Categoría Temática",
-            "CATEGORIA_TEMATICA",
-          )}
-        {indicadores &&
-          widgetModules &&
+        {
+          (selectApuestaEstategica&&apuestaEstrategica.value !== 3 && widgetModules && selectApuestaEstategica.CATEGORIA_TEMATICA.length >= 1 && selectApuestaEstategica.CATEGORIA_TEMATICA[0].label !== "") &&          
+            widgetModules.INPUTSELECT(
+              selectApuestaEstategica,
+              handleCategoriaTematicaSelected,
+              selectCategoriaTematica?.value,
+              "Categoría Temática",
+              "CATEGORIA_TEMATICA",
+            )
+        }
+        {(indicadores && widgetModules && apuestaEstrategica.value !== 3) &&
           widgetModules.INPUTSELECT(
             indicadores,
             handleIndicadorSelected,
             selectIndicadores?.value,
             "Indicador",
             "INDICADOR",
-          )}
+        )}
+        
 
         {habilitaNuevosFiltrosObjeto3 && (
           <div className="nuevos-filtros-card">
@@ -1837,7 +1825,7 @@ const TabIndicadores: React.FC<any> = ({
           size="sm"
           type="default"
           onClick={() => {
-            setApuestaEstrategica(undefined);
+            setApuestaEstrategica(initApuestaEstrategica);
             setDepartmentSelect(undefined);
             setSelectIndicadores(initSelectIndicadores);
             setIndicadores(null);
@@ -2020,7 +2008,7 @@ const TabIndicadores: React.FC<any> = ({
   }, []);
 
   function resetAllStates(): void {
-    setApuestaEstrategica(undefined);
+    setApuestaEstrategica(initApuestaEstrategica);
     setSelectApuestaEstategica(undefined);
     setSelectCategoriaTematica(undefined);
     setSelectIndicadores(initSelectIndicadores);
@@ -2082,9 +2070,7 @@ const TabIndicadores: React.FC<any> = ({
     <div className="">
       {formularioIndicadores()}
       {widgetModules?.MODAL(mensajeModal, setMensajeModal)}
-      {/* {
-          isLoading && widgetModules?.OUR_LOADING()
-        } */}
+      
       {
         validaLoggerLocalStorage("logger") && 
           <div>
@@ -2093,316 +2079,11 @@ const TabIndicadores: React.FC<any> = ({
           </div>
         
       }
+      {
+        isLoading && widgetModules?.OUR_LOADING()
+      }
     </div>
   );
 };
 
 export default TabIndicadores;
-
-enum typeMSM {
-  success = "success",
-  info = "info",
-  error = "error",
-  warning = "warning",
-}
-
-export interface InterfaceConstantes {
-  coloresMapaCoropletico: ColoresMapaCoropletico[];
-  diccionario: Diccionario;
-}
-
-export interface ColoresMapaCoropletico {
-  colorRgb: string;
-  value: number[];
-}
-
-export interface Diccionario {
-  indicadores: Indicadores;
-}
-
-export interface Indicadores {
-  decodigo: string;
-  cantidad_predios: string;
-  mpcodigo: string;
-}
-
-export interface InterfaceDataCoropletico {
-  attributes: Attributes;
-}
-
-export interface Attributes {
-  cod_departamento: string;
-  cod_municipio: string;
-  mpnombre: string;
-  anio: number;
-  tipo_predio: string;
-  cantidad_predios: number;
-  total_area_ha: number;
-  ESRI_OID: number;
-}
-
-interface StatisticDefinition {
-  statisticType: string; // Ej: "sum", "avg", "count", etc.
-  onStatisticField: string; // Campo sobre el que se aplica la estadística
-  outStatisticFieldName: string; // Nombre del campo resultante
-}
-
-// El tipo para `outStatistics` puede ser un array de StatisticDefinition o un string
-export type OutStatistics = StatisticDefinition[] | string | undefined;
-
-export interface InterfaceIndiSelected {
-  value: number;
-  label: string;
-  descripcion: string;
-  url: string;
-  urlNal: string;
-  urlDepartal: string;
-  urlNalDataAlfanumerica: string;
-  fieldlabel: string[];
-  fieldlabelNal: string[];
-  fieldlabelDepartal: string[];
-  leyenda: string[];
-  leyendaNal: string[];
-  leyendaDepartal: string[];
-  fieldValue: string;
-  fieldValueNal: string;
-  fieldValueDepartal: string;
-  quintiles: Array<Array<number | string>>;
-}
-
-interface typeGeometria {
-  attributes: { mpcodigo: string };
-  geometry: any; // Considera tipar `geometry` con algo más específico si es posible (ej: `Geometry` de GeoJSON)
-  [key: string]: any;
-}
-
-interface IndicadorSeleccionado {
-  value?: number;
-  label?: string;
-  descripcion?: string;
-  url?: string;
-  urlNal?: string;
-  urlDepartal?: string;
-  urlNalDataAlfanumerica?: string;
-  fieldlabel?: string[];
-  fieldlabelNal?: string[];
-  fieldlabelDepartal?: string[];
-  leyenda?: string[];
-  leyendaNal?: string[];
-  leyendaDepartal?: string[];
-  fieldValue?: string;
-  fieldValueNal?: string;
-  fieldValueDepartal?: string;
-  quintiles?: Array<Array<number | string>>;
-  deparmetSelected?: string; // Nombre del departamento seleccionado
-  municipioSelected?: string; // Nombre del municipio seleccionado
-}
-
-interface Interface_SpatialReference {
-  wkid: number; // Well-Known ID del sistema de referencia espacial (4326 = WGS84)
-}
-
-interface GeographicExtent {
-  spatialReference: Interface_SpatialReference;
-  xmin: number; // Longitud mínima (oeste)
-  ymin: number; // Latitud mínima (sur)
-  xmax: number; // Longitud máxima (este)
-  ymax: number; // Latitud máxima (norte)
-}
-
-interface InitSelectIndicadores {
-  urlDepartal: string;
-  fieldValueDepartal: string;
-  fieldValueNal: string;
-  fieldValue: string;
-  fieldlabelNal: string[]; // Array de cadenas
-  leyendaNal: string[]; // Array de cadenas
-  leyenda: string[]; // Array de cadenas
-  urlNal: string;
-  urlNalDataAlfanumerica: string;
-  label: string;
-  value: number; // Número
-  descripcion: string;
-  url: string;
-}
-
-// 1. Tipos comunes
-interface SelectionTarget {
-  target: {
-    value: string | number;
-  };
-}
-
-interface interf_APUESTA_ESTRATEGICA {
-  value: number;
-  label: string;
-  descripcion: string;
-  CATEGORIA_TEMATICA: CategoriaTematica[];
-}
-
-interface interf_SUBSISTEMA {
-  value: number;
-  label: string;
-  descripcion: string;
-  APUESTA_ESTRATEGICA: Array<{
-    value: number;
-    label: string;
-    descripcion: string;
-    CATEGORIA_TEMATICA: CategoriaTematica[];
-  }>;
-}
-interface CategoriaTematica {
-  value: string | number;
-  label: string;
-  descripcion: string;
-  INDICADOR: Array<{ value: number; label: string }>;
-}
-
-interface NuevoFiltroIndicador {
-  value: string;
-  label: string;
-  serviceKey: string;
-  layerId: number;
-}
-
-interface NuevoFiltroAreaEstudio {
-  value: string;
-  label: string;
-  INDICADORES: NuevoFiltroIndicador[];
-}
-
-interface NuevoFiltroAreaAdministrativa {
-  value: string;
-  label: string;
-  AREAS_ESTUDIO: NuevoFiltroAreaEstudio[];
-}
-
-interface NuevoFiltroCategoria {
-  value: string;
-  label: string;
-  AREAS_ADMINISTRATIVAS: NuevoFiltroAreaAdministrativa[];
-}
-
-interface HandleIndicadorParams {
-  target: {
-    value: string | number;
-  };
-}
-
-interface IndicatorConfig {
-  _esIndicador: string;
-  geometrias: any;
-  urlIndicadorToGetData: string;
-  outStatistics: string;
-  fieldValueToSetRangeCoropletico: string;
-}
-
-interface ChartData {
-  features: Array<{
-    attributes: { [key: string]: any };
-  }>;
-  fields: Array<{
-    name: string;
-  }>;
-}
-
-interface ProcessedData {
-  labels: string[];
-  values: any[];
-}
-
-interface DatasetItem {
-  labels: string[];
-  datasets: Array<{
-    label: string;
-    data: any[];
-    backgroundColor: string;
-    borderColor: string;
-    borderWidth: number;
-  }>;
-}
-
-interface AjustarDatasetParams {
-  dataToRenderGraphic: ChartData[];
-  regionSeleccionada: string;
-  indiSelected?: IndicadorSeleccionado;
-}
-
-interface interface_Feature {
-  attributes: {
-    mpcodigo?: string;
-    cod_municipio?: string;
-    decodigo?: string;
-    mpnombre?: string;
-    dataIndicadores?: Array<{ [key: string]: any }>;
-    [key: string]: any;
-  };
-}
-
-interface PoblarMunicipiosParams {
-  features: interface_Feature[];
-  targetDepartment: string;
-}
-
-// 1. Definir interfaces para los tipos esperados
-interface GraphicFeature {
-  attributes: {
-    mpcodigo: string;
-    [key: string]: any; // Para otras propiedades que puedan existir
-  };
-  geometry: {
-    rings: number[][][]; // Ajusta según la estructura real de tus rings
-    spatialReference: {
-      wkid: number;
-      [key: string]: any;
-    };
-    [key: string]: any;
-  };
-}
-
-interface LayerDeployed {
-  graphics: GraphicFeature[];
-  [key: string]: any; // Otras propiedades que pueda tener el layer
-}
-
-interface inter_poligonoSeleccionado {
-  attributes: {};
-  geometry: {};
-}
-
-interface inter_EsriModules {
-  FeatureLayer: any;
-  Polygon: any;
-  Graphic: any;
-  GraphicsLayer: any;
-  SimpleFillSymbol: any;
-  SimpleMarkerSymbol: any;
-  SimpleLineSymbol: any;
-}
-
-interface interface_Extent {
-  xmin: number;
-  ymin: number;
-  xmax: number;
-  ymax: number;
-  spatialReference: Interface_SpatialReference;
-}
-
-interface interfa_itemSelected {
-  mpnombre?: string;
-  mpcodigo?: string;
-  value: any;
-  label?: string;
-  denombre?: string;
-}
-
-interface interfa_geometriasDepartamentos {
-  features: Array<{
-    attributes: Indicadores;
-    geometry: any;
-  }>;
-}
-interface interfa_indicadores {
-  value: number;
-  label: string;
-}

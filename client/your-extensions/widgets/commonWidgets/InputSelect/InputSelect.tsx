@@ -4,7 +4,7 @@ import { Label, Select } from 'jimu-ui' // import components
 
 // @ts-expect-error
 import './style.css'
-import { validaLoggerLocalStorage } from '../../shared/utils/export.utils'
+// import { validaLoggerLocalStorage } from '../../shared/utils/export.utils'
 
 const InputSelect = ({
   dataArray = [{ value: 1, label: 'prueba1' }, { value: 2, label: 'prueba2' }],
@@ -24,7 +24,7 @@ const InputSelect = ({
   // console.log({dataArray, campo})
   const data = dataArray.length ? dataArray : dataArray[campo]
   // const data = dataArray.length ? dataArray : campo !== '' ? [{ value: value !== undefined ? value : campo, label: campo }] : []
-  if (validaLoggerLocalStorage(`logger`)) console.log({ dataArray, value, label, campo, placeHolder, data })
+  // if (validaLoggerLocalStorage(`logger`)) console.log({ dataArray, value, label, campo, placeHolder, data })
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
         <Label size='sm'> {label} </Label>

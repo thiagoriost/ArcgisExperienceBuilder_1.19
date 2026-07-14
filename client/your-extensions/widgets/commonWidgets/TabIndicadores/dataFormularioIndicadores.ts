@@ -6,6 +6,10 @@
  */
 export const dataFuenteIndicadores = [
   {
+    value: 0,
+    label: 'Seleccione una opción',
+  },
+  {
     value: 1,
     label: '1. De adquisición, adjudicación de tierras y de procesos agrarios para la reforma agraria',
     descripcion: 'De adquisición, adjudicación de tierras y de procesos agrarios para la reforma agraria, y garantía de derechos territoriales de los campesinos, pueblos indígenas y de las comunidades negras, afrocolombianas, raizales, palenqueras y pueblo Rom',
