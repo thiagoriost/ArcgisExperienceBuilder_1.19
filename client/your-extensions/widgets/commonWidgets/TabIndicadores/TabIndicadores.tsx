@@ -10,6 +10,7 @@ import {
 import { loadModules } from "esri-loader";
 import { validaLoggerLocalStorage } from "../../shared/utils/export.utils";
 import { AjustarDatasetParams, CategoriaTematica, ChartData, DatasetItem, GeographicExtent, GraphicFeature, HandleIndicadorParams, IndicadorSeleccionado, IndicatorConfig, initApuestaEstrategica, initAreaEstudioNueva, initIndiSelected, initLastLayerDeployed, initSelectIndicadores, InitSelectIndicadores, inter_EsriModules, inter_poligonoSeleccionado, interf_APUESTA_ESTRATEGICA, interf_SUBSISTEMA, interfa_geometriasDepartamentos, interfa_indicadores, interfa_itemSelected, interface_Extent, interface_Feature, InterfaceConstantes, InterfaceIndiSelected, LayerDeployed, NuevoFiltroAreaAdministrativa, NuevoFiltroAreaEstudio, NuevoFiltroCategoria, NuevoFiltroIndicador, OutStatistics, PoblarMunicipiosParams, ProcessedData, SelectionTarget, typeGeometria, typeMSM } from "./utilsTabIndicadores";
+import { DrawingInfo } from "./interfaceDrawingInfo";
 const { useEffect, useState } = React;
 
 const widgetIdIndicadores = "widget_48"; // se genera al ingresar al widget objetivo y generarlo en el effect de inicio con props.id
@@ -407,6 +408,88 @@ const TabIndicadores: React.FC<any> = ({
   };
 
   /**
+   * @description Convierte un arreglo de colores RGBA a una cadena CSS.
+   * @param color Arreglo de números representando el color en formato RGBA.
+   * @returns Cadena CSS en formato `rgba(r, g, b, a)`.
+   */
+  const rgbaToCss = (color?: number[]): string => {
+    if (!color || color.length < 3) return "";
+    const [r, g, b, a = 255] = color;
+    if (validaLoggerLocalStorage("logger")) console.log("rgbaToCss:", { color, r, g, b, a });
+    return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`;
+  };
+
+  /**
+   * @description Construye los rangos de la leyenda a partir del DrawingInfo de un renderer.
+   * @param drawingInfo Información de dibujo del renderer.
+   * @returns Arreglo de tuplas con los valores mínimo, máximo, etiqueta y color en formato CSS.
+   */
+  const construirRangosLeyendaDesdeDrawingInfo = (
+    drawingInfo?: DrawingInfo,
+  ): Array<[string | number, string | number, string, string]> => {
+    const renderer = drawingInfo?.renderer;
+    if (!renderer) return [];
+
+    if (renderer.type === "classBreaks" && renderer.classBreakInfos?.length) {
+      let minAcumulado =
+        typeof renderer.minValue === "number" ? renderer.minValue : 0;
+
+
+
+      return renderer.classBreakInfos.map((classBreak) => {
+        const min =
+          typeof classBreak.classMinValue === "number"
+            ? classBreak.classMinValue
+            : minAcumulado;
+        const max = classBreak.classMaxValue;
+        minAcumulado = typeof max === "number" ? max : minAcumulado;
+
+        return [
+          typeof min === "number" ? Number(min.toFixed(2)) : "",
+          typeof max === "number" ? Number(max.toFixed(2)) : "",
+          classBreak.label || "",
+          rgbaToCss(classBreak.symbol?.color),
+        ];
+      });
+    }
+
+    if (renderer.type === "uniqueValue" && renderer.uniqueValueInfos?.length) {
+
+      return renderer.uniqueValueInfos.map((item) => [
+        item.label || item.value || "No aplica",
+        "",
+        "",
+        rgbaToCss(item.symbol?.color),
+      ]);
+    }
+
+    return [];
+  };
+
+  /**
+   * @description Formatea el texto de un rango de la leyenda.
+   * @param rango Arreglo con el valor de inicio, fin y etiqueta del rango.
+   * @param index Índice del rango en la lista de rangos.
+   * @returns Texto formateado para mostrar en la leyenda.
+   */
+  const formatearTextoRangoLeyenda = (
+    rango: Array<string | number>,
+    index: number,
+  ): string => {
+    const [inicio, fin, etiqueta] = rango;
+    const prefijo = etiqueta ? `${etiqueta} : ` : "";
+    const inicioTexto = `${inicio ?? ""}`.trim();
+    const finTexto = `${fin ?? ""}`.trim();
+
+    if (!finTexto) {
+      if (validaLoggerLocalStorage("logger")) console.log("formatearTextoRangoLeyenda:", { rango, index, prefijo, inicioTexto, finTexto });
+      return `${prefijo}${inicioTexto}`.trim();
+    }
+    // if (validaLoggerLocalStorage("logger")) console.log("formatearTextoRangoLeyenda:", { rango, index, prefijo, inicioTexto, finTexto });
+    return `${prefijo}${inicioTexto}${index === 0 ? "" : " -"} ${finTexto}`.trim();
+  };
+
+  /**
    * @description Renderiza un nuevo indicador basado en el flujo jerárquico del objeto 3.
    * @remarks Para servicios del nuevo flujo no se calcula leyenda ni simbología coroplética.
    */
@@ -492,6 +575,24 @@ const TabIndicadores: React.FC<any> = ({
       setSelectIndicadores(indicadorCompat);
       setEsIndicador("Nuevo");
       setLayerNuevoIndicador(layerRenderizado);
+
+      // Realizar la consulta a queryUrl + '?f=pjson' para obtener la información de drawingInfo y apartir de ella construir y renderizar la leyenda del indicador seleccionado
+      const drawingInfoUrl = `${queryUrl}?f=pjson`;
+      try {
+        const response = await fetch(drawingInfoUrl);
+        const data = await response.json();
+        const drawingInfo: DrawingInfo | undefined = data?.drawingInfo;
+        if (drawingInfo) {
+          const rangosDesdeServicio =
+            construirRangosLeyendaDesdeDrawingInfo(drawingInfo);
+          if (rangosDesdeServicio.length > 0) {
+            setRangosLeyenda(rangosDesdeServicio);
+          }
+          if (validaLoggerLocalStorage("logger")) console.log("Drawing Info:", {data, drawingInfo, rangosDesdeServicio});
+        }
+      } catch (error) {
+        console.error("Error fetching drawing info:", error);
+      }
 
       const dataToRender = JSON.stringify({
         nacional: {
@@ -1020,7 +1121,7 @@ const TabIndicadores: React.FC<any> = ({
             indiSelected,
           });
         }
-        console.log("Test Criterio Where graph =>", _where);
+        if (validaLoggerLocalStorage("logger")) console.log("Test Criterio Where graph =>", _where);
         const dataToRenderGraphic = await getDataToRenderGraficosEstadisticos({
           indiSelected,
           _where,
@@ -1704,7 +1805,7 @@ const TabIndicadores: React.FC<any> = ({
     if (jimuMapView.view.popup.visible) {
       jimuMapView.view.popup.close();
     } else {
-      console.log("Test El popup ya está cerrado");
+       if (validaLoggerLocalStorage("logger")) console.log("Test El popup ya está cerrado");
     }
   };
 
@@ -1712,7 +1813,7 @@ const TabIndicadores: React.FC<any> = ({
     const habilitaNuevosFiltrosObjeto3 = apuestaEstrategica?.value === 3 && selectApuestaEstategica?.value === 0;
     const usandoNuevoFlujoIndicadores = !!categoriaTematicaNueva || !!areaAdministrativaNueva || !!areaEstudioNueva || !!indicadorNuevoSeleccionado;
     if (utilsModule?.logger()) {
-      console.log({
+      if (validaLoggerLocalStorage("logger")) console.log({
         habilitaNuevosFiltrosObjeto3,
         usandoNuevoFlujoIndicadores,
         categoriaTematicaNueva,
@@ -1763,8 +1864,7 @@ const TabIndicadores: React.FC<any> = ({
         
 
         {habilitaNuevosFiltrosObjeto3 && (
-          <div className="nuevos-filtros-card">
-            <h4>Nuevos Indicadores</h4>
+          <div className="nuevos-filtros-card">            
             {widgetModules?.INPUTSELECT(
               dataFuenteIndicadoresObjeto3Nuevos,
               handleCategoriaTematicaNuevaSelected,
@@ -1852,21 +1952,19 @@ const TabIndicadores: React.FC<any> = ({
               {selectIndicadores.fieldValue === "total_area_ha" ? "(ha)" : ""}
             </h3>
             <ul>
-              {constantes.coloresMapaCoropletico.map(
-                (color, index) =>
-                  rangosLeyenda[index] && (
-                    <li key={index}>
-                      <span style={{ backgroundColor: color.colorRgb }}></span>{" "}
-                      {` ${
-                        rangosLeyenda[index][2]
-                          ? `${rangosLeyenda[index][2]} : `
-                          : ""
-                      } ${rangosLeyenda[index][0]}     ${
-                        index === 0 ? "" : "-"
-                      }     ${rangosLeyenda[index][1]}`}
-                    </li>
-                  ),
-              )}
+              {rangosLeyenda.map((rango, index) => (
+                <li key={index}>
+                  <span
+                    style={{
+                      backgroundColor:
+                        rango[3] ||
+                        constantes.coloresMapaCoropletico[index]?.colorRgb ||
+                        "#c0c0c0",
+                    }}
+                  ></span>{" "}
+                  {formatearTextoRangoLeyenda(rango, index)}
+                </li>
+              ))}
             </ul>
             {/* <p>Quintiles</p> */}
           </div>
