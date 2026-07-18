@@ -1,3 +1,4 @@
+@import '../../../utils/styles/presetsFirmasEspectrales.css';
 /*
     Clase para distribución de espacios para botones, incluyendo justificación.
     @author IGAC - DIP
@@ -11,7 +12,7 @@
 .btns{
     display: flex;
     justify-content: space-evenly;
-    padding-top: 25px;
+    padding-top: 10px;
 }
 
 /*
@@ -44,7 +45,7 @@
 */
 .accessBNEcls {
     padding-left: 3%;
-    padding-top: 20%;
+    padding-top: 5%;
 }
 
 /*
@@ -184,7 +185,7 @@
     display: inline-flex;
     width: -webkit-fill-available;
     justify-content: space-evenly;
-    margin-top: 8%;
+    margin-top: 2%;
 
 }
 /*

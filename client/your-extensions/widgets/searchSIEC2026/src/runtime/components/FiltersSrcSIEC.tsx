@@ -37,7 +37,7 @@ import Graphic from "@arcgis/core/Graphic";
 import { typeMSM } from '../../types/InterfaceResponseBusquedaFirmas';
 
 //Importación API
-import { urls } from '../../../../api/servicios'; 
+import { urls } from '../../../../api/serviciosFirmasEspectrales'; 
 
 //Importaciones Métodos
 //Imagenes - Path del sistema acceso (2025-06-18)
@@ -58,6 +58,13 @@ import Sketch  from "@arcgis/core/widgets/Sketch";
 
 //Clase punto - 2025-04-02
 import Point from "esri/geometry/Point";
+
+// @ts-expect-error
+import logoBNE from '../../images_server/Logo_BNE.png';
+// @ts-expect-error
+import ayudaBuscFE from '../../images_server/ayudaBuscFE.png';
+
+
 
 /**
  * Componente FiltersSrcSIEC
@@ -2932,6 +2939,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
     // Medida original icono w:15px h:15px
     
     return (        
+      <div className="div-hijo-scroll-complemento">
           <form onSubmit={consultaCatal}>
             <div className="mb-1">
               {
@@ -2999,7 +3007,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               </div>
             }
             
-            <div className="mb-1 proyCampaSecc">
+            <div className="mb-1 ">
               {
                 entorno === 'dev' ?
                 <Label size="default">Departamento</Label>
@@ -3039,7 +3047,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 }
               </Select>
             </div>
-            <div className="mb-1 proyCampaSecc">
+            <div className="mb-1 ">
             {
               entorno === 'dev' ?
                 <Label size="default">Proyecto</Label>
@@ -3102,7 +3110,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 &nbsp;Navegar
               </Label>
               <Label className='d-flex alignLab2'>
-                <img width="15px" height="15px" className='helpIcn' src={`${pathDataGridSIEC.path}/images/ayudaBuscFE.png`} onClick={handleHelpChange} title={"Ayuda"}></img>
+                <img width="15px" height="15px" className='helpIcn' src={ayudaBuscFE} onClick={handleHelpChange} title={"Ayuda"}></img>
               </Label>
             </div>
             <div className="mb-1 coordGeoSecc" style={{display: 'none'}}>
@@ -3172,9 +3180,10 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 >Limpiar</Button>
               </div>
               <div className="mb-1 accessBNEcls">
-                <a href={urls.firmasEspAccessToBNE} target="_blank"><img src={ pathDataGridSIEC.path + '/'+ pathDataGridSIEC.folderimg + '/Logo_BNE.png'} width="50" height="50"></img></a>
+                <a href={urls.firmasEspAccessToBNE} target="_blank"><img src={logoBNE} width="50" height="50" alt="Logo BNE"></img></a>
               </div>
           </form>        
+      </div>
     );
 }
 export default FiltersSrcSIEC;

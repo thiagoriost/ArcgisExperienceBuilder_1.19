@@ -35,15 +35,16 @@ import FiltersSrcSIEC from "./components/FiltersSrcSIEC";
 import DialogsSrcSIEC from "./components/dialogsSrcSIEC";
 
 //Importación estilos
+//@ts-expect-error
 import '../styles/style.css';
-import _, { result } from "lodash";
 
 //Importación interfaces
 import { InterfaceResponseBusquedaFirmas, InterfaceMensajeModal, typeMSM } from "../types/InterfaceResponseBusquedaFirmas";
 
 //Importación utilidades 
 //Utilidades webMercator
-import webMercatorUtils from "@arcgis/core/geometry/support/webMercatorUtils";
+import * as webMercatorUtils from "@arcgis/core/geometry/support/webMercatorUtils";
+import { IMConfig } from "../config";
 
 //Definición objetos
 //Estados
@@ -55,7 +56,7 @@ const { useState } = React
   @author IGAC - DIP  
   @remarks Procesamiento Widget Principal
 */
-const Widget = (props: AllWidgetProps<any>) => {  
+const Widget = (props: AllWidgetProps<IMConfig>) => {  
   /** 
     Seccion de declaración del widget principal        
     @date 2025-04-01
@@ -591,7 +592,10 @@ const Widget = (props: AllWidgetProps<any>) => {
     }
     
     return (
-      <div className="w-100 p-3 bg-primary text-white">
+      <div
+        className="w-100 p-3 bg-primary text-white div-padre-scroll-complemento"
+        
+      >
         {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
           <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />          
         )}
@@ -608,102 +612,99 @@ const Widget = (props: AllWidgetProps<any>) => {
           : null
         }
         {false /* controlForms*/  && widgetModules?.TABLARESULTADOS_SIEC({rows, columns, view, setControlForms, jimuMapView, setResponseBusquedaFirma, typeGraphMap, setAlertDial, setMensModal, pagination:true, paginationModel, setPaginationModel, files, setFiles, modalDetail, setModalDetail, props, initialExtent, modalHead, setModalHead, modalBody, setModalBody, jsonDpto, setJsonDpto, jsonMpio, setJsonMpio})}
-        {true /* !controlForms */
-         && <FiltersSrcSIEC          
-          jsonSERV={jsonSERV} 
-          setJsonSERV={setJsonSERV}
-          selCoberVal={selCoberVal}
-          setCoberState={setCober}
-          coberLst={coberLst}
-          setCoberLst={setCoberLst}
-          showCoberFilt1={showCoberFilt1}
-          setShowCoberFilt1State={setShowCoberFilt1}
-          disCoberFilt1={disCoberFilt1}
-          setDisCoberFilt1State={setDisCoberFilt1}
-          showCoberFilt2={showCoberFilt2}
-          setShowCoberFilt2State={setShowCoberFilt2}
-          disCoberFilt2={disCoberFilt2}
-          setDisCoberFilt2State={setDisCoberFilt2}
-          selCoberFilt1Val={selCoberFilt1Val}
-          setSelCoberFilt1ValState={setSelCoberFilt1Val}
-          selCoberFilt2Val={selCoberFilt2Val}
-          setSelCoberFilt2ValState={setSelCoberFilt2Val}
-          coberFilt1Lst={coberFilt1Lst}
-          setCoberFilt1LstState={setCoberFilt1Lst}
-          coberFilt2Lst={coberFilt2Lst}
-          setCoberFilt2LstState={setCoberFilt2Lst}
-          radValueNav={radValueNav}
-          setValueNav={setValueNav}
-          txtValorLat={txtValorLat}
-          setValorLatState={setValorLat}
-          txtValorLatSuIz={txtValorLatSupIzq} 
-          setValorLatSuIzState={setValorLatSupIzq}
-          txtValorLatInDe={txtValorLatInfDer}
-          setValorLatInDeState={setValorLatInfDer}
-          txtValorLon={txtValorLon}
-          setValorLonState={setValorLon}
-          txtValorLonSuIz={txtValorLonSupIzq}
-          setValorLonSuIzState={setValorLonSupIzq}
-          txtValorLonInDe={txtValorLonInfDer}
-          setValorLonInDeState={setValorLonInfDer}
-          lonPto={lonPtoFilter}
-          setLonPtoState={setLonPtoFilter}
-          latPto={latPtoFilter}
-          setLatPtoState={setLatPtoFilter}
-          lonSuIz={lonSupIzqFilter}
-          setLonSuIzState={setLonSupIzqFilter}
-          latSuIz={latSupIzqFilter}
-          setLatSuIzState={setLatSupIzqFilter}
-          lonInDe={lonInfDerFilter}
-          setLonInDeState={setLonInfDerFilter}
-          latInDe={latInfDerFilter}
-          setLatInDeState={setLatInfDerFilter}
-          selProyVal={selProyVal}
-          setProyState={setProy}
-          proyLst={proyLst}
-          setProyLst={setProyLst}
-          selCampaVal={selCampaVal}
-          setCampaState={setCampa}
-          campaLst={campaLst}
-          setCampaLst={setCampaLst}
-          ResponseBusquedaFirma={ResponseBusquedaFirma}
-          setResponseBusquedaFirma={setResponseBusquedaFirma}
-          view={view}
-          setView={setView}
-          jimuMapView={jimuMapView}          
-          setAlertDial={setAlertDial}
-          mensModal={mensModal}
-          setMensModal={setMensModal}
-          setControlForms={setControlForms}
-          controlForms={controlForms}          
-          props={props}
-          sketchWeb={sketchSt}
-          setRows={setRows}
-          initialExtent={initialExtent}
-          jsonDpto={jsonDpto}
-          setJsonDptoState={setJsonDpto}
-          jsonMpio={jsonMpio}
-          setJsonMpioState={setJsonMpio}
-          dptoSel={dptoVal}
-          setDptoSelState={setDptoVal}
-          mpioLst={municLst}
-          setMpioLstState={setMunicLst}
-          mpioSel={mpioVal}
-          setMpioSelState={setMpioVal}
-          municDisab={municDisab}
-          setMunicDisabState={setMunicDisab}
-          isLoad={isLoading}
-          setIsLoadState={setIsLoading}
-          setWidgetModules={setWidgetModules}
-          chkValueHelp={chkValueHelp}
-          setChkValueHelpState={setChkValueHelp}
-          catalBtnDis={catalBtnDis}
-          setCatalBtnState={setCatalBtnDis}
-          ></FiltersSrcSIEC>                    
-        }
-        {
-          //Renderizado del estado cargando, siempre y cuando el state isLoading sea true
-        }
+        <div className="div-scroll" style={{ flex: '1 1 auto', minHeight: 0 }}>
+          <FiltersSrcSIEC          
+            jsonSERV={jsonSERV} 
+            setJsonSERV={setJsonSERV}
+            selCoberVal={selCoberVal}
+            setCoberState={setCober}
+            coberLst={coberLst}
+            setCoberLst={setCoberLst}
+            showCoberFilt1={showCoberFilt1}
+            setShowCoberFilt1State={setShowCoberFilt1}
+            disCoberFilt1={disCoberFilt1}
+            setDisCoberFilt1State={setDisCoberFilt1}
+            showCoberFilt2={showCoberFilt2}
+            setShowCoberFilt2State={setShowCoberFilt2}
+            disCoberFilt2={disCoberFilt2}
+            setDisCoberFilt2State={setDisCoberFilt2}
+            selCoberFilt1Val={selCoberFilt1Val}
+            setSelCoberFilt1ValState={setSelCoberFilt1Val}
+            selCoberFilt2Val={selCoberFilt2Val}
+            setSelCoberFilt2ValState={setSelCoberFilt2Val}
+            coberFilt1Lst={coberFilt1Lst}
+            setCoberFilt1LstState={setCoberFilt1Lst}
+            coberFilt2Lst={coberFilt2Lst}
+            setCoberFilt2LstState={setCoberFilt2Lst}
+            radValueNav={radValueNav}
+            setValueNav={setValueNav}
+            txtValorLat={txtValorLat}
+            setValorLatState={setValorLat}
+            txtValorLatSuIz={txtValorLatSupIzq} 
+            setValorLatSuIzState={setValorLatSupIzq}
+            txtValorLatInDe={txtValorLatInfDer}
+            setValorLatInDeState={setValorLatInfDer}
+            txtValorLon={txtValorLon}
+            setValorLonState={setValorLon}
+            txtValorLonSuIz={txtValorLonSupIzq}
+            setValorLonSuIzState={setValorLonSupIzq}
+            txtValorLonInDe={txtValorLonInfDer}
+            setValorLonInDeState={setValorLonInfDer}
+            lonPto={lonPtoFilter}
+            setLonPtoState={setLonPtoFilter}
+            latPto={latPtoFilter}
+            setLatPtoState={setLatPtoFilter}
+            lonSuIz={lonSupIzqFilter}
+            setLonSuIzState={setLonSupIzqFilter}
+            latSuIz={latSupIzqFilter}
+            setLatSuIzState={setLatSupIzqFilter}
+            lonInDe={lonInfDerFilter}
+            setLonInDeState={setLonInfDerFilter}
+            latInDe={latInfDerFilter}
+            setLatInDeState={setLatInfDerFilter}
+            selProyVal={selProyVal}
+            setProyState={setProy}
+            proyLst={proyLst}
+            setProyLst={setProyLst}
+            selCampaVal={selCampaVal}
+            setCampaState={setCampa}
+            campaLst={campaLst}
+            setCampaLst={setCampaLst}
+            ResponseBusquedaFirma={ResponseBusquedaFirma}
+            setResponseBusquedaFirma={setResponseBusquedaFirma}
+            view={view}
+            setView={setView}
+            jimuMapView={jimuMapView}          
+            setAlertDial={setAlertDial}
+            mensModal={mensModal}
+            setMensModal={setMensModal}
+            setControlForms={setControlForms}
+            controlForms={controlForms}          
+            props={props}
+            sketchWeb={sketchSt}
+            setRows={setRows}
+            initialExtent={initialExtent}
+            jsonDpto={jsonDpto}
+            setJsonDptoState={setJsonDpto}
+            jsonMpio={jsonMpio}
+            setJsonMpioState={setJsonMpio}
+            dptoSel={dptoVal}
+            setDptoSelState={setDptoVal}
+            mpioLst={municLst}
+            setMpioLstState={setMunicLst}
+            mpioSel={mpioVal}
+            setMpioSelState={setMpioVal}
+            municDisab={municDisab}
+            setMunicDisabState={setMunicDisab}
+            isLoad={isLoading}
+            setIsLoadState={setIsLoading}
+            setWidgetModules={setWidgetModules}
+            chkValueHelp={chkValueHelp}
+            setChkValueHelpState={setChkValueHelp}
+            catalBtnDis={catalBtnDis}
+            setCatalBtnState={setCatalBtnDis}
+            ></FiltersSrcSIEC>
+        </div>
         {
 	        isLoading && widgetModules?.OUR_LOADING()
         }
