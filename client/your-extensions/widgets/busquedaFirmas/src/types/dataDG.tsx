@@ -65,11 +65,11 @@
 const entorno = "dev"
 const controllerDev = 16
 const controllerProd= 68
-const pathIniDev = "/apps/"
+const pathIniDev = "../images_server"
 const pathIniProd = "/bancofirmas/cdn/"
 const pathEnd = "/resources"
 const manUsrName = "SIG_FirmasEspectrales_2025_MUP_V.2.0_20102024.pdf"
-const pathDev = pathIniDev + controllerDev + pathEnd
+const pathDev = pathIniDev /* + controllerDev + pathEnd */
 const pathProd = pathIniProd + controllerProd + pathEnd
 const numPosiciones = 10
 const numPageDG = [2,5,8,10]

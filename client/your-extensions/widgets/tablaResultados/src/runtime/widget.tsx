@@ -77,20 +77,20 @@ import '../styles/style.css';
 
 //Imagenes - Path del sistema acceso (2025-05-19)
 //Métodos para consumo servicios API
-import { generarFileStand, getDominioValor, getFileNameByIdFile, getInstrumDetailsByNomInstrum, getProjDetailsByIdProj, getToken, getTokenAlt, sortPaises, sortOcupa, getTimeInfo, timeDownLoad } from '../../../searchSIEC/src/types/dataDG';
+import { generarFileStand, getDominioValor, getFileNameByIdFile, getInstrumDetailsByNomInstrum, getProjDetailsByIdProj, getToken, getTokenAlt, sortPaises, sortOcupa, getTimeInfo, timeDownLoad } from '../../../searchFirmasEspectrales/src/types/dataDG';
 //Objetos independientes
-import { entorno, tValidators, timeExpires, numPosiciones, numPageDG, tolerFactorSrcP } from '../../../searchSIEC/src/types/dataDG';
+import { entorno, tValidators, timeExpires, numPosiciones, numPageDG, tolerFactorSrcP } from '../../../searchFirmasEspectrales/src/types/dataDG';
 //Objetos desde servicios
 import { urls, urlsPost  } from '../../../api/serviciosFirmasEspectrales';
 
 //Objeto para definir el lenguaje asociado al componente DataGrid
-import { dataGridLang } from '../../../searchSIEC/src/types/dataDG';
+import { dataGridLang } from '../../../searchFirmasEspectrales/src/types/dataDG';
 
 //Importación interfaces
-import { InterfaceMensajeModal, typeMSM } from "../../../searchSIEC/src/types/InterfaceResponseBusquedaFirmas";
+import { InterfaceMensajeModal, typeMSM } from "../../../searchFirmasEspectrales/src/types/InterfaceResponseBusquedaFirmas";
 
 //Componente DialogsSrcSIEC
-import DialogsSrcSIEC from "../../../searchSIEC/src/runtime/components/dialogsSrcSIEC";
+import DialogsSrcSIEC from "../../../searchFirmasEspectrales/src/runtime/components/dialogsSrcSIEC";
 
 
 /**

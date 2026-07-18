@@ -1,4 +1,4 @@
-/** 
+/**
  * @date 2025-04-22
  * @changes Adición URL acceso servicio de consulta proyecto firmas espectrales en objeto firmasEsp
  * @author IGAC - DIP
@@ -17,7 +17,7 @@
  * @changes creación objeto API api_getFotoByIdFile, para obtener imagenes, según atributos Id_PhotoCover, Id_PhotoContext, Id_PhotoSky, IdSpectraGraph
  * @changes creación objeto API api_getMetaDatoIdMetaByPhSig, para obtener identificador de metadatos de la firma asociada
  * @changes creación objeto API api_getFileCompressByIdMeta, para obtener id del archivo comprimido
- * @changes creación objeto API api_getCompressByIdFile, para obtener archivo zip comprimido  
+ * @changes creación objeto API api_getCompressByIdFile, para obtener archivo zip comprimido
  * @dateUpdated 2025-07-23
  * @changes creación objeto API api_getValDominioByIdVal, para obtener valor asociado del dominio
  * @dateUpdated 2025-07-29
@@ -82,13 +82,13 @@
  * @changes Proyecto BNFE => Mantenimiento atributo api_getFileNameByIdFile, adicionando el separador '/'
  * @remarks Adaptación al proyecto BNE (2025-09-05)
  */
-const protocolName    = "https";
-const mapserverName   = "pruebassig.igac.gov.co";
-const apiServerName   = "dev-catalogofirmas.igac.gov.co";
-const hostName        = "172.17.3.205";
-const portNumb        = "8082";
-const resourceService = "server/rest/services";
-const nregs           = 400;
+const protocolName = "https"
+const mapserverName = "pruebassig.igac.gov.co"
+const apiServerName = "dev-catalogofirmas.igac.gov.co"
+const hostName = "172.17.3.205"
+const portNumb = "8082"
+const resourceService = "server/rest/services"
+const nregs = 400
 
 const mapServerNal = 'https://pruebassig.igac.gov.co/server/rest/services/Indicadores_nacionales_municipales/MapServer'
 // const mapServerNal    = protocolName + '://' + mapserverName + '/' + resourceService + "/Indicadores_nacionales_municipales/MapServer";
@@ -97,9 +97,9 @@ const mapServerDepartal = 'https://pruebassig.igac.gov.co/server/rest/services/I
 const MapServerMunicipal = 'https://pruebassig.igac.gov.co/server/rest/services/Indicadores_municipios/MapServer'
 // const MapServerMunicipal =  protocolName + '://' + mapserverName + '/' + resourceService + "/Indicadores_municipios/MapServer";
 
-const resDownload     = "/assets/";
-const resFile         = "/files";
-const urlsPost        = {
+const resDownload = "/assets/"
+const resFile = "/files"
+const urlsPost = {
   api_postUsrDownSig: "/items/Datos_Descarga"
 }
 const urls = {
@@ -133,28 +133,28 @@ const urls = {
   api_getMetaDatoByIdMetadato: "/items/Metadatos_Etiquetas"+"?filter[Id_Metadato][_eq]=",
   api_getFirmasByObjectId: "/items/Firmas_Espectrales"+"?filter[ObjectId][_eq]=",
   //api_getFotoByIdFile: "/assets/",
-  api_getFotoByIdFile: `${resDownload}`,
+  api_getFotoByIdFile: resDownload,
   api_getFileCompressByIdMeta: "/items/Metadatos_Firmas_files"+"?filter[Metadatos_Firmas_Id_Metadato][_eq]=",
-  api_getCompressByIdFile: `${resDownload}`,
+  api_getCompressByIdFile: resDownload,
   api_getValDominioByIdVal: "/items/Valores_Dominio"+"?fields=Descripcion_Valor&filter[Id_Valor_Dominio][_eq]=",
   api_getProyectosByIdProy: "/items/Proyectos"+"?fields=Id_Proyecto,ProjectName,ProjectDescription,ProjectInstitution"+"&filter[Id_Proyecto][_eq]=",
   api_getInstrumentosByNomInstrum: "/items/Instrumentos"+"?filter[InstrumentName][_eq]=",
   //api_getFileNameByIdFile: "/files/",
-  api_getFileNameByIdFile: `${resFile}`+'/',
+  api_getFileNameByIdFile: resFile+'/',
   api_getFileNameByIdFileFlds: "?fields=filename_download",
   api_getCoberPrim: "/items/Valores_Dominio"+"?filter[Tipo_Dominio][_eq]=FIECOVTYP"+"&filter[Id_Valor_Dom_Padre][_null]=true",
   api_getCoberSecTer: "/items/Valores_Dominio"+"?filter[Tipo_Dominio][_eq]=FIECOVTYP"+"&filter[Id_Valor_Dom_Padre][_eq]=",
   api_getPaises: "/items/Valores_Dominio"+"?filter[Tipo_Dominio][_eq]=PAISES"+"&fields=Id_Valor_Dominio,Descripcion_Valor"+"&limit="+nregs,
   api_getOcupa: "/items/Valores_Dominio"+"?filter[Tipo_Dominio][_eq]=DATDESCOCU"+"&fields=Id_Valor_Dominio,Descripcion_Valor"+"&limit="+nregs,
-  api_getUsrDownSig: `${urlsPost.api_postUsrDownSig}`+"?filter[Correo_Electronico][_eq]=",
+  api_getUsrDownSig: urlsPost.api_postUsrDownSig+"?filter[Correo_Electronico][_eq]=",
   api_getCoberPrimBNE: "/items/Valores_Dominio"+"?filter[Tipo_Dominio][_eq]=CODOBJN1",
   api_getCoberSecBNE: "/items/Valores_Dominio"+"?filter[Tipo_Dominio][_eq]=CODOBJN2"+"&filter[Id_Valor_Dom_Padre][_eq]=",
   api_getProybyFieldsBNE: "/items/Proyectos"+"?filter[Tipo_Proyecto][_eq]=E"+"&fields=Id_Proyecto,ProjectName",
   api_getCoberTerInBNE: "/items/Valores_Dominio"+"?fields=Id_Valor_Dominio,Descripcion_Valor"+"&limit="+nregs+"&filter[Id_Valor_Dom_Padre][_in]=",
   api_getListFilesMetadatoByIdMetadatoBNE: "/items/Metadatos_Etiquetas_files"+"?filter[Metadatos_Etiquetas_Id_Metadato]=",
-  api_getFileByIdFileBNE: `${resDownload}`,
+  api_getFileByIdFileBNE: resDownload,
   api_getIdFileByCoberMpioBNE: "/items/Etiquetas_Archivos"+"?fields=Id_Archivo_N2"+"&filter[Id_CodigoN2][_eq]="+"&filter[DivipolaMunicipio][_eq]=",
-  api_getIdFileByCodMpioBNE: `${resFile}`+"?fields=id"+"&limit=1"+"&filter[title][_eq]=",
+  api_getIdFileByCodMpioBNE: resFile+"?fields=id"+"&limit=1"+"&filter[title][_eq]=",
   //etiqToBNFE: protocolName.slice (0,-1) + "://" + "172.17.3.205:8082/bancofirmas/",
   etiqToBNFE: protocolName.slice (0,-1) + "://" + hostName + ":" + portNumb + "/bancofirmas/",
   //etiqReal:"https://pruebassig.igac.gov.co/server/rest/services/Etiquetas/MapServer/0",
@@ -177,7 +177,7 @@ const urls = {
     v_predios_etnicos_mun: `${MapServerMunicipal}/14`,
     v_predios_zrc_mun: `${MapServerMunicipal}/15`
   },
-  
+
   indicadoresNaci: { // nacionales Indicadores_nacionales_municipales
     v_predios_campesinos_orip_mun: `${MapServerMunicipal}/3`,
     v_predios_campesinos_adj_mun: `${MapServerMunicipal}/4`,

@@ -1,0 +1,27 @@
+{
+    "name": "searchSIEC2026",
+    "label": "BusquedaFirmas2026",
+    "useMapWidgetIds": true,
+    "supportMapWidget": true,
+    "type": "widget",
+    "version": "1.14.0",
+    "dependency": ["jimu-arcgis"],
+    "exbVersion": "1.14.0",
+    "author": "IGAC",
+    "description": "Búsqueda de firmas espectrales",
+    "copyright": "2025",
+    "license": "",    
+    "properties": {},
+    "translatedLocales": [
+        "en",
+        "es"
+    ],
+    "defaultSize": {
+        "width": 311,
+        "height": 506
+    },
+    "size":{
+        "width": 200,
+        "height": 406
+    }
+}

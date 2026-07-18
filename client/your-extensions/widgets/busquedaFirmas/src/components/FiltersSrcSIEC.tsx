@@ -3808,10 +3808,7 @@ const FiltersSrcSIEC = function (
         <a href={urls.firmasEspAccessToBNE} target="_blank">
           <img
             src={
-              pathDataGridSIEC.path +
-              "/" +
-              pathDataGridSIEC.folderimg +
-              "/Logo_BNE.png"
+              `../images_server/Logo_BNE.png`
             }
             width="50"
             height="50"
