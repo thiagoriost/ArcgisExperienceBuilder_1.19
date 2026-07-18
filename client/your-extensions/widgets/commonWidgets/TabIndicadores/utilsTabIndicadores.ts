@@ -133,47 +133,41 @@ export interface SelectionTarget {
     value: string | number;
   };
 }
+export interface interf_SUBSISTEMA {
+  value?: number;
+  label?: string;
+  descripcion?: string;
+  APUESTA_ESTRATEGICA?: interf_APUESTA_ESTRATEGICA[];
+}
 
 export interface interf_APUESTA_ESTRATEGICA {
-  value: number;
-  label: string;
-  descripcion: string;
+  value?: number;
+  label?: string;
+  descripcion?: string;
   CATEGORIA_TEMATICA?: CategoriaTematica[];
 }
-
-export interface interf_SUBSISTEMA {
-  value: number;
-  label: string;
-  descripcion?: string;
-  APUESTA_ESTRATEGICA?: Array<{
-    value: number;
-    label: string;
-    descripcion: string;
-    CATEGORIA_TEMATICA?: CategoriaTematica[];
-  }>;
-}
 export interface CategoriaTematica {
-  value: string | number;
+  value: number;
   label: string;
   descripcion: string;
   INDICADOR?: Array<{
-    descripcion: string;
-    fieldValue: string;
-    fieldValueDepartal: string;
-    fieldValueNal: string;
-    fieldlabel: string[];
-    fieldlabelDepartal: string[];
-    fieldlabelNal: string[];
-    label: string
-    leyenda: string[];
-    leyendaDepartal: string[];
-    leyendaNal: string[];
-    quintiles: Array<Array<number | string>>;
-    url: string;
-    urlDepartal: string;
-    urlNal: string;
-    urlNalDataAlfanumerica: string;
     value: number;
+    label: string;
+    descripcion: string;
+    url: string;
+    urlNal: string;
+    urlDepartal: string;
+    urlNalDataAlfanumerica: string;
+    fieldlabel: string[];
+    fieldlabelNal: string[];
+    fieldlabelDepartal: string[];
+    leyenda: string[];
+    leyendaNal: string[];
+    leyendaDepartal: string[];
+    fieldValue: string;
+    fieldValueNal: string;
+    fieldValueDepartal: string;
+    quintiles: Array<Array<number | string>>;
   }>;
 }
 
@@ -326,6 +320,20 @@ export interface interfa_indicadores {
   label: string;
 }
 
+export interface Interface_DepartmentSelect {
+    dearea: number;
+    decodigo: string;
+    denombre: string;
+    denorma: string;
+    label: string;
+    objectid: number;
+    objectid1: number;
+    shapeLeng: number;
+    stAreaShape: number;
+    stPerimeterShape: number;
+    value: string;
+}
+
 
 export const initSelectIndicadores = {
   url: "",
@@ -367,6 +375,18 @@ export const initIndiSelected = {
   quintiles: [] as Array<Array<number | string>>,
 }
 
-export const initAreaEstudioNueva = { value: "", label: "", INDICADORES: [] as NuevoFiltroIndicador[] }
-export const initNuevoFiltroCategoria = { value: "", label: "", AREAS_ADMINISTRATIVAS: [] as NuevoFiltroAreaAdministrativa[] }
-export const initApuestaEstrategica = {value: 0, label: "Seleccione ...", descripcion: "Seleccione una opción"}
+export const initAreaEstudioNueva = {
+  value: "",
+  label: "",
+  INDICADORES: [] as NuevoFiltroIndicador[]
+}
+export const initNuevoFiltroCategoria = {
+  value: "",
+  label: "",
+  AREAS_ADMINISTRATIVAS: [] as NuevoFiltroAreaAdministrativa[]
+}
+export const initApuestaEstrategica = {
+  value: 0,
+  label: "Seleccione ...",
+  descripcion: "Seleccione una opción"
+}

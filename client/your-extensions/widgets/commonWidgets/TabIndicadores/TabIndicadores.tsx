@@ -9,7 +9,7 @@ import {
 } from "./dataFormularioIndicadores";
 import { loadModules } from "esri-loader";
 import { validaLoggerLocalStorage } from "../../shared/utils/export.utils";
-import { AjustarDatasetParams, CategoriaTematica, ChartData, DatasetItem, GeographicExtent, GraphicFeature, HandleIndicadorParams, IndicadorSeleccionado, IndicatorConfig, initApuestaEstrategica, initAreaEstudioNueva, initIndiSelected, initLastLayerDeployed, initSelectIndicadores, InitSelectIndicadores, inter_EsriModules, inter_poligonoSeleccionado, interf_APUESTA_ESTRATEGICA, interf_SUBSISTEMA, interfa_geometriasDepartamentos, interfa_indicadores, interfa_itemSelected, interface_Extent, interface_Feature, InterfaceConstantes, InterfaceIndiSelected, LayerDeployed, NuevoFiltroAreaAdministrativa, NuevoFiltroAreaEstudio, NuevoFiltroCategoria, NuevoFiltroIndicador, OutStatistics, PoblarMunicipiosParams, ProcessedData, SelectionTarget, typeGeometria, typeMSM } from "./utilsTabIndicadores";
+import { AjustarDatasetParams, CategoriaTematica, ChartData, DatasetItem, GeographicExtent, GraphicFeature, HandleIndicadorParams, IndicadorSeleccionado, IndicatorConfig, initApuestaEstrategica, initAreaEstudioNueva, initIndiSelected, initLastLayerDeployed, initSelectIndicadores, InitSelectIndicadores, inter_EsriModules, inter_poligonoSeleccionado, interf_APUESTA_ESTRATEGICA, interf_SUBSISTEMA, interfa_geometriasDepartamentos, interfa_indicadores, interfa_itemSelected, Interface_DepartmentSelect, interface_Extent, interface_Feature, InterfaceConstantes, InterfaceIndiSelected, LayerDeployed, NuevoFiltroAreaAdministrativa, NuevoFiltroAreaEstudio, NuevoFiltroCategoria, NuevoFiltroIndicador, OutStatistics, PoblarMunicipiosParams, ProcessedData, SelectionTarget, typeGeometria, typeMSM } from "./utilsTabIndicadores";
 import { DrawingInfo } from "./interfaceDrawingInfo";
 const { useEffect, useState } = React;
 
@@ -29,6 +29,10 @@ const TabIndicadores: React.FC<any> = ({
   dispatch,
   departamentos,
   jimuMapView,
+}: {
+  dispatch: any;
+  departamentos: Interface_DepartmentSelect[];
+  jimuMapView: any;
 }) => {
   const [constantes, setConstantes] = useState<InterfaceConstantes | null>(
     null,
@@ -56,7 +60,7 @@ const TabIndicadores: React.FC<any> = ({
   const [selectCategoriaTematica, setSelectCategoriaTematica] = useState<CategoriaTematica | undefined>(undefined);
   const [indicadores, setIndicadores] = useState<interfa_indicadores[] | null>(null);
   const [selectIndicadores, setSelectIndicadores] = useState<InitSelectIndicadores | InterfaceIndiSelected>(initSelectIndicadores);
-  const [departmentSelect, setDepartmentSelect] = useState<interfa_itemSelected | undefined>(undefined);
+  const [departmentSelect, setDepartmentSelect] = useState<Interface_DepartmentSelect>(undefined);
   const [municipios, setMunicipios] = useState<Array<{ value: any; [key: string]: any }>>([]);
   const [municipioSelect, setMunicipioSelect] = useState<{ [key: string]: any; value: any } | undefined>(undefined);
   const [rangosLeyenda, setRangosLeyenda] = useState([]);
@@ -1467,10 +1471,10 @@ const TabIndicadores: React.FC<any> = ({
   }) => {
     let where: string = "";
     const targetDepartment = target.value;
-    const itemSelected: interfa_itemSelected = departamentos.find(
-      (departamento: { value: any }) => departamento.value === targetDepartment,
+    const itemSelected: Interface_DepartmentSelect | undefined = departamentos.find(
+      (departamento: Interface_DepartmentSelect) => departamento.value === targetDepartment,
     );
-    if (itemSelected.value === 0) return;
+    if (!itemSelected || itemSelected.value === "0") return;
     setDepartmentSelect(itemSelected); // se utiliza para sacar el label en la grafica, widget indicadores y control el valor en el campo departamento
 
     setIsLoading(true);
@@ -1755,28 +1759,26 @@ const TabIndicadores: React.FC<any> = ({
     );
   };
 
-  const consultar = () => {
-    setIsLoading(true);
-    if (utilsModule?.logger()) {
-      console.log({
-        isLoading,
-        clickHandler,
-        poligonoSeleccionado,
-        geometriaMunicipios,
-        dataFuenteIndicadores,
-        apuestaEstrategica,
-        selectApuestaEstategica,
-        selectCategoriaTematica,
-        indicadores,
-        selectIndicadores,
-        departmentSelect,
-        municipios,
-        municipioSelect,
-        rangosLeyenda,
-        esriModules,
+  const consultar = () => {    
+    console.log({
+      isLoading,
+      esIndicador,
+      clickHandler,
+      poligonoSeleccionado,
+      geometriaMunicipios,
+      dataFuenteIndicadores,
+      apuestaEstrategica,
+      selectApuestaEstategica,
+      selectCategoriaTematica,
+      indicadores,
+      selectIndicadores,
+      departmentSelect,
+      municipios,
+      municipioSelect,
+      rangosLeyenda,
+      esriModules,
+      departamentos,
       });
-      setIsLoading(false);
-    }
   };
 
   /**
@@ -1811,9 +1813,9 @@ const TabIndicadores: React.FC<any> = ({
 
   const formularioIndicadores = () => {
     const habilitaNuevosFiltrosObjeto3 = apuestaEstrategica?.value === 3 && selectApuestaEstategica?.value === 0;
-    const usandoNuevoFlujoIndicadores = !!categoriaTematicaNueva || !!areaAdministrativaNueva || !!areaEstudioNueva || !!indicadorNuevoSeleccionado;
+    const usandoNuevoFlujoIndicadores = !!categoriaTematicaNueva || !!areaAdministrativaNueva || areaEstudioNueva.value !== '' || !!indicadorNuevoSeleccionado;
     if (utilsModule?.logger()) {
-      if (validaLoggerLocalStorage("logger")) console.log({
+      if (validaLoggerLocalStorage("logger")) console.log("formularioIndicadores",{
         habilitaNuevosFiltrosObjeto3,
         usandoNuevoFlujoIndicadores,
         categoriaTematicaNueva,
@@ -1899,28 +1901,26 @@ const TabIndicadores: React.FC<any> = ({
           </div>
         )}
 
-        {selectIndicadores &&
-          !usandoNuevoFlujoIndicadores &&
-          widgetModules &&
-          departamentos.length > 0 &&
-          widgetModules.INPUTSELECT(
-            departamentos,
-            handleDepartamentoSelected,
-            departmentSelect?.value,
-            "Departamento",
-            "",
-          )}
-        {!usandoNuevoFlujoIndicadores &&
-          (esIndicador === "Departamental" || esIndicador === "Nacional") &&
-          departmentSelect?.value &&
-          municipios.length > 1 &&
-          widgetModules?.INPUTSELECT(
-            municipios,
-            handleMunicipioSelected,
-            municipioSelect?.value,
-            "Municipio",
-            "",
-          )}
+        {
+          (selectIndicadores.urlDepartal !== '' && widgetModules && departamentos.length > 0 && false) &&
+            widgetModules.INPUTSELECT(
+              departamentos,
+              handleDepartamentoSelected,
+              departmentSelect?.value,
+              "Departamentooo",
+              "",
+            )
+        }
+        {
+          (!usandoNuevoFlujoIndicadores && (esIndicador === "Departamental" || esIndicador === "Nacional") && departmentSelect?.value && municipios.length > 1 && false) &&
+            widgetModules?.INPUTSELECT(
+              municipios,
+              handleMunicipioSelected,
+              municipioSelect?.value,
+              "Municipiooo",
+              "",
+            )
+        }
         <Button
           size="sm"
           type="default"
@@ -1938,12 +1938,6 @@ const TabIndicadores: React.FC<any> = ({
         >
           Limpiar
         </Button>
-        {utilsModule?.logger() && (
-          <Button size="sm" type="default" onClick={consultar} className="mb-4">
-            Consultar
-          </Button>
-        )}
-
         {rangosLeyenda.length > 0 && constantes && (
           <div className="legend">
             <h3 style={{ color: "white" }}>
@@ -1972,13 +1966,7 @@ const TabIndicadores: React.FC<any> = ({
       </>
     );
   };
-  const getGeometriasMunicipios = async ({
-    url,
-    where = "1=1",
-  }: {
-    url: string;
-    where: string;
-  }) => {
+  const getGeometriasMunicipios = async ({ url, where = "1=1" }: { url: string; where: string; }) => {
     setIsLoading(true);
     try {
       if (utilsModule?.logger()) {
@@ -2032,7 +2020,7 @@ const TabIndicadores: React.FC<any> = ({
           url: servicios ? servicios.urls.Municipios : "",
           where: "1=1",
         });
-      }, 2000);
+      }, 4000);
     }
 
     return () => {};
@@ -2158,10 +2146,10 @@ const TabIndicadores: React.FC<any> = ({
         categoriaTematicaNueva,
         areaAdministrativaNueva,
         areaEstudioNueva,
-        indicadorNuevoSeleccionado,
-        
+        indicadorNuevoSeleccionado
       }
     )
+    consultar()
   }
 
   return (
@@ -2172,11 +2160,11 @@ const TabIndicadores: React.FC<any> = ({
       {
         validaLoggerLocalStorage("logger") && 
           <div>
-            <button type="reset" onClick={resetAllStates}>Reset all states</button>
-            <button type="reset" onClick={showAllStates}>Show all states</button>
+            <button type="button" onClick={resetAllStates}>Reset all states</button>
+            <button type="button" onClick={showAllStates}>Show all states</button>
           </div>
         
-      }
+      }      
       {
         isLoading && widgetModules?.OUR_LOADING()
       }
