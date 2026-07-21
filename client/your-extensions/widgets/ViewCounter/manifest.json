@@ -10,7 +10,7 @@
   "copyright": "Instituto Geografico Agustin Codazzi (IGAC)",
   "license": "http://www.apache.org/licenses/LICENSE-2.0",
   "properties": {},
-  "translatedLocales": ["es"],
+  "translatedLocales": ["en"],
   "defaultSize": {
     "width": 320,
     "height": 220

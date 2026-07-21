@@ -8,6 +8,8 @@ export const dataFuenteIndicadores = [
   {
     value: 0,
     label: 'Seleccione una opción',
+    descripcion: 'Seleccione una opción',
+    APUESTA_ESTRATEGICA: []
   },
   {
     value: 1,

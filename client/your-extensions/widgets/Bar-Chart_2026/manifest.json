@@ -1,0 +1,20 @@
+{
+  "name": "Bar-Chart_2026",
+  "label": "BarChart2026",
+  "type": "widget",
+  "version": "1.14.0",
+  "exbVersion": "1.14.0",
+  "author": "rigoriosh@gmail.com",
+  "description": "A widget to display bar charts using the Chart.js library.",
+  "icon": "fa fa-bar-chart",
+  "copyright": "",
+  "license": "http://www.apache.org/licenses/LICENSE-2.0",
+  "properties": {},
+  "translatedLocales": [
+    "en"
+  ],
+  "defaultSize": {
+    "width": 800,
+    "height": 500
+  }
+}

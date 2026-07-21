@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 
 // @ts-expect-error
 import "../styles/style.css"
+import first from "lodash-es/first"
 
 const Widget = (props: AllWidgetProps<any>) => {
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
@@ -31,20 +32,29 @@ const Widget = (props: AllWidgetProps<any>) => {
 
 
   useEffect(() => {
+    if (utilsModule?.logger()) console.log({servicios})
+
     if (!jimuMapView) return
     setTimeout(() => {
       if (servicios.urls) {
         getDepartamentos(servicios.urls.Departamentos)
       }
     }, 2000)
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jimuMapView])
+  
+  useEffect(() => {
+    if (utilsModule?.logger()) console.log({servicios})
+    
+    return () => {}
+    }, [servicios])
+  
 
   useEffect(() => {
       import('../../../commonWidgets/widgetsModule').then(modulo => { setWidgetModules(modulo) })
       import('../../../utils/module').then(modulo => { setUtilsModule(modulo) })
-      import('../../../api/servicios').then(modulo => { setServicios(modulo.urls) })
+      import('../../../api/servicios').then(modulo => { setServicios(modulo) })
 
   }, [])
 

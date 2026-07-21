@@ -1,0 +1,1024 @@
+﻿/*
+    Estilos para el componente principal widget (TablaResultados)
+    @date 2025-07-18
+    @author IGAC - DIP
+    @remarks FUENTE consulta: Claude AI => https://claude.ai/chat/10014671-49ff-4e7d-865b-bcb70f5ad8c3
+*/
+
+/*
+    Estilo para el selector de registro componente Data Grid (Tabla Resultados)
+    @date 2025-07-24
+    @author IGAC - DIP
+*/
+
+.MuiDataGrid-footerContainer{
+    background-color: white;
+    color: #126a92;
+}
+
+/*
+    Clase para botones componente Tabla Resultados
+    @date 2025-08-11
+    @author IGAC - DIP
+*/
+
+.MuiDataGrid-cell > .jimu-btn,
+.MuiDataGrid-cell > .btn,
+.app-root-emotion-cache-ltr-qwaeqp:not(:disabled):not(.disabled){
+    cursor: pointer;    
+    border: solid;
+    border-color: #0c4660;
+    border-width: thin;
+    border-radius: 8px;
+    background-color: #0c4660;
+    color: white;
+
+}
+
+/*
+    Clase para visualización Data Grid (Tabla Resultados)
+    @date 2025-09-02
+    @author IGAC - DIP
+    @remarks Asignación espaciado superior, mediante herencia de la clase abuelo app-root-emotion-cache-ltr-1lwen7c a la clase padre layout-item-content, a la clase hijo widget-content
+*/
+
+.app-root-emotion-cache-ltr-1lwen7c > .layout-item-content > .widget-content{   
+	padding-top: 12px;
+}
+
+/*
+    Clase para componente Tabla Resultados
+    @date 2025-09-18
+    @author IGAC - DIP
+    @dateUpdated 2025-10-07
+    @changes Corrección herencia, para habilitación scroll vertical
+    @remarks Habilitar scroll vertical
+    @remarks Asignación scroll vertical, mediante herencia de la clase padre app-root-emotion-cache-ltr-1scrdss, a la clase hijo undefined, y a la clase app-root-emotion-cache-ltr-1vct7iv
+    @remarks Incidencia asociada "Tabla de resultados", p.3.
+    @remarks Aplica al widget_81
+*/
+
+.app-root-emotion-cache-ltr-1scrdss > .undefined > .app-root-emotion-cache-ltr-1vct7iv  {
+    overflow-y: scroll;
+}
+
+/*
+    Clase para visualización Data Grid (Tabla Resultados)
+    @date 2025-09-02
+    @author IGAC - DIP
+    @remarks Pintada de contorno solido, con un arco de 10px de radio y color asociado al código hex #0C4660 (rgb(12,70,96)) aplicado al componente Tabla Resultados, mediante herencia de la clase w-100, a la clase widget-content, y a la clase p-1
+*/
+.w-100 > .widget-content > .p-1{
+	border: solid;
+	border-radius: 10px !important;
+    border-color: rgb(12,70,96);
+}
+
+/*
+    Estilos para el componente collapsible, empleado en componente CollapsablePanel
+    @date 2025-07-18
+*/
+
+/*
+    Clase que aplica al título de la sección para panel
+    @dateUpdated 2025-07-28
+    @changes Actualización atributo margin-left 190px => 75px
+    @dateUpdated 2025-08-06
+    @changes Desactivar atributo background-color
+    @changes Actualización atributo color white => rgb(12,70,96)
+    @changes Actualización atributo margin-left 75px => -7px (Reunión avance líder dev 11:30 - 11:50)
+*/
+.title {
+    margin-left: -7px;
+    /*background-color: #615f5f;*/
+    color: rgb(12,70,96) !important;
+    border-radius: 10px;
+    font-weight: bold;
+    padding: 0px 10px;
+}
+
+.app-root-emotion-cache-ltr-1c6whf6, .title {
+    color: white;
+}
+
+/*
+    Clases que aplican al modal, opción detalles
+    @date 2025-07-18
+    @author IGAC - DIP
+*/
+
+.modal-body {
+    overflow-y: auto;
+    height: 400px;
+}
+
+/*
+    Clase componente modal, opción detalles
+    @author IGAC - DIP
+    @dateUpdated 2025-08-06
+    @changes Actualización atributo width => 913px
+    @dateUpdated 2025-08-12
+    @changes Inclusión clase modalDetails 
+    @changes Actualización aplicación clase modalDetails heredando a la clase modal-content
+    @dateUpdated 2025-09-19
+    @changes Fix Bug resize Modal opción detalles, componente TablaResultados => Actualización atributo width 913px => 185%
+*/  
+/*.app-root-emotion-cache-ltr-qyqy7f .modal-content{*/
+.modalDetails > .modal-content{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 185%;    
+    pointer-events: auto;
+    background-color: rgb(255, 255, 255);
+    background-clip: padding-box;
+    border: 1px solid rgb(213, 213, 213);
+    border-radius: 0.25rem;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 10px 1px;
+    outline: 0px;
+}
+
+/*
+    Clase para ajustar ancho de la ventana flotante modal, formulario Información usuario descarga firma
+    @date 2026-02-05
+    @author IGAC - DIP
+    @remarks Fijación ancho ventana flotante modal, atributo width
+    @remarks Herencia de clase modalUsrDownSigData_prod a clase modal-content
+    @remarks Clase aplicada entorno producción.
+*/
+
+.modalUsrDownSigData_prod > .modal-content {
+	position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 150%;	/*CAMBIO*/
+    pointer-events: auto;
+    background-color: rgb(255, 255, 255);
+    background-clip: padding-box;
+    border: 1px solid rgb(213, 213, 213);
+    border-radius: 0.25rem;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 10px 1px;
+    outline: 0px;
+}
+
+
+
+/*
+    Clase componente modal, opción detalles
+    @date 2025-09-19
+    @author IGAC - DIP
+    @remarks Definiciòn traslación horizontal sobre eje X, para movimiento modal centrado a la pantalla, por bug resize modal
+*/
+
+.modalDetails{
+    transform: translate(-30%, 0px) !important;
+}
+
+/*
+    Clase componente modal
+    @date 2025-08-22
+    @author IGAC - DIP
+    @dateUpdated 2025-09-22
+    @changes Fix Bug resize Modal opción detalles, componente TablaResultados => Actualización atributo width 940px => 185%
+    @remarks Clase para entorno producción
+*/
+
+.modalDetails_prod > .modal-content{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 185%;    
+    pointer-events: auto;
+    background-color: rgb(255, 255, 255);
+    background-clip: padding-box;
+    border: 1px solid rgb(213, 213, 213);
+    border-radius: 0.25rem;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 10px 1px;
+    outline: 0px;
+}
+
+/*
+    Clase componente modal, opción detalles
+    @date 2025-09-22
+    @author IGAC - DIP
+    @remarks Definiciòn traslación horizontal sobre eje X, para movimiento modal centrado a la pantalla, por bug resize modal, entorno producción.
+*/
+
+.modalDetails_prod{
+    transform: translate(-30%, 0px) !important;
+}
+
+/*
+    Clases componente Modal, asociado al Registro Información Usuario Descarga Firma
+    @date 2025-08-25
+    @author IGAC - DIP
+*/
+
+/*
+    Clase que define encabezado del formulario Información Usuario Descarga Firma
+    @date 2025-09-24
+    @author IGAC - DIP
+    @remarks Entorno productivo
+*/
+
+.titleUsrDownSigDataLbl_prod {
+    font-weight: bold;
+}
+/*
+    Clase campos Nombre y apellido, Correo electrónico
+    @date 2025-08-25
+    @author IGAC - DIP
+*/
+
+.nomApeSpanCls, .emailSpanCls{
+    padding-left: 75px;
+    padding-top: 6px;
+}
+
+/*
+    Clase campo Nombre y apellido
+    @date 2025-09-22
+    @author IGAC - DIP
+    @remarks Entorno productivo
+*/
+.nomApeSpanCls_prod, .emailSpanCls_prod{
+    padding-left: 100px;
+    padding-bottom: 10px;
+}
+
+/*
+    Clase campo Correo electrónico
+    @date 2025-11-06
+    @remarks Definición de márgen superior, para validador campo inválido
+    @remarks Entorno productivo
+*/
+.emailSpanCls_prod > .emailErrExtLbl {
+    top: 39px;
+}
+/*
+    Clases para etiquetas Nombre y apellido, Correo electrónico, País, Ocupación, Empresa / Organización, Describa el interés en los datos
+    @date 2025-09-22
+    @author IGAC - DIP
+    @remarks Entorno productivo.
+*/
+.nomApeLbl_prod, .emailLbl_prod{
+    font-weight: bold
+}
+
+/*
+    @date 2025-09-22
+    @remarks Entorno productivo.
+*/
+.emailSpanCls_prod{
+    padding-bottom: 10px;
+}
+/*
+    Selector campos Nombre y apellido, correo electrónico, para aplicar ancho del mismo
+    @date 2025-08-25
+    @author IGAC - DIP
+    @dateUpdated 2025-08-26
+    @changes Inclusión selector campo Nombre y apellido
+    @dateUpdated 2025-08-27
+    @changes Inclusión atributo heigth => 26px
+    @dateUpdated 2025-09-22
+    @changes Inclusión atributo border-color
+    @changes Inclusión atributo border-width
+    @remarks Clase que hereda al control input
+    @remarks aplican para los entornos dev y productivo
+*/
+.nomApeSpanCls > input,
+.emailSpanCls > input,
+.nomApeSpanCls_prod > input,
+.emailSpanCls_prod > input
+{
+    width: 309px;
+    height: 26px;
+    border-color: #0c4660;
+    border-width: thin;
+}
+
+
+/*
+    Clases para aplicar color texto y alineamiento  en validadores campos Nombre y apellido, Correo electrónico, País, Empresa / Organización y Describa interés en los datos
+    @date 2025-08-25
+    @author IGAC - DIP
+    @dateUpdated 2026-02-05
+    @changes Actualización atributo left 542px => 582px
+    @remarks Aplica entorno productivo
+*/
+.nomApeSpanCls_prod > .nameLastNameErrLbl_prod,
+.nomApeSpanCls_prod > .nameLastNameErrExtLbl, 
+.emailSpanCls_prod > .emailErrExtLbl,
+.paisSpanCls_prod > .paisErrLbl_prod,
+.ocupaSpanCls_prod > .ocupaErrLbl
+.orgSpanCls_prod > .emprWorkErrLbl,
+.purpDataSpan_prod > .purpDataErrLbl
+{
+    color: red;
+    position: absolute;
+    display: flex !important;
+    flex-direction: column !important;
+    left: 582px;
+    margin: 0;
+}
+/*
+    Clases para aplicar color texto y alineamiento  en validadores campos Nombre y apellido, Correo electrónico, País, Empresa / Organización y Describa interés en los datos
+    @date 2025-08-25
+    @author IGAC - DIP
+    @dateUpdated 2025-09-15
+    @changes Inclusión atributo position
+    @changes Inclusión atributo display
+    @changes Inclusión atributo flex-direction
+    @changes Inclusión atributo left
+    @changes Inclusión atributo margin
+    @dateUpdated 2025-09-23
+    @changes Actualización atributo left 561px => 542px
+    @dateUpdated 2025-11-07
+    @changes Aplicación herencia desde clase nomApeSpanCls_prod
+    @changes Inclusión clase nameLastNameErrExtLbl
+    @changes Inclusión clase emailErrExtLbl
+    @changes Inclusión clase emprWorkErrExtLbl
+
+*/
+.nameLastNameErrLbl, .nameLastNameErrExtLbl, .emailErrLbl, .emailErrExtLbl, .paisErrLbl, .ocupaErrLbl, .emprWorkErrLbl, .emprWorkErrExtLbl, .purpDataErrLbl{
+    color: red;
+    position: absolute;
+    display: flex !important;
+    flex-direction: column !important;
+    left: 542px;
+    margin: 0;
+}
+
+/*
+    Clases para aplicar color texto y alineamiento  en validadores campos Nombre y apellido, Correo electrónico, País, Empresa / Organización y Describa interés en los datos
+    @date 2025-09-23
+    @author IGAC - DIP
+    @dateUpdated 2025-09-24
+    @changes Inclusión atributo font-weight
+    @dateUpdated 2025-11-06
+    @changes Actualización atributo display flex => inline
+    @dateUpdated 2026-02-05
+    @changes Supresión atributo flex-direction
+    @changes Actualización atributo left 561px => 585px
+    @remarks Aplica para Entorno productivo 
+*/
+.nameLastNameErrLbl_prod, .emailErrLbl_prod, .paisErrLbl_prod, .ocupaErrLbl_prod, .emprWorkErrLbl_prod, .purpDataErrLbl_prod{
+    color: red;
+    position: absolute;
+    display: inline !important;
+    left: 585px;
+    margin: 0;
+    font-weight: bold;
+}
+
+/*
+    Clase para aplicar alineamiento validador campo Nombre y apellido
+    @date 2025-11-06
+    @remarks Alineación superior validador información no válida
+    @remarks Aplica para Entorno productivo 
+*/
+.nomApeSpanCls_prod > .nameLastNameErrExtLbl{
+    top: 7px;
+    width: 26%;
+}
+/*
+    Clase para aplicar alineamiento asociado al validador del campo "Describa el interés en los datos", formulario Información usuario descarga firma
+    @date 2025-08-29
+    @author IGAC - DIP
+    @dateUpdated 2025-09-16
+    @changes Actualización atributo top 214px => 202px
+    @remarks FUENTE CONSULTA: Claude, AI => https://claude.ai/chat/4e7afe7b-29dd-4be2-a213-64c8fa875c15
+*/
+.purpDataErrLbl{
+    top: 202px;
+}
+
+/*
+    Clase para aplicar alineamiento al título, asociado al campo "Describa el interés en los datos"
+    @date 2025-09-22
+    @author IGAC - DIP    
+*/
+.purpDataLblCls{
+    align-items: center;
+    display: flex;
+}
+
+/*
+    Clase para aplicar alineamiento al título, asociado al campo "Describa el interés en los datos"
+    @date 2025-09-22
+    @author IGAC - DIP    
+    @remarks Aplica para entorno productivo
+*/
+.purpDataLblCls_prod{
+    font-weight: bold;
+    align-items: center;
+    display: flex;
+}
+
+/*
+    Clase estilo para control Interés en los datos, resaltado interno control
+    @date 2025-09-22
+    @author IGAC - DIP
+    @remarks Entorno productivo
+*/
+
+.purpDataSpan_prod{
+    border-color: #0c4660;
+    border-width: thin;
+}
+
+
+/*
+    Selector alusivo al campo "Describa el interés en los datos", para ajuste visual del margen superior.
+    @date 2025-09-22
+    @author IGAC - DIP
+*/
+#purpDataSpan{
+    padding-top: 6px;
+}
+
+/*  
+    Selector alusivo al campo "Describa el interés en los datos", para ajuste visual del margen superior.
+    @date 2025-09-22
+    @author IGAC - DIP
+    @remarks Entorno productivo
+*/
+#purpDataSpan_prod{
+    padding-left: 24px;
+    padding-top: 0px;
+}
+
+/*
+    Clase para aplicar alineamiento asociado al validador del campo Empresa / Organización, formulario Información usuario descarga firma.
+    @date 2025-09-15
+    @author IGAC - DIP
+    @dateUpdated 2025-09-16
+    @changes Actualización atributo top 150px => 156px
+    @dateUpdated 2025-09-23
+    @changes Actualización atributo top 156px => 161px
+    @remarks FUENTE CONSULTA: Claude, AI => https://claude.ai/chat/4e7afe7b-29dd-4be2-a213-64c8fa875c15
+    @remarks Ajuste margen superior
+*/
+
+.emprWorkErrLbl{
+    top: 161px;
+}
+
+/*
+    Clase para aplicar alineamiento asociado al validador del campo Empresa / Organización, formulario Información usuario descarga firma.
+    @date 2025-09-23
+    @author IGAC - DIP
+    @remarks Ajuste margen superior, para texto validador que se visualiza empleando más de 1 línea
+    @remarks Ajuste longitud, para texto validador que se visualiza empleando más de 1 línea
+*/
+
+.emprWorkErrExtLbl{
+    top: 155px;
+}
+
+/*
+    Clase para aplicar alineamiento asociado al validador del campo Ocupación, formulario Información usuario descarga firma
+    @date 2025-09-16
+    @author IGAC - DIP
+    @dateUpdated 2025-09-23
+    @changes Actualización atributo top 121px => 126px
+    @remarks FUENTE CONSULTA: Claude, AI => https://claude.ai/chat/4e7afe7b-29dd-4be2-a213-64c8fa875c15
+    @remarks Ajuste margen superior
+*/
+
+.ocupaErrLbl{
+    top: 126px;
+}
+/*
+    Clase para aplicar alineamiento asociado al validador del campo País, formulario Información usuario descarga firma
+    @date 2025-09-16
+    @author IGAC - DIP
+    @dateUpdated 2025-09-23
+    @changes Actualización atributo top 88px => 92px
+    @remarks FUENTE CONSULTA: Claude, AI => https://claude.ai/chat/4e7afe7b-29dd-4be2-a213-64c8fa875c15
+    @remarks Ajuste margen superior
+*/
+
+.paisErrLbl{
+    top: 92px;
+}
+
+/*
+    Clase para aplicar alineamiento asociado al validador del campo Correo electrónico, formulario Información usuario descarga firma
+    @date 2025-09-16
+    @author IGAC - DIP
+    @dateUpdated 2025-09-23
+    @changes Actualización atributo top 52px => 58px
+    @remarks FUENTE CONSULTA: Claude, AI => https://claude.ai/chat/4e7afe7b-29dd-4be2-a213-64c8fa875c15
+    @remarks Ajuste margen superior
+*/
+
+.emailErrLbl{
+    top: 58px;
+}
+
+/*
+    Clase para aplicar alineamiento asociado al validador del campo Correo electrónico, formulario Información usuario descarga firma
+    @date 2025-09-23
+    @author IGAC - DIP
+    @remarks Ajuste margen superior
+    @remarks Entorno productivo
+*/
+
+.emailErrLbl_prod{
+    top: 56px;
+}
+
+/*
+    Clase para aplicar alineamiento asociado al validador del campo Correo electrónico, formulario Información usuario descarga firma
+    @date 2025-09-23
+    @author IGAC - DIP
+    @remarks Ajuste margen superior, para texto validador que se visualiza empleando más de 1 línea
+    @remarks Ajuste longitud, para texto validador que se visualiza empleando más de 1 línea
+*/
+.emailErrExtLbl{
+    top: 53px;
+}
+/*
+    Clase para aplicar Alineación validadores asociado a los campos Nombre y apellido
+    @date 2025-09-15
+    @author IGAC - DIP
+    @dateUpdated 2025-09-16
+    @changes Actualización atributo top 11px => 18px
+    @dateUpdated 2025-09-23
+    @changes Actualización atributo top 18px => 24px
+    @remarks FUENTE CONSULTA: Claude, AI => https://claude.ai/chat/4e7afe7b-29dd-4be2-a213-64c8fa875c15
+    @remarks Ajuste margen superior
+*/
+
+.nameLastNameErrLbl{
+    top: 24px;
+}
+
+/*
+    Clase para aplicar Alineación validadores asociado a los campos Nombre y apellido
+    @author IGAC - DIP
+    @date 2025-09-23
+    @remarks Ajuste margen superior
+    @remarks Entorno productivo
+*/
+
+.nameLastNameErrLbl_prod{
+    top: 20px;
+}
+/*
+    Clase para aplicar Alineación validadores asociado a los campos Nombre y apellido.
+    @date 2025-09-23
+    @author IGAC - DIP
+    @dateUpdated 2025-09-24
+    @changes Actualización atributo width 27% => 26%
+    @remarks Ajuste margen superior, para texto validador que se visualiza empleando más de 1 línea
+    @remarks Ajuste longitud, para texto validador que se visualiza empleando más de 1 línea
+*/
+
+.nameLastNameErrExtLbl{
+    top: 12px;
+    width: 26%;
+}
+
+/*
+    Clase estilo para título del campo país
+    @date 2025-09-22
+    @author IGAC - DIP
+*/
+.paisLblCls{
+    margin: 10px -1px 5px 25px;
+}
+
+/*
+    Clase estilo para título del campo país
+    @date 2025-09-22
+    @author IGAC - DIP
+    @remarks Entorno productivo
+*/
+.paisLblCls_prod{
+    font-weight: bold;
+}
+
+/*
+    Clase estilo para campo país, control y distribución
+    @date 2025-08-25
+    @author IGAC - DIP
+    @dateUpdated 2025-09-22
+    @changes Adición atributo padding-top
+*/
+
+.paisSpanCls {    
+    padding-left: 163px;
+    padding-top: 5px;
+}
+
+/*
+    Clase estilo para campos país, control y distribución
+    @date 2025-09-24
+    @remarks Entorno productivo
+*/
+
+.paisSpanCls_prod{
+    padding-left: 187px;
+    padding-top: 0px;
+}
+
+/*
+    Clase estilo para campo país
+    @date 2025-11-07
+    @remarks Definición longitud (ancho) campo
+    @remarks Clase paisSpanCls_prod que aplica herencia a la clase jimu-dropdown
+    @remarks Entorno productivo
+*/
+.paisSpanCls_prod > .jimu-dropdown{
+    width: 309px;
+    
+}
+/*
+    Clase estilo para campo país
+    @date 2025-11-07
+    @remarks Definición altura campo
+    @remarks Clase paisSpanCls_prod que aplica herencia a la clase jimu-dropdown, a la clase jimu-dropdown-button
+    @remarks Entorno productivo
+*/
+.paisSpanCls_prod > .jimu-dropdown > .jimu-dropdown-button{
+    height: 26px;
+}
+
+/*
+    Clase estilo para campo País, ajuste ancho
+    @date 2025-08-27
+    @author IGAC - DIP
+    @remarks Clase estilo campo país que hereda a la clase jimu-dropdown
+    @remarks Valor orig atributo width: 313px
+*/
+.paisSpanCls > .jimu-dropdown{
+    width: 309px;
+}
+
+/*
+    Clase estilo para campo País, ajuste alto
+    @date 2025-08-27
+    @author IGAC - DIP
+    @remarks Clase estilo campo país que hereda a la clase jimu-dropdown, y hereda a la clase jimu-dropdown-button
+*/
+.paisSpanCls > .jimu-dropdown > .jimu-dropdown-button{
+    height: 26px;
+}
+
+/*
+    Clase estilo título campo Ocupación
+    @date 2025-09-22
+    @author IGAC - DIP
+    @dateUpdated 2025-09-24
+    @changes Adición atributo margin-top
+    @remarks Entorno productivo
+*/
+
+.ocupaLblCls_prod{
+    font-weight: bold;
+    margin-top: 7px;
+}
+/*
+    Clase estilo para campo ocupación
+    @date 2025-08-25
+    @author IGAC - DIP
+    @dateUpdated 2025-09-22
+    @changes Inclusión atributo padding-top
+*/
+
+.ocupaSpanCls {
+    padding-top: 6px;
+    padding-left: 121px;
+}
+
+/*
+    Clase estilo para campo ocupación
+    @date 2025-09-22
+    @author IGAC - DIP
+    @dateUpdated 2025-09-23
+    @changes Inclusión atributo padding-top => 8px
+    @dateUpdated 2025-11-06
+    @changes Deshacer requerimiento 2025-09-23 (Actualización padding-top 8px => 0px)
+    @remarks Entorno productivo
+*/
+.ocupaSpanCls_prod{
+    padding-left: 145px;
+    padding-bottom: 10px;
+    padding-top: 0px;
+}
+
+/*
+    Clase estilo para campo ocupación, ajuste ancho
+    @date 2025-08-26
+    @author IGAC - DIP
+    @dateUpdated 2025-08-27
+    @changes Actualización atributo width 313px => 309px
+    @dateUpdated 2025-09-24
+    @changes Inclusión clase entorno productivo
+    @remarks Clase estilo campo ocupación que hereda a la clase jimu-dropdown
+*/
+.ocupaSpanCls > .jimu-dropdown,
+.ocupaSpanCls_prod > .jimu-dropdown{
+    width: 309px;
+}
+
+/*
+    Clase estilo para campo ocupación, ajuste alto
+    @date 2025-08-27
+    @author IGAC - DIP
+    @dateUpdated 2025-09-24
+    @changes Inclusión clase entorno productivo
+    @remarks Clase estilo campo ocupación que hereda a la clase jimu-dropdown, y hereda a la clase jimu-dropdown-button
+*/
+.ocupaSpanCls > .jimu-dropdown > .jimu-dropdown-button,
+.ocupaSpanCls_prod > .jimu-dropdown > .jimu-dropdown-button
+{
+    height: 26px;
+}
+
+/*
+    Clase estilo para título campo Empresa / Organización
+    @date 2025-09-22
+    @author IGAC - DIP
+    @remarks Entorno productivo
+*/
+.orgLblCls_prod{
+    font-weight: bold;
+}
+/*
+    Clase estilo para campo Empresa / Organización
+    @date 2025-08-25
+    @author IGAC - DIP
+    @dateUpdated 2025-09-22
+    @changes Inclusión atributo padding-top
+*/
+
+.orgSpanCls {
+    padding-top: 6px;
+    padding-left: 42px;
+}
+
+/*
+    Clase estilo para campo Empresa / Organización
+    @date 2025-09-22
+    @author IGAC - DIP
+    @remarks Entorno productivo
+
+*/
+.orgSpanCls_prod{
+    padding-left: 67px;
+    padding-bottom: 10px;
+}
+
+/*
+    Clase estilo para campo Empresa / Organización, ajuste ancho control input
+    @date 2025-08-26
+    @author IGAC - DIP
+    @dateUpdated 2025-08-27
+    @changes Inclusión atributo height => 26px
+    @dateUpdated 2025-09-22
+    @changes Inclusión atributo border-color
+    @changes Inclusión atributo border-width
+    @dateUpdated 2025-09-23
+    @changes Inclusión clase para entorno productivo
+    @remarks Clase campo Empresa, que hereda al control input
+*/
+.orgSpanCls > input,
+.orgSpanCls_prod > input
+ {
+    width: 309px;
+    height: 26px;
+    border-color: #0c4660;
+    border-width: thin;
+}
+
+/*
+    Clase estilo para campo Empresa / Organización, ajuste ancho control input
+    @date 2025-09-22
+    @author IGAC - DIP
+    @dateUpdated 2025-09-23
+    @changes Inclusión atributo width
+    @changes Inclusión atributo height
+    @remarks Clase campo Empresa, que hereda al control input
+    @remarks Entorno productivo
+*/
+/* .orgSpanCls_prod > input {
+    width: 309px;
+    height: 26px;
+    border-color: #0c4660;
+    border-width: thin;
+} */
+
+/*
+    Estilo para opción Registrar Usuario
+    @date 2025-08-25
+    @author IGAC - DIP
+*/
+
+.ubicaRegUsr{
+    padding-top: 18px;
+    margin-left: 0px !important;
+}
+
+/*
+    Clase estilo para control Interés en los datos
+    @date 2025-08-26
+    @author IGAC - DIP
+    @dateUpdated 2025-09-22
+    @changes Actualización atributo width 159% => 163%
+    @changes Adición atributo border-color
+    @changes Adición atributo border-width
+    @remarks Actualización atributo width 162% => 159% (2025-08-26)
+
+*/
+.purpDataCls{
+    width: 163% !important;
+    min-height: 60px;   /* Altura mínima */
+    max-height: 300px;  /* Altura máxima opcional */
+    resize: none;      /* Desactiva redimensionado manual */
+    overflow: hidden;  /* Oculta scrollbar */
+    line-height: 1.4;   /* Espaciado entre líneas */
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    border-color: #0c4660;
+    border-width: thin;
+}
+
+/*
+    Clase estilo para control Interés en los datos
+    @date 2025-09-24
+    @author IGAC - DIP
+    @remarks Entorno productivo
+*/
+.purpDataCls_prod{
+    width: 160% !important;
+    min-height: 60px;   /* Altura mínima */
+    max-height: 300px;  /* Altura máxima opcional */
+    resize: none;      /* Desactiva redimensionado manual */
+    overflow: hidden;  /* Oculta scrollbar */
+    line-height: 1.4;   /* Espaciado entre líneas */
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    border-color: #0c4660;
+    border-width: thin;
+}
+
+/*
+    Clase estilo para control Describa el interés en los datos, control interno textarea
+    @date 2025-09-22
+    @author IGAC - DIP
+    @dateUpdated 2025-09-24
+    @changes Cambio clase estilo purpDataCls => purpDataCls_prod
+    @remarks Herencia de la clase purpDataCls, hacia el control tipo textarea
+    @remarks Aplica para entornos dev y productivo.
+*/
+
+.purpDataCls > textarea,
+.purpDataCls_prod > textarea{
+    border-color: #0c4660;
+    border-width: thin;
+}
+
+/*
+    Clase sobre Modal asociado al formulario Información Usuario Descarga Firma
+    @date 2025-08-25
+    @author IGAC - DIP
+    @dateUpdated 2025-08-29
+    @changes Actualización atributo width 718px => 739px;
+    @remarks Herencia sobre clase modal-content desde la clase modalUsrDownSigData, aplicada al componente Modal
+*/
+.modalUsrDownSigData > .modal-content{
+	position: relative;
+    display: flex;
+    flex-direction: column;
+    width:  739px; 
+    pointer-events: auto;
+    background-color: rgb(255, 255, 255);
+    background-clip: padding-box;
+    border: 1px solid rgb(213, 213, 213);
+    border-radius: 0.25rem;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 10px 1px;
+    outline: 0px;
+}
+/*
+    Clase sobre Modal asociado al formulario Información Usuario Descarga Firma, para ocultar la barra horizontal tipo scroll
+    @date 2025-08-25
+    @author IGAC - DIP
+    @dateUpdated 2026-02-05
+    @changes Inclusión clase modalUsrDownSigData_prod
+    @remarks Herencia sobre clase modal-body, a partir de la clase modal-content, desde la clase modalUsrDownSigData
+    @remarks Aplica entornos dev y productivo
+*/
+.modalUsrDownSigData > .modal-content > .modal-body,
+.modalUsrDownSigData_prod > .modal-content > .modal-body{
+    overflow-y: unset;
+}
+
+/*
+    Clase asociada a cada fila del formulario Información usuario descarga firma
+    @date 2025-09-23
+    @author IGAC - DIP
+    @remarks Desplazamiento títulos formulario "Información usuario descarga firma" a la izquierda, para dar espacio a la actualización de los validadores de campos requeridos
+    @remarks Herencia desde la clase modalUsrDownSigData, a la clase modal-content, a la clase modal-body, al elemento form, al elemento div, a la clase row
+*/
+
+.modalUsrDownSigData > .modal-content > .modal-body > form > div > .row {
+	margin-right: -15px;
+	margin-left: -30px;
+}
+
+/* 
+    Clase para tabla firmas
+    @date 2025-07-21
+    @author IGAC - DIP
+    @dateUpdated 2025-08-06
+    @changes Actualización atributo color white => rgb(12,70,96)
+*/
+.app-root-emotion-cache-ltr-shg2if, .table{
+    color: rgb(12,70,96) !important;
+    background-color: transparent;
+}
+
+/*
+    Clase para otorgar tamaño 50px al ancho (width)
+    @date 2025-07-21
+    @author IGAC - DIP
+*/
+.w-50table {
+    width: 50px;
+}
+
+/*
+    Clase para otorgar tamaño 100px al ancho (width), al objeto table
+    @date 2025-07-21
+    @author IGAC - DIP
+*/
+.w-100table {
+    width: 100px;
+}
+
+/*
+    Clase para manejo dimensiones widget, asociado a la plantilla
+    @date 2025-08-05
+    @author IGAC - DIP
+*/
+.p-3 {
+    height: 100%;
+}
+/*
+    Selector para campo Id Archivo
+    @date 2025-07-22
+    @author IGAC - DIP
+*/
+#idFile{
+    display: none;
+}
+
+/*
+    Clase asociado a la tabla sección firmas
+    @date 2025-07-24
+    @author IGAC - DIP
+*/
+.tblAlign{
+    display: inline-table;
+}
+
+/*  Clase para manejo desplegables
+    @date 2025-07-21
+    @author IGAC - DIP
+    @dateUpdated 2025-08-06
+    @changes Actualización atributo color white => rgb(12,70,96)
+    @dateUpdated 2025-08-11
+    @changes Actualización estilo flechas colapsables
+*/
+
+.app-root-emotion-cache-ltr-v9atwd > .icon-btn-sizer{
+    color: rgb(12,70,96);
+}
+
+/*
+    Clase para botón Descargar metadato
+    @date 2025-07-29
+    @author IGAC - DIP
+    @dateUpdated 2025-07-30
+    @changes Actualización atributo border-radius 16px => 8px
+    @dateUpdated 2025-08-11
+    @changes Inclusión atributo height
+*/
+.btnVw {
+    border-color: #0C4660;
+    border: solid;
+    border-width: thin;
+    border-radius: 8px;
+    background-color: #0C4660;
+    color: white;
+    height: 32px;
+}

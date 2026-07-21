@@ -1,0 +1,19 @@
+{
+  "name": "busquedaFirmas",
+  "label": "BusquedaFirmas",
+  "type": "widget",
+  "version": "1.19.0",
+  "exbVersion": "1.19.0",
+  "author": "rigorios8103@gmail.com",
+  "description": "Widget para la búsqueda de firmas espectrales en imágenes satelitales",
+  "copyright": "",
+  "license": "http://www.apache.org/licenses/LICENSE-2.0",
+  "properties": {},
+  "translatedLocales": [
+    "en"
+  ],
+  "defaultSize": {
+    "width": 400,
+    "height": 300
+  }
+}
