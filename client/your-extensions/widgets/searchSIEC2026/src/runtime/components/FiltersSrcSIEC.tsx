@@ -27,7 +27,7 @@
     @changes Importación objetos sortCampa_as, sortProyectos
     @remarks Sección de importación
 */
-
+console.log(22222222222222222)
 import React, { useEffect } from 'react';
 import { Button, Label, Radio, Select, TextInput } from 'jimu-ui'; // import components
 //2025-06-20 => Pruebas popUp
@@ -57,12 +57,13 @@ import GraphicsLayer from "@arcgis/core/layers/GraphicsLayer";
 import Sketch  from "@arcgis/core/widgets/Sketch";
 
 //Clase punto - 2025-04-02
-import Point from "esri/geometry/Point";
+import Point from "@arcgis/core/geometry/Point";
 
 // @ts-expect-error
 import logoBNE from '../../images_server/Logo_BNE.png';
 // @ts-expect-error
 import ayudaBuscFE from '../../images_server/ayudaBuscFE.png';
+import { validaLoggerLocalStorage } from '../../../../shared/utils/export.utils';
 
 
 
@@ -296,24 +297,56 @@ import ayudaBuscFE from '../../images_server/ayudaBuscFE.png';
  * @returns (HTML)
  */
 const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberState, coberLst, setCoberLst, showCoberFilt1, setShowCoberFilt1State, disCoberFilt1, setDisCoberFilt1State, showCoberFilt2, setShowCoberFilt2State, disCoberFilt2, setDisCoberFilt2State, selCoberFilt1Val, setSelCoberFilt1ValState, selCoberFilt2Val, setSelCoberFilt2ValState, coberFilt1Lst, setCoberFilt1LstState, coberFilt2Lst, setCoberFilt2LstState, radValueNav, setValueNav, txtValorLat, setValorLatState, txtValorLatSuIz, setValorLatSuIzState, txtValorLatInDe, setValorLatInDeState, txtValorLon, setValorLonState, txtValorLonSuIz, setValorLonSuIzState, txtValorLonInDe, setValorLonInDeState, lonPto, setLonPtoState, latPto, setLatPtoState, lonSuIz, setLonSuIzState, latSuIz, setLatSuIzState, lonInDe, setLonInDeState, latInDe, setLatInDeState,selProyVal, setProyState, proyLst, setProyLst, selCampaVal, setCampaState, campaLst, setCampaLst, ResponseBusquedaFirma, setResponseBusquedaFirma, view, setView, jimuMapView, setAlertDial, mensModal, setMensModal, setControlForms, controlForms, props, sketchWeb, setRows, initialExtent, jsonDpto, setJsonDptoState, jsonMpio, setJsonMpioState, dptoSel, setDptoSelState, mpioLst, setMpioLstState, mpioSel, setMpioSelState, municDisab, setMunicDisabState, isLoad, setIsLoadState, setWidgetModules, chkValueHelp, setChkValueHelpState, catalBtnDis, setCatalBtnState}){
-  /*console.log("Verif valor state latitud =>", txtValorLat);
-  console.log("Verif valor state longitud =>",txtValorLon);
-  console.log("Verif Radio opc =>",radValueNav);
-  if (radValueNav === 'selArea' && (txtValorLatSuIz && txtValorLonSuIz && txtValorLatInDe && txtValorLonInDe))
-  {
-    console.log("Verif coordenada lat Sup Izq =>", txtValorLatSuIz);
-
-    console.log("Verif coordenada long Sup Izq =>", txtValorLonSuIz);
-
-    console.log("Verif coordenada lat Inf Der =>", txtValorLatInDe);
-
-    console.log("Verif coordenada long Inf Der =>", txtValorLonInDe);
-  }
-  if (radValueNav === 'navMap' && (txtValorLat && txtValorLon))
-  {
-    console.log("Verif coordenada lat pto =>", txtValorLat);
-    console.log("Verif coordenada long pto =>", txtValorLon);
-  }*/
+ 
+ if(validaLoggerLocalStorage('logger')) {
+  console.log("FiltersSrcSIEC => ",{
+    jsonSERV,
+    selCoberVal,
+    coberLst,
+    showCoberFilt1,
+    disCoberFilt1,
+    showCoberFilt2,
+    disCoberFilt2,
+    selCoberFilt1Val,
+    selCoberFilt2Val,
+    coberFilt1Lst,
+    coberFilt2Lst,
+    radValueNav,
+    txtValorLat,
+    txtValorLatSuIz,
+    txtValorLatInDe,
+    txtValorLon,
+    txtValorLonSuIz,
+    txtValorLonInDe,
+    lonPto,
+    latPto,
+    lonSuIz,
+    latSuIz,
+    lonInDe,
+    latInDe,
+    selProyVal,
+    proyLst,
+    selCampaVal,
+    campaLst,
+    ResponseBusquedaFirma,
+    view,
+    jimuMapView,
+    mensModal,
+    controlForms,
+    props,
+    sketchWeb,
+    initialExtent,
+    jsonDpto,
+    jsonMpio,
+    dptoSel,
+    mpioLst,
+    mpioSel,
+    municDisab,
+    isLoad,
+    chkValueHelp,
+    catalBtnDis, 
+  });
+ }
 
   /**
    * Método ciclo vida componentDidUpdate => implementación de cierre del widget Buscar Firma, incluyendo la operación "reset" en cada uno de los controles del filtro.
@@ -1641,33 +1674,24 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       @remarks Validador original con Cobertura igual a [Todas] => (typeof selCoberVal === "undefined") || (typeof selCoberFilt1Val === "undefined" && coberFilt1Lst.length > 1) || (typeof selCoberFilt2Val === "undefined" && coberFilt2Lst.length > 1)) [2025-08-25]
     */
       function consultaCatal(evt: { preventDefault: () => void; }){
-        evt.preventDefault();
-        
-        //Cobertura
-        //Coberturas 1
-        //Coberturas 2
-        /*console.log("Cobertura =>",selCoberVal);
-        console.log("Coberturas 1 =>",selCoberFilt1Val);
-        console.log("Coberturas 2 =>",selCoberFilt2Val);
-        console.log("Coberturas 2 Arr =>",coberFilt2Lst);
-        //Departamento
-        console.log("Dpto =>", dptoSel);
-        //Municipio
-        console.log("Mpio =>", mpioSel);
-        //Opc
-         console.log("Modo coordenadas =>",radValueNav);
-        //Coord Lat - Sup Izq
-        console.log("Latitud Esq Sup Izq =>",txtValorLatSuIz);
-        //Coord Lon - Sup Izq
-        console.log("Longitud Esq Sup Izq  =>",txtValorLonSuIz);
-        //Coord Lat - Inf Der
-        console.log("Latitud Esq Inf Der =>",txtValorLatInDe);
-        //Coord Lon - Inf Der
-        console.log("Longitud Esq Inf Der  =>",txtValorLonInDe);
-        //Proyecto
-        console.log("Proyecto asociado =>",selProyVal);   
-        //Campaña
-        console.log("Campaña asociada =>",selCampaVal); */
+        evt.preventDefault();        
+         if(validaLoggerLocalStorage('logger')) {
+          console.log("Cobertura =>",{
+            selCoberVal,
+            selCoberFilt1Val,
+            selCoberFilt2Val,
+            coberFilt2Lst,
+            dptoSel,
+            mpioSel,
+            radValueNav,
+            txtValorLatSuIz,
+            txtValorLonSuIz,
+            txtValorLatInDe,
+            txtValorLonInDe,
+            selProyVal,
+            selCampaVal
+          });
+         }
   
         //Inclusión validación para campos requeridos (al menos 1 es requerido)
         if ((typeof selCoberVal !== "undefined" && typeof selCoberFilt1Val === "undefined" && coberFilt1Lst.length === 0 || (typeof selCoberFilt1Val !== "undefined" && typeof selCoberFilt2Val !== "undefined" && coberFilt2Lst.length === 0)) && typeof dptoSel === "undefined" && typeof mpioSel === "undefined" && (txtValorLatSuIz.trim() === "" && txtValorLatInDe.trim() === "") && ((txtValorLonSuIz.trim() === "" && txtValorLonInDe.trim() === "") && (txtValorLat.trim() === "" && txtValorLon.trim() === "")) &&  typeof selProyVal === "undefined" && typeof selCampaVal === "undefined")
@@ -1774,31 +1798,30 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         var paramNiv2Str, paramNiv3Str      :string = "";
         
         //Zona de depuración código
-        console.log("Datos correctos =>");
-        //Cobertura => Nivel 1       
-        //Coberturas 1 => Nivel 2
-        //Coberturas 2 => Nivel 3
-        /*console.log("Cobertura =>",selCoberVal);
-        console.log("Coberturas 1 =>",selCoberFilt1Val);
-        console.log("Coberturas 2 =>", selCoberFilt2Val);
-        //Departamento
-        console.log("Cod Depto =>",dptoSel);
-        //Municipio
-        console.log("Cod Mpio =>", mpioSel);
-        //Opc
-        console.log("Modo coordenadas =>",radValueNav);
         
-        //Proyecto
-        console.log("Proyecto asociado =>",selProyVal);          
-        //Campaña
-        console.log("Campaña asociada =>",selCampaVal);*/ 
-
+        if (validaLoggerLocalStorage("logger")) {
+          console.log("getJSONFilter => ",{
+            selCoberVal,
+            selCoberFilt1Val,
+            selCoberFilt2Val,
+            coberFilt2Lst,
+            disCoberFilt2,
+            coberFilt1Lst,
+            dptoSel,
+            mpioSel,
+            radValueNav,
+            selProyVal,
+            selCampaVal
+          })
+        }
         //Procesamiento del where
         //Cobertura => Nivel 1
         if (typeof selCoberVal !== 'undefined')
         {
-          console.log ("Test Condic Nivel 2 y Nivel 3 =>",selCoberFilt2Val+"\n");
-          console.log ("Test Contin =>",coberFilt2Lst);
+          if (validaLoggerLocalStorage("logger")) {
+            console.log ("Test Condic Nivel 2 y Nivel 3 =>",selCoberFilt2Val+"\n");
+            console.log ("Test Contin =>",coberFilt2Lst);
+          }
           //Procesamiento coberturas 1 => Nivel 2  - texto del control
           //Fix 2025-10-28
           if (typeof selCoberFilt1Val !== 'undefined' && coberFilt2Lst.length === 0){
