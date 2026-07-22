@@ -2,7 +2,7 @@
 import { React, type AllWidgetProps } from 'jimu-core'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis' // The map object can be accessed using the JimuMapViewComponent
 import { Button, Modal, ModalBody, ModalHeader, CollapsablePanel, Table, Select, TextArea } from "jimu-ui";
-import { DataGrid } from "@mui/x-data-grid";
+import TablaResultadosTable, { type PaginationModelTR, type TablaResultadosRow } from './components/TablaResultadosTable';
 
 const { useEffect, useState, useRef } = React;
 
@@ -33,9 +33,6 @@ import { generarFileStand, getDominioValor, getFileNameByIdFile, getInstrumDetai
 import { entorno, tValidators, timeExpires, numPosiciones, numPageDG, tolerFactorSrcP } from '../../../searchSIEC2026/src/types/dataDG';
 //Objetos desde servicios
 import { urls, urlsPost  } from '../../../api/serviciosFirmasEspectrales';
-
-//Objeto para definir el lenguaje asociado al componente DataGrid
-import { dataGridLang } from '../../../searchSIEC2026/src/types/dataDG';
 
 //Importación interfaces
 import { InterfaceMensajeModal, typeMSM } from "../../../searchSIEC2026/src/types/InterfaceResponseBusquedaFirmas";
@@ -98,27 +95,19 @@ const tablaResultados = function (props: AllWidgetProps<any>){
    const [sessExpires, setSessExpires]         =   useState(timeExpires);  //24 hr duración
 
    //Estado que define pagination model controlado
-   const [paginationModel, setPaginationModel]=useState({
+   const [paginationModel, setPaginationModel]=useState<PaginationModelTR>({
         pageSize: 5,
         page: 0
     })
 
-    //Estado para manejo filas en DataGrid
-    const [rows, setRows]                       =   useState([]);
+    //Estado para manejo filas en tabla de resultados
+    const [rows, setRows]                       =   useState<TablaResultadosRow[]>([]);
     //2025-10-07 => Estado para selección registro en Data Grid
-    const [selecRow, setSelecRow]               =   useState([]);
+    const [selecRow, setSelecRow]               =   useState<Array<string | number>>([]);
     
     //Estado para manejo de popUp
     const [popUp, setPopUp]                     =   useState<PopupTemplate>();
 
-    //Estados para manejo columnas componente Tabla Resultados - 2025-07-22
-    //Ocultamiento columnas proj y camp - 2025-08-04
-    const [columnVisibilityModel, setColumnVisibilityModel] = useState({
-        id: false,
-        proj: false,
-        camp: false
-    });
-    
     //Estados para opción descarga - 2025-07-01
     const [downloadStatus, setDownloadStatus]   =   useState('');
     const [isDownloading, setIsDownloading]     =   useState(false);
@@ -148,11 +137,11 @@ const tablaResultados = function (props: AllWidgetProps<any>){
     //Ref controlador de selección punto sobre mapa base - 2025-10-07
     const clickHandlerRef                       =   useRef (null);
 
-    //Ref controlador de selección registro sobre DataGrid - 2025-10-09
-    const pendingSelectionDGRef                 =   useRef (null);
+    //Ref controlador de selección registro sobre tabla de resultados - 2025-10-09
+    const pendingSelectionDGRef                 =   useRef<string | number | null>(null);
 
-    //Ref para controlar el contenedor del DataGrid - 2025-10-09
-    const gridContainerDGRef                    =   useRef (null);
+    //Ref para controlar el contenedor de la tabla de resultados - 2025-10-09
+    const gridContainerDGRef                    =   useRef<HTMLDivElement>(null);
    
     const activeViewChangeHandler = async (jmv: JimuMapView) => {
         
@@ -1254,22 +1243,59 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         //Cierre modal respectivo
         setModalUsrDataDetail (!modalUsrDataDetail);
     }
+
+    /**
+     * Cierra el modal de registro de usuario desde el encabezado.
+     */
+    const handleCloseUsrModal = function () {
+        openCloseModalUsrDetail('');
+    }
     
-    const columnsSrcSIEC = [
-        {field:"oper", headerName:"Operaciones", width: 208,
-            sortable: false, 
-            renderCell: ({ row }) => 
-            <>
-                <Button type="primary" onClick={() => regUserDownloadZip('','',row.phSig + '.zip', generarFileStand(row.phSig) + '.zip')} disabled={isDownloading}>Descarga</Button>&nbsp;&nbsp;
-                <Button type="primary" onClick={() => openCloseModalDetail(row)}>Detalles</Button>
-            </>
-        },
-        {field:"id", headerName:"Object Id", width: 78},
-        {field:"proj", headerName:"Proyecto", width: 500},
-        {field:"camp", headerName:"Campaña", width: 305},
-        {field:"locat", headerName:"Ubicación", width: 270},
-        {field:"phSig", headerName:"Archivo firma", width: 300}
-    ]
+    /**
+     * Actualiza el modelo de paginacion usado por la tabla nativa.
+     *
+     * @param model Estado de pagina y cantidad de filas por pagina.
+     */
+    const handlePaginationModelChange = function (model: PaginationModelTR) {
+        setPaginationModel(model);
+    }
+
+    /**
+     * Procesa el click de una fila en la tabla y aplica zoom en el mapa.
+     *
+     * @param row Registro asociado a la fila seleccionada.
+     */
+    const handleTableRowClick = function (row: TablaResultadosRow) {
+        setSelecRow([row.id]);
+        zoomPointSelected(row);
+    }
+
+    /**
+     * Mantiene sincronizado el estado de seleccion de filas.
+     *
+     * @param ids Identificadores de filas seleccionadas.
+     */
+    const handleTableRowSelectionChange = function (ids: Array<string | number>) {
+        setSelecRow(ids);
+    }
+
+    /**
+     * Dispara la accion de descarga para una fila de resultados.
+     *
+     * @param row Registro con el archivo de firma asociado.
+     */
+    const handleTableDownloadClick = function (row: TablaResultadosRow) {
+        regUserDownloadZip('', '', row.phSig + '.zip', generarFileStand(row.phSig) + '.zip');
+    }
+
+    /**
+     * Abre el modal de detalle para la fila seleccionada.
+     *
+     * @param row Registro del punto de muestreo a consultar.
+     */
+    const handleTableDetailsClick = function (row: TablaResultadosRow) {
+        openCloseModalDetail(row);
+    }
 
     
     const togglePanel = function (panelName: string) {
@@ -1989,9 +2015,15 @@ const tablaResultados = function (props: AllWidgetProps<any>){
           })
     }
    
-    const scrollDGToRow = function (idRow) {
-        const el = document.querySelector(`[data-id="${idRow}"]`);
-        if (el && gridContainerDGRef.current) {
+    /**
+     * Desplaza el contenedor de la tabla hasta una fila especifica.
+     *
+     * @param idRow Identificador de fila a enfocar visualmente.
+     */
+    const scrollDGToRow = function (idRow: string | number) {
+        const root = gridContainerDGRef.current;
+        const el = root ? root.querySelector(`[data-id="${idRow}"]`) : null;
+        if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             el.classList.add('row-highlight');
             setTimeout(() => el.classList.remove('row-highlight'), 600);
@@ -2011,8 +2043,6 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             console.log("dataFromDispatch =>", {
                 props,
                 dataFromDispatch,
-                columnsSrcSIEC,
-                columnVisibilityModel,
                 rows,
                 selecRow,
                 numPageDG
@@ -2048,7 +2078,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
     },[rows]);
 
     useEffect (() => {
-        var found               : boolean       =   null;        
+        var found               : TablaResultadosRow | null   =   null;
         var indexRegDG, targPage: number        =   -1;
         var minDist         =   Infinity;
         if (!jimuMapView || !jimuMapView.view){
@@ -2165,7 +2195,8 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             const  idRegDG                  =   pendingSelectionDGRef.current;
             
             const waitSelectDG = function () {
-                const el    =   document.querySelector (`[data-id="${idRegDG}"]`);
+                const root  =   gridContainerDGRef.current;
+                const el    =   root ? root.querySelector (`[data-id="${idRegDG}"]`) : null;
                 if (el){
                     setSelecRow ([idRegDG]);
                     scrollDGToRow (idRegDG);
@@ -2270,42 +2301,21 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 : null
             }
         <>
-            <Button size="sm" className="mb-1" type="primary" onClick={()=>console.log("retornarFormulario")}>
-                Tabla Resultados</Button>                   
-            <DataGrid 
-                sx={{'.MuiTablePagination-root':
-                    {color: '#126a92', backgroundColor: '#ffff'},
-                    '.css-yseucu-MuiDataGrid-columnHeaderRow':
-                    {color: '#126a92', backgroundColor: '#ffff'},
-                    '.css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone':
-                    {color: '#126a92', backgroundColor: '#ffff'},
-                    '& .row-highlight': {
-                        backgroundColor: 'red !important',
-                        transition: 'background-color 0.6s ease'
-                    }
-                }}
-                className="css-1hr2sou-MuiTablePagination-root MuiTablePagination-root p-1"
-                columns={columnsSrcSIEC}
-                localeText={dataGridLang}
-                columnVisibilityModel={columnVisibilityModel}                
+            {/* <Button size="sm" className="mb-1" type="primary" onClick={()=>console.log("retornarFormulario")}>
+                Tabla Resultados</Button> */}   
+            <h3>Tabla Resultados</h3>
+            <TablaResultadosTable
                 rows={rows}
-                pagination
-                paginationMode='client'
-                pageSizeOptions={numPageDG}
                 paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
-                onCellClick={zoomPointSelected}
-                rowSelectionModel={selecRow}
-                onRowSelectionModelChange={(ids) => setSelecRow (ids)}
-                slotProps={
-                    {
-                        pagination: {
-                            labelRowsPerPage: 'Filas por página:',
-                            labelDisplayedRows: ({ from, to, count }) =>
-                                `${from}–${to} de ${count !== -1 ? count : `más de ${to}`}`,
-                        },
-                    }
-                }
+                pageSizeOptions={numPageDG}
+                selectedRowIds={selecRow}
+                isDownloading={isDownloading}
+                containerRef={gridContainerDGRef}
+                onPaginationModelChange={handlePaginationModelChange}
+                onRowSelectionChange={handleTableRowSelectionChange}
+                onRowClick={handleTableRowClick}
+                onDownloadClick={handleTableDownloadClick}
+                onDetailsClick={handleTableDetailsClick}
             />
             {/* Modal correspondiente a la opción Detalles*/ }
             <Modal
@@ -2503,7 +2513,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                                     <span id="fldOfVSpan">{modalBody.FieldOfView}</span>
                                                 </div>
                                                 <div className='row'>
-                                                    <label class="projLab">Accesorio</label>
+                                                    <label className="projLab">Accesorio</label>
                                                     {
                                                         entorno === 'dev' ?
                                                         <span id="adOptSpan">{modalBody.Id_AdaptedOptics}</span>:
@@ -2839,7 +2849,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                         <label>Información usuario descarga firma</label>:
                         <label className='titleUsrDownSigDataLbl_prod'>Información usuario descarga firma</label>
                     }
-                    <Button className="closeBtn app-root-emotion-cache-ltr-xg0zwy" onClick={openCloseModalUsrDetail}>x</Button> 
+                    <Button className="closeBtn app-root-emotion-cache-ltr-xg0zwy" onClick={handleCloseUsrModal}>x</Button> 
                 </ModalHeader> 
                 <ModalBody>
                     <form onSubmit={handleBtnFormUsrSubmit}>
@@ -2889,7 +2899,6 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                     <Select placeholder='Seleccione país...'
                                         value={formUsrDownSigData.pais}
                                         onChange={(evt) => handleSelCountryChange ('pais', evt)}
-                                        onBlur={(evt) => handleSelCountryBlur ('pais', evt, tValidators.required)}
                                     >
                                         {
                                             countryUsrDownSigLst.map ((paisItem) => (
@@ -2907,7 +2916,6 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                         placeholder='Seleccione profesión...'
                                         value={formUsrDownSigData.ocupa}
                                         onChange={(evt) => handleSelOcupProfChange ('ocupa', evt)}
-                                        onBlur={(evt) => handleSelOcupProfBlur ('ocupa', evt, tValidators.required)}
                                     >
                                         {
                                             occupUsrDownSigLst.map ((ocupaItem) => (
