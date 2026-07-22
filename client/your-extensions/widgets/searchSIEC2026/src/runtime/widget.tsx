@@ -557,7 +557,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
     const enviarDispatchs = function (rows) {
       //Envío al widget TablaResultados
       const dataToRenderTablaResultados = JSON.stringify({ dataToRows: rows })
-      props.dispatch(appActions.widgetStatePropChange('widget_7', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))
+      props.dispatch(appActions.widgetStatePropChange('widget_9', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))
       
       //Gráficos
       //logica para la barra de graficos

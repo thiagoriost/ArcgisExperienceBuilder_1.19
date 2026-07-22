@@ -1,9 +1,10 @@
 
 import { React, type AllWidgetProps } from 'jimu-core'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis' // The map object can be accessed using the JimuMapViewComponent
-import { useEffect, useState, useRef } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, CollapsablePanel, Table, Select, TextArea } from "jimu-ui";
 import { DataGrid } from "@mui/x-data-grid";
+
+const { useEffect, useState, useRef } = React;
 
 //Importaciones para mapa base
 import Graphic from "@arcgis/core/Graphic";
@@ -2005,9 +2006,17 @@ const tablaResultados = function (props: AllWidgetProps<any>){
     }, []);
   
     useEffect(() => {
-        if (props.hasOwnProperty('stateProps')) {
+        if (props.hasOwnProperty('stateProps') && props.stateProps.dataFromDispatchWidget_searchSIEC) {
             const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatchWidget_searchSIEC)
-            console.log("Lista de data desde props =>", dataFromDispatch)
+            console.log("dataFromDispatch =>", {
+                props,
+                dataFromDispatch,
+                columnsSrcSIEC,
+                columnVisibilityModel,
+                rows,
+                selecRow,
+                numPageDG
+            })
             setRows(dataFromDispatch.dataToRows)
             //Verificación cuando dataToRows es cero (0) - 2025-06-12
             console.log("Rows DG en tablaResultados =>",dataFromDispatch.dataToRows);
