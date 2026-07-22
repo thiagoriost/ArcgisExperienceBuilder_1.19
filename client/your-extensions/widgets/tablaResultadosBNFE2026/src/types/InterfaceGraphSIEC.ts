@@ -107,5 +107,16 @@
     Id_Archivo_Zip?: string;
     ubicLat?: string;
     ubicLon?: string;
-
+    GroundDistance?: string;
+    firma?: Array<{
+      id?: string;
+      SignatureIdentifier?: string;
+      Id_CoverType?: string;
+      InstrumentName?: string;
+      SeaLevelAltitude?: string;
+      IntegrationTime?: string;
+      Boxcar_Width?: string;
+      Scan_Average?: string;
+      MeasurementHeight?: string;
+    }>;
   }

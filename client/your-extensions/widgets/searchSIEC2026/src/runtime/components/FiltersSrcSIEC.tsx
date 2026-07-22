@@ -1716,7 +1716,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
 
         //Limpieza widgets Tabla Resultados        
         const dataToRenderTablaResultados = JSON.stringify({ dataToRows: [] });
-        props.dispatch(appActions.widgetStatePropChange('widget_81', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados));   
+        props.dispatch(appActions.widgetStatePropChange('widget_7', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados));   
         const dataToRenderBarChart = JSON.stringify({ dataToRows: [], labels: []})
         props.dispatch(appActions.widgetStatePropChange('widget_82', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
 
@@ -2773,7 +2773,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       dataToRenderBarChart = JSON.stringify({ dataToRows: [], labels: []})
       props.dispatch(appActions.widgetStatePropChange('widget_82', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
       dataToRenderTablaResultados = JSON.stringify({ dataToRows: [] });
-      props.dispatch(appActions.widgetStatePropChange('widget_81', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))   
+      props.dispatch(appActions.widgetStatePropChange('widget_7', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))   
     }
 
     /**
