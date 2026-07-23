@@ -1,26 +1,20 @@
 import { React, type AllWidgetProps } from 'jimu-core'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis' // The map object can be accessed using the JimuMapViewComponent
-import { Pagination } from 'jimu-ui'
-import { Bar} from 'react-chartjs-2'
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js"
 import { typeMSM } from '../../../commonWidgets/modal/interfaces'
+import NativeBarChart, { type BarChartDefinition } from '../../../shared/components/NativeBarChart'
 import type { LabelItem } from '../../../searchSIEC2026/src/runtime/widget'
-import type { MouseEvent } from 'react'
-import type { Chart as ChartJSInstance } from 'chart.js'
+import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
 
-const { useEffect, useState, useRef } = React
-
-
-// Registrar los componentes necesarios
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+const { useEffect, useState } = React
 
 
 const barChart = (props: AllWidgetProps<any>) => {
+  if(validaLoggerLocalStorage('logger')) console.log('Widget barChart ID:', {id:props.id, props})
 
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
   const [initialExtent, setInitialExtent] = useState(null)
-  const [dataGrafico, setDataGrafico] = useState<ChartsData[]>([])
-  const [currentpage, setCurrentpage] = useState(1)
+  const [chartDefinitions, setChartDefinitions] = useState<BarChartDefinition[]>([])
+  const [chartRecords, setChartRecords] = useState<any[]>([])
   const [widgetModules, setWidgetModules] = useState(null)
   const [utilsModule, setUtilsModule] = useState(null)
   const [mensajeModal, setMensajeModal] = useState({
@@ -31,9 +25,6 @@ const barChart = (props: AllWidgetProps<any>) => {
       subBody: ''
     })
 
- const chartRef = useRef<ChartJSInstance<'bar'> | null>(null)
-
-
   const activeViewChangeHandler = (jmv: JimuMapView) => {
     if (utilsModule?.logger()) console.log('Ingresando al evento objeto JimuMapView...')
     if (jmv) {
@@ -42,110 +33,35 @@ const barChart = (props: AllWidgetProps<any>) => {
     }
   }
 
-  const handleChartClick = (event: MouseEvent<HTMLCanvasElement>) => {
-      if (chartRef.current) {
-        const activeElement = chartRef.current.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, false)
-        if (activeElement.length > 0) {
-          const datasetIndex = activeElement[0].datasetIndex
-          const index = activeElement[0].index
-          const label = chartRef.current.data.labels[index]
-          const value = chartRef.current.data.datasets[datasetIndex].data[index]
-          if (utilsModule?.logger()) console.log(`Clicked on label: ${label}, value: ${value}`)
-          // Aquí puedes agregar la lógica que desees al hacer clic en el gráfico
-        }
-      }
+  /**
+   * Convierte las definiciones externas del widget de busqueda en el formato
+   * generico requerido por el componente reutilizable del grafico.
+   *
+   * @param labels Definiciones originales enviadas desde el widget de busqueda.
+   */
+  const mapLabelDefsToChartDefs = function (labels: LabelItem[]): BarChartDefinition[] {
+    return labels.map((labelItem) => ({
+      label: labelItem.label,
+      description: labelItem.description,
+      color: labelItem.color,
+      tituloGrafico: labelItem.tituloGrafico
+    }))
   }
 
- const prepareBarChartData = (features: any[], labels: LabelItem[]) => {
-  const groupByField = (field: string) => {
-    return features.reduce((acc, feature) => {
-      const key = feature[field] || "Sin Datos"
-      acc[key] = (acc[key] || 0) + 1
-      return acc
-    }, {})
+
+useEffect(() => {
+  if (utilsModule?.logger()) console.log({props})
+  if (props.hasOwnProperty('stateProps') && props.stateProps.dataFromDispatchWidget_searchSIEC) {
+      const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatchWidget_searchSIEC)
+      console.log(props, dataFromDispatch)
+      const {dataToRows, labels} = dataFromDispatch
+      setChartRecords(dataToRows ?? [])
+      setChartDefinitions(mapLabelDefsToChartDefs(labels ?? []))
+      // Verificar si dataFromDispatch tiene datos para renderizar el BarChart
+      // Envia features y parametros para ajustar la data a renderizar
   }
 
-  // Construir el dataset para el gráfico
-  const buildDataset = (groupedData: { [s: string]: unknown } | ArrayLike<unknown>, label: string, color: string) => {
-    return {
-      labels: Object.keys(groupedData),
-      datasets: [
-        {
-          label,
-          data: Object.values(groupedData),
-          backgroundColor: color,
-          borderColor: color,
-          borderWidth: 1,
-        },
-      ],
-    }
-  }
-
-  // Crear las opciones del gráfico
-  const createChartOptions = (title: string) => ({
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: title,
-        font: {
-          size: 18,
-        }
-      },
-    },
-    scales: {
-      x: {
-        type: "category", // Asegúrate de especificar el tipo de escala
-        title: {
-          display: true,
-          text: "Categorías",
-        },
-      },
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Cantidad",
-        },
-      },
-    },
-  })
-
-  // Agrupar por los campos requeridos
-  const AgrupacionCamposRequeridos = []
-  labels.forEach(({label}) =>{
-    const groupedBy = groupByField(label)
-    AgrupacionCamposRequeridos.push(groupedBy)
-  })
-
-  const chartData: ChartsData[] = []
-  AgrupacionCamposRequeridos.forEach((groupedData, index) => {
-    const description = labels[index].description
-    const color = labels[index].color
-    const dataset = buildDataset(groupedData, description, color)
-    const options = createChartOptions(labels[index].tituloGrafico)
-    chartData.push({dataset, options})
-  })
-
-  setDataGrafico(chartData)
-}
-
-  useEffect(() => {
-    console.log({props})
-      if (props.hasOwnProperty('stateProps')) {
-          const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatchWidget_searchSIEC)
-          console.log(props, dataFromDispatch)
-          const {dataToRows, labels} = dataFromDispatch
-          prepareBarChartData(dataToRows, labels)
-          // Verificar si dataFromDispatch tiene datos para renderizar el BarChart
-          // Envia features y parametros para ajustar la data a renderizar
-      }
-
-    }, [props])
+  }, [props])
 
   useEffect(() => {
       // setResponseConsulta(dataPruebaResponse)
@@ -163,26 +79,19 @@ const barChart = (props: AllWidgetProps<any>) => {
 
       <>
               {
-                (dataGrafico.length > 0/*  && poligonoSeleccionado.departmentSelect */) && (
-                  <div style={{ padding: '10px', width: '100%', height: '400px', border: 'solid', borderRadius: '10px',
-                  backgroundColor: 'white', display: 'flex', justifyContent: 'center', flexDirection:'column' }}>
-                    {
-                      dataGrafico.length > 1 &&
-                        <Pagination
-                          current={currentpage}
-                          size="default"
-                          totalPage={dataGrafico.length}
-                          onChangePage={(e: React.SetStateAction<number>) => { setCurrentpage(e) }}
-                        />
-                    }
-                    {
-                        dataGrafico.map((d, i) => (
-                          currentpage === (i + 1) &&
-                          <Bar options={d.options} data={d.dataset} ref={chartRef} onClick={handleChartClick} />
-                        ))
-                    }
-                </div>
-                )}
+                chartDefinitions.length > 0 && (
+                  <NativeBarChart
+                    records={chartRecords}
+                    definitions={chartDefinitions}
+                    title='render gráfico'
+                    onBarClick={({ definition, point }) => {
+                      if (utilsModule?.logger()) {
+                        console.log('Barra seleccionada:', { definition, point })
+                      }
+                    }}
+                  />
+                )
+              }
               {
                 widgetModules?.MODAL(mensajeModal, setMensajeModal)
               }

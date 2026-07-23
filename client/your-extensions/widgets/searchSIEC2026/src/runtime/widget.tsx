@@ -589,7 +589,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
 
       //Envío al widget Bar-Chart
       const dataToRenderBarChart = JSON.stringify({ dataToRows: rows, labels})
-      props.dispatch(appActions.widgetStatePropChange('widget_82', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart))   
+      props.dispatch(appActions.widgetStatePropChange('widget_13', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart))   
     }
     
     return (

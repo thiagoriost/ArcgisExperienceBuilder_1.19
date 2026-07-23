@@ -1718,7 +1718,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         const dataToRenderTablaResultados = JSON.stringify({ dataToRows: [] });
         props.dispatch(appActions.widgetStatePropChange('widget_9', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados));   
         const dataToRenderBarChart = JSON.stringify({ dataToRows: [], labels: []})
-        props.dispatch(appActions.widgetStatePropChange('widget_82', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
+        props.dispatch(appActions.widgetStatePropChange('widget_13', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
 
         //Borrado markers anteriores
         borradoMarkers(jimuMapView);
@@ -2771,7 +2771,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       
       //Limpieza widgets Tabla Resultados y Bar-Chart
       dataToRenderBarChart = JSON.stringify({ dataToRows: [], labels: []})
-      props.dispatch(appActions.widgetStatePropChange('widget_82', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
+      props.dispatch(appActions.widgetStatePropChange('widget_13', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
       dataToRenderTablaResultados = JSON.stringify({ dataToRows: [] });
       props.dispatch(appActions.widgetStatePropChange('widget_9', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))   
     }
