@@ -4,6 +4,9 @@ client/*
 !client/your-extensions/**
 !client/package.json
 !client/package-lock.json
+!client/webpack.config.js
+!client/webpack/webpack.common.js
+!client/tsconfig.json
 server/
 soccerPromt.txt
 node_modules/*

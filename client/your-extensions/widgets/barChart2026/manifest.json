@@ -1,9 +1,12 @@
 {
-  "name": "Bar-Chart_2026",
+  "name": "barChart2026",
   "label": "BarChart2026",
   "type": "widget",
-  "version": "1.14.0",
-  "exbVersion": "1.14.0",
+  "version": "1.19.0",
+  "exbVersion": "1.19.0",
+  "dependency": [
+    "jimu-arcgis"
+  ],
   "author": "rigoriosh@gmail.com",
   "description": "A widget to display bar charts using the Chart.js library.",
   "icon": "fa fa-bar-chart",

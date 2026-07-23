@@ -15,7 +15,7 @@
  * @changes Deshacer requerimiento 2025-06-03, ya que no se emplea la importación, se realiza bajo hook useEffect importación utilidades para módulos
  * @remarks Tomado del visor geográfico, REFA
  */
-console.log(1111111111111111111)
+
 import { React, AllWidgetProps, extensionSpec, appActions } from "jimu-core";
 import { JimuMapViewComponent, JimuMapView } from 'jimu-arcgis'; // The map object can be accessed using the JimuMapViewComponent
 import { useEffect, useRef } from "react";
@@ -557,7 +557,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
     const enviarDispatchs = function (rows) {
       //Envío al widget TablaResultados
       const dataToRenderTablaResultados = JSON.stringify({ dataToRows: rows })
-      props.dispatch(appActions.widgetStatePropChange('widget_81', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))
+      props.dispatch(appActions.widgetStatePropChange('widget_9', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))
       
       //Gráficos
       //logica para la barra de graficos

@@ -1,59 +1,10 @@
 
-/** 
- * Seccion importación
- * @date 2025-06-04
- * @dateUpdated 2025-06-09
- * @changes Adaptación componente TablaResultSrcSIEC como widget
- * @dateUpdated 2025-06-10
- * @changes Adaptación componente TablaResultSrcSIEC como widget
- * @dateUpdated 2025-06-11
- * @changes Importación componente PopupTemplate
- * @dateUpdated 2025-07-18
- * @changes Importación estilos del componente tablaResultados
- * @changes Importación objeto getToken para obtener token de seguridad en el consumo del API
- * @dateUpdated 2025-07-21
- * @changes Importación objeto Table para implementar sección Firmas, en opción Detalles
- * @changes Exclusión componente pathDataGridSIEC
- * @dateUpdated 2025-07-22
- * @changes Adicionar opción Descargar metadato, sección metadatos.
- * @changes Alineamiento tabla, sección firmas.
- * @dateUpdated 2025-07-23
- * @changes Importación objeto js2xmlparser
- * @dateUpdated 2025-08-14
- * @changes Importación useRef
- * @dateUpdated 2025-08-22
- * @changes Importación objeto entorno
- * @changes Inclusión componente TextArea desde jimu-ui
- * @dateUpdated 2025-08-25
- * @changes Importación objeto tValidators
- * @changes Importación objeto sortPaises
- * @dateUpdated 2025-08-26
- * @changes Importación objeto sortOcupa
- * @dateUpdated 2025-08-27
- * @changes Importación objeto urlsPost
- * @dateUpdated 2025-08-29
- * @changes Importación objeto InterfaceMensajeModal (Interfaces), uso validador formulario   
- * @changes Importación objeto typeMSM (Interfaces), uso validador formulario   
- * @changes Importación Componente DialogsSrcSIEC
- * @changes Importación objeto timeExpires, que fija tiempo de expiración sesión.
- * @dateUpdated 2025-09-01
- * @changes Importación objeto timeDownLoad, que fija tiempo antes de autorizar la descarga de archivo al usuario
- * @dateUpdated 2025-09-16
- * @changes Importación objeto numPosiciones
- * @dateUpdated 2025-09-18
- * @changes Importación objeto numPageDG
- * @dateUpdated 2025-10-07
- * @changes Importación objeto tolerFactorSrcP
- * @dateUpdated 2025-10-08
- * @changes Importación objeto useGridApiRef, desde la libreria x-data-grid
- * @remarks widget independiente asociado al componente tablaResultSrcSIEC, para despliegue en sección SideBar de la plantilla "plantilla Visor Geográfico_RRH_03062025"
-*/
-
 import { React, type AllWidgetProps } from 'jimu-core'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis' // The map object can be accessed using the JimuMapViewComponent
-import { useEffect, useState, useRef } from 'react'
 import { Button, Modal, ModalBody, ModalHeader, CollapsablePanel, Table, Select, TextArea } from "jimu-ui";
-import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
+import TablaResultadosTable, { type PaginationModelTR, type TablaResultadosRow } from './components/TablaResultadosTable';
+
+const { useEffect, useState, useRef } = React;
 
 //Importaciones para mapa base
 import Graphic from "@arcgis/core/Graphic";
@@ -83,9 +34,6 @@ import { entorno, tValidators, timeExpires, numPosiciones, numPageDG, tolerFacto
 //Objetos desde servicios
 import { urls, urlsPost  } from '../../../api/serviciosFirmasEspectrales';
 
-//Objeto para definir el lenguaje asociado al componente DataGrid
-import { dataGridLang } from '../../../searchSIEC2026/src/types/dataDG';
-
 //Importación interfaces
 import { InterfaceMensajeModal, typeMSM } from "../../../searchSIEC2026/src/types/InterfaceResponseBusquedaFirmas";
 
@@ -95,118 +43,10 @@ import { InterfaceModalBody } from '../types/InterfaceGraphSIEC';
 import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils';
 
 
-/**
- * widget independiente TablaResultados => Resultados asociados al widget BuscarFirma en un Data Grid
- * @date 2025-06-04
- * @author IGAC - DIP
- * @author RRH
- * @dateUpdated 2025-06-09
- * @changes Cargue parámetro setRows
- * @changes Cargue parámetro setJimuMapView
- * @dateUpdated 2025-06-12
- * @changes Generación states para manejo del componente PopUpTemplate
- * @dateUpdated 2025-06-20
- * @changes Asignación estilo p-3 al componente DataGrid
- * @dateUpdated 2025-06-25
- * @changes Supresión sección Datos de la Muestra {Tipo => tMues, Altura promedio de la cobertura => altCover, Instrumento => instrum}
- * @changes Supresión sección Ubicación de la firma (Coordenadas decimales) {Altura de la vegetación => altCover}
- * @changes Reacomodación Información Proyecto y Campaña (Título sector izquierdo, contenido sector derecho del modal)
- * @dateUpdated 2025-06-27
- * @changes Cambio atributo clase estilo p-3 => p-1
- * @dateUpdated 2025-07-01
- * @changes Implementación states para la opción Descarga del componente DataGrid
- * @dateUpdated 2025-07-18
- * @changes Implementación states para actualizar opción Detalles, implementando secciones colapsables
- * @dateUpdated 2025-07-21
- * @changes Implementación states para realizar consumo desde API, y obtener las firmas por puntos de muestreo
- * @dateUpdated 2025-07-22
- * @changes Ocultamiento columna ObjectId del componente TablaResultados
- * @changes Ocultamiento columna IdArchivo de la sección Firmas, opción Detalles
- * @dateUpdated 2025-07-23
- * @changes Listado de columnas por sección, según reunión con cliente. 
- * Sección Metadatos => Proyecto, campaña, ubicación, tipo muestra (OJO, no existe en servicio), total firmas, accesorio; sección firmas => Tipo cobertura, instrumento 
- * @dateUpdated 2025-07-25
- * @changes Corrección término MetaDatos => Metadatos
- * @changes Corrección Imagenes => Imágenes
- * @changes Implementación state para actualizar opción Detalles, incluyendo sección imágenes en un colapsable
- * @changes Implementación método zoomPointSelected(), el cual permite ampliar en mapa, el punto seleccionado en el componente Tabla Resultados.
- * @dateUpdated 2025-08-06
- * @changes Borrado columna Boxcar, sección Firmas
- * @changes Actualización columna Accesorio, aplicación clases estilos row, projLab
- * @changes Actualización columna Número firmas, aplicación clases estilos row, projLab
- * @changes Visualizar sección metadatos al seleccionar opción Detalles, del componente TablaResultados
- * @dateUpdated 2025-08-12
- * @changes Inclusión states estado Cargando
- * @changes Inclusión clase estilo modalDetails al modal que visualiza la información, según opción Detalles del componente TablaResultados
- * @changes Visualizar en el componente el estado de consulta, en el cual, cuando no existan registros en el servicio, se visualice el estado "No hay resultados asociados a la búsqueda!"
- * @changes Visualizar en el componente el paginador en idioma español
- * @changes Implementar estado "Cargando" en la sección Metadatos, empleando el state isLoad
- * @dateUpdated 2025-08-13
- * @changes Implementar estado "Cargando" en la sección firmas, empleando el state isLoad
- * @changes Implementar estado "Cargando" en la sección imágenes, empleando el state isLoad
- * @changes Actualizar la visualización de la sección imágenes pasando de 4 x 1 => 2 x 2
- * @dateUpdated 2025-08-14
- * @changes Implementar estados para autenticación usuario a opción Descarga, componente TablaResultados
- * @changes Cambios del cliente: Actualización término Altura snm => Altura msnm
- * @changes Cambios del cliente: Actualización término Integración => Tiempo de integración
- * @changes Cambios del cliente: Actualización término Promedio búsqueda => Escaneos promedios
- * @changes Cambios del cliente: Actualización término Muestra desde piso => Distancia a la muestra
- * @dateUpdated 2025-08-19
- * @changes Inclusión clase estilo rowImage
- * @changes Corrección términos Integración => integración 
- * @changes Corrección términos Firma => firma
- * @changes Corrección términos Archivo => archivo
- * @changes Corrección términos Muestra => muestra
- * @changes Aplicación clase estilo imgSIECSpanEmpty, para la sección Imágenes en los cuatro tipos desplegados
- * @dateUpdated 2025-08-22
- * @changes Aplicación condicionada de estilos, según objeto entorno
- * @changes Implementación formulario modal, para despliegue en opción Descarga (En curso)
- * @changes Generación states para visualización formulario en componente Modal
- * @dateUpdated 2025-08-25
- * @changes Inclusión valores campo País {'Brasil', 'Colombia', 'Cuba', 'Ecuador', 'Estados Unidos'} (Pruebas) 
- * @changes Aplicación estilo campo País
- * @changes Consumo lista paises, a partir del objeto countryUsrDownSigLst
- * @changes Inclusión valores campo Ocupación {'Abogado', 'Analista financiera', 'Ingeniero', 'Periodista'} (Pruebas)
- * @changes Aplicación estilo campo Ocupación
- * @changes Generación states formulario "Información usuario descarga firma"
- * @dateUpdated 2025-08-27
- * @changes Adición atributo files al state formUsrDownSigData
- * @dateUpdated 2025-08-29
- * @changes Implementación states para componente Alert
- * @changes Inclusión clase estilo reqUsrDownSigDataValidator
- * @changes Borrado opción Continuar descarga
- * @dateUpdated 2025-09-03
- * @changes Inclusión clase estilo ubicCamp_prod, el cual aplica campo Campaña en entorno productivo
- * @dateUpdated 2025-09-12
- * @changes Resolución incidencias => "La separación entre secciones de la información de detalle no es clara para firmas e imágenes, por lo que se recomendaría emplear un marco/frame o divisor más claro entre las secciones...", P5
- * @dateUpdated 2025-09-15
- * @changes Fix incidencia => "La separación entre secciones de la información de detalle no es clara para firmas e imágenes, por lo que se recomendaría emplear un marco/frame o divisor más claro entre las secciones...", P5. Desactivación bordes títulos secciones. * 
- * @changes Fix incidencia => "Ventana emergente control usuario para descarga", P1
- * @dateUpdated 2025-09-16
- * @changes Fix incidencia => "Ventana emergente control usuario para descarga", P1
- * @dateUpdated 2025-09-22
- * @changes Actualización validador "textSigle" sobre campo Empresa / Organización
- * @changes Mapeo clases estilos entornos desarrollo (dev) y productivo (prod) al formulario "Información usuario descarga firma"
- * @dateUpdated 2025-09-24
- * @changes Aplicación estilos formulario "Información usuario descarga firma" =>
- * @changes Aplicación estilo titleUsrDownSigDataLbl_prod => Título
- * @changes Aplicación estilo paisSpanCls_prod => Campo País
- * @changes Aplicación estilo ocupaLblCls_prod => Campo Ocupación (Título)
- * @changes Aplicación estilo ocupaSpanCls_prod => Campo Ocupación
- * @changes Aplicación estilo purpDataLblCls_prod => Campo Describa el interés en los datos(Título)
- * @changes Aplicación estilo purpDataCls_prod => Campo Describa el interés en los datos
- * @dateUpdated 2025-10-07
- * @changes Creación estados para selección de registros, en componente DataGrid.
- * @changes Implementación selección registro componente DataGrid, según punto seleccionado del mapa base
- * @remarks FUENTE consulta: Claude AI => https://claude.ai/chat/4628dc36-e352-4068-94f3-579f6ca7c8b3
- * @remarks FUENTE consulta paises: https://www.dian.gov.co/atencionciudadano/formulariosinstructivos/Formularios/2009/Paises_2009.pdf 
- * @remarks FUENTE consulta Clasificación única de ocupaciones para Col (CUOC): https://www.dane.gov.co/files/sen/nomenclatura/cuoc/documento-clasificacion-unica-ocupaciones-colombia-CUOC.pdf 
- */
 const tablaResultados = function (props: AllWidgetProps<any>){
     if(validaLoggerLocalStorage('logger')) console.log('WidgetResult ID:', {id:props.id, props})
     if(validaLoggerLocalStorage('logger')) console.log('MapWidgetIds:', props.useMapWidgetIds)
     //Estados locales
-    const [utilsModule, setUtilsModule] = useState(null)
     const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
     const [initialExtent, setInitialExtent] = useState(null)
     
@@ -255,27 +95,19 @@ const tablaResultados = function (props: AllWidgetProps<any>){
    const [sessExpires, setSessExpires]         =   useState(timeExpires);  //24 hr duración
 
    //Estado que define pagination model controlado
-   const [paginationModel, setPaginationModel]=useState({
+   const [paginationModel, setPaginationModel]=useState<PaginationModelTR>({
         pageSize: 5,
         page: 0
     })
 
-    //Estado para manejo filas en DataGrid
-    const [rows, setRows]                       =   useState([]);
+    //Estado para manejo filas en tabla de resultados
+    const [rows, setRows]                       =   useState<TablaResultadosRow[]>([]);
     //2025-10-07 => Estado para selección registro en Data Grid
-    const [selecRow, setSelecRow]               =   useState([]);
+    const [selecRow, setSelecRow]               =   useState<Array<string | number>>([]);
     
     //Estado para manejo de popUp
     const [popUp, setPopUp]                     =   useState<PopupTemplate>();
 
-    //Estados para manejo columnas componente Tabla Resultados - 2025-07-22
-    //Ocultamiento columnas proj y camp - 2025-08-04
-    const [columnVisibilityModel, setColumnVisibilityModel] = useState({
-        id: false,
-        proj: false,
-        camp: false
-    });
-    
     //Estados para opción descarga - 2025-07-01
     const [downloadStatus, setDownloadStatus]   =   useState('');
     const [isDownloading, setIsDownloading]     =   useState(false);
@@ -305,51 +137,19 @@ const tablaResultados = function (props: AllWidgetProps<any>){
     //Ref controlador de selección punto sobre mapa base - 2025-10-07
     const clickHandlerRef                       =   useRef (null);
 
-    //Ref controlador de selección registro sobre DataGrid - 2025-10-09
-    const pendingSelectionDGRef                 =   useRef (null);
+    //Ref controlador de selección registro sobre tabla de resultados - 2025-10-09
+    const pendingSelectionDGRef                 =   useRef<string | number | null>(null);
 
-    //Ref para controlar el contenedor del DataGrid - 2025-10-09
-    const gridContainerDGRef                    =   useRef (null);
-    /** 
-     * Evento asociado al cambio de vista sobre el componente JimuMapViewComponent
-     * @date 2025-06-09
-     * @author Ing.RRH
-     * @dateUpdated 2025-06-10
-     * @changes Suprimir registro extent inicial del mapa, ya que se realiza en componente ppal (widget en searchSIEC)
-     * @remarks método traido del componente ppal widget (searchSIEC)
-     */ 
+    //Ref para controlar el contenedor de la tabla de resultados - 2025-10-09
+    const gridContainerDGRef                    =   useRef<HTMLDivElement>(null);
+   
     const activeViewChangeHandler = async (jmv: JimuMapView) => {
-        if (utilsModule?.logger()) console.log('Ingresando al evento objeto JimuMapView...')
+        
         if (jmv) {
             setJimuMapView(jmv);
         }
     }
 
-    /**
-     * regUserDownloadZip => Formulario para registro de usuario, cuando selecciona opción Descarga
-     * @date 2025-08-22
-     * @author IGAC - DIP
-     * @param {string} usr
-     * @param {string} pass 
-     * @param {object} files
-     * @param {string} zipName
-     * @dateUpdated 2025-08-25
-     * @changes Actualización validador, para existencia del usuario, asociado al Correo electrónico de la sesión activa
-     * @changes Cargue valores listado de paises, asociado al campo País.
-     * @dateUpdated 2025-08-27
-     * @changes Actualización param usr => files
-     * @dateUpdated 2025-08-29
-     * @changes Inclusión control de tiempo sesión para campo correo electrónico
-     * @changes Fix validador sesión y control de tiempo
-     * @dateUpdated 2025-09-02
-     * @changes Fix validador sesión campo correo electrónico
-     * @dateUpdated 2025-09-03
-     * @changes Actualizar control de errores, asociado al retorno de la petición desde el servidor
-     * @remarks PopUp de registro Usuario
-     * @remarks Uso de variable de sesión asociada al campo Correo electrónico (2025-08-25)
-     * @remarks @param files => nomFile + . + ext
-     * @remarks FUENTE consulta control de tiempo sesión: Claude, AI => https://claude.ai/chat/1524c133-89ab-4f4c-a923-c5a6b3f5cf4e
-     */
    
     const regUserDownloadZip = function (usr:string = '', pass:string = '', files, zipName:string = 'filesZip.zip') {
         //Objetos locales
@@ -495,28 +295,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             openCloseModalUsrDetail (files);
         }
     }
-    /**
-     * downloadZipFile => Método para descargar múltiples archivos en formato ZIP
-     * @date 2025-07-01
-     * @author IGAC - DIP
-     * @param files
-     * @param zipName
-     * @param usr
-     * @param pass 
-     * @dateUpdated 2025-07-22
-     * @changes Implementación opción Descarga, mediante consumo API api_getMetaDatoIdMetaByPhSig,  api_getFileCompressByIdMeta, api_getCompressByIdFile
-     * @dateUpdated 2025-07-24
-     * @changes corrección parámetro Content-Type en encabezado (Head), consumo api_getCompressByIdFile => x-zip-compressed
-     * @dateUpdated 2025-08-12
-     * @changes Inclusión @param usr => email del usuario que se autentica
-     * @changes Inclusión @param pass => contraseña del usuario texto plano que se autentica
-     * @dateUpdated 2025-09-03
-     * @changes Inclusión validador de existencia Metadatos asociados a punto de muestreo (En pruebas)
-     * @changes Actualizar control de errores, asociado al retorno de la petición desde el servidor
-     * @remarks Fuente de consulta AI: http://claude.ai/chat/921c2de8-6819-4279-91af-648d022bba97
-     * @remarks optimizar desarrollo método
-     * @remarks Adicionar validador control errores, operaciones al servidor remoto (tipo fetch)
-     */
+    
 
     const downloadZipFile = async function (usr:string = '', pass:string = '', files, zipName:string = 'filesZip.zip'){
         //Objetos locales
@@ -745,18 +524,6 @@ const tablaResultados = function (props: AllWidgetProps<any>){
     }
 
 
-    /**
-     * setHeadModal => Método para asignar el encabezado del modal opción Detalles
-     * @date 2025-05-16
-     * @author IGAC - DIP
-     * @param row 
-     * @dateUpdated 2025-06-25
-     * @changes actualización atributo codSig => objectId
-     * @dateUpdated 2025-07-21
-     * @changes Actualización título encabezado "Firma asociada con identificador xx" => "Detalles del punto de muestreo xx"
-     * @dateUpdated 2025-07-22
-     * @changes Actualización punto muestreo id => obj_id
-     */
     const setHeadModal = function(row){
       var headJSON = {
           "objectId": row.obj_id
@@ -765,58 +532,11 @@ const tablaResultados = function (props: AllWidgetProps<any>){
       setModalHead(headHTMLModal);
   }
 
-   /**
-    * setBodyModal => método para generar el cuerpo del modal, basado en la información del servicio en objeto row
-    * @date 2025-05-16
-    * @author IGAC - DIP
-    * @param metaDataFirma
-    * @dateUpdated 2025-06-25
-    * @changes Desactivación desde objeto bodyJSONm, atributo tMues ("tMues": row.type,)(cambio temporal), por no existir en el servicio
-    * @changes Supresión desde objeto bodyJSONm, atributo altCover
-    * @changes Supresión desde objeto bodyJSONm, atributo instrum
-    * @dateUpdated 2025-07-18
-    * @changes Inclusión atributos asociados a la consulta del objeto Metadatos_Firmas
-    * @changes Inclusión @param metaDataSign
-    * @dateUpdated 2025-07-21
-    * @changes Actualización param metaDataSign => @param metaDataFirma
-    * @changes Supresión param @param row
-    */
+   
     const setBodyModal = function (metaDataFirma){
         setModalBody(metaDataFirma);
   }
-   /**
-    * Método openCloseModalDetail => abre / cierra modal asociado a la opción Detalles
-    * @date 2025-04-15
-    * @author IGAC - DIP
-    * @param row
-    * @dateUpdated 2025-05-16
-    * @changes Adición parámetro row, que contiene la información del dataGrid en la fila seleccionada
-    * @dateUpdated 2025-07-18
-    * @changes Llamado WServ para obtener la información de metadato, asociado al atributo row.phsig
-    * @changes Actualización llamado método setBodyModal
-    * @dateUpdated 2025-07-21
-    * @changes Realizar consumo API, para obtener la información de firmas (puntos de muestreo), asociado a su identificador row.id => row.obj_id
-    * @dateUpdated 2025-07-22
-    * @changes Realizar consumo API, para obtener las imágenes de los metadatos asociados a phocover, ptocontext, photosky y spectraGraph
-    * @dateUpdated 2025-07-23
-    * @changes Detección bug al cerrar el modal, se obtiene petición incorrecta => se adiciona validación que se realice la petición de consumo, apenas se abra el modal.
-    * @dateUpdated 2025-07-24
-    * @changes Implementar borrado de imágenes de la vista, cuando se cierre el modal.
-    * @changes Obtener valores dominio sección firmas
-    * @changes Obtener valores dominio sección metadatos
-    * @changes Inclusión atributo Id_Metadato en la construcción del objeto Metadatos
-    * @dateUpdated 2025-08-06
-    * @changes Adición validación al cargue de imágenes {Photo Cover, Photo Context, Photo Sky y Photo Spectrum Graph}, de tal manera, que si no existe desde el Servicio, se visualiza 'Sin imágen asociada'
-    * @dateUpdated 2025-08-08
-    * @changes Actualización state de los panels para toma de valores iniciales, al cerrar al modal
-    * @dateUpdated 2025-08-12
-    * @changes Fix bug visualización datos sección metadatos los cuales, mientras se están obteniendo desde el servidor (consumo vía API), se despliega estado Cargando...  
-    * @dateUpdated 2025-09-03
-    * @changes Actualizar control de errores, asociado al retorno de la petición desde el servidor
-    * @remarks Fuente consulta https://www.youtube.com/watch?v=XAAl8IDwMiw&t=775s
-    * @remarks Fuente consulta req 2025-07-22 => https://medium.com/@ansarimazhar7353/heres-how-to-handle-image-api-response-in-react-29b0b614051e
-    * @remarks Fuente consulta req 2025-07-24 (Obtener valores dominio) => https://stackoverflow.com/questions/47604040/how-to-get-data-returned-from-fetch-promise (@Senthil Balaji)
-    */
+  
     const openCloseModalDetail = async function(row){
         var tokenSeg: string;
         var urlServicioSIEC: string;
@@ -1469,17 +1189,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             });
         }
     }
-    /**
-     * Visualización modal para registro información usuario que descarga archivo de firma. 
-     * @date 2025-08-22
-     * @author IGAC - DIP 
-     * @param {string} files
-     * @dateUpdated 2025-08-27
-     * @changes Cambio @param usr => @param files
-     * @dateUpdated 2025-08-29
-     * @changes Fix limpieza campos Pais, Ocuptación y Empresa
-     * @changes Fix limpieza validadores
-     */
+    
     const openCloseModalUsrDetail = function (files: string){
         console.log("Invocación Modal...",modalUsrDataDetail);
         //console.log("Persona / usuario asociado =>", usr);
@@ -1533,74 +1243,60 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         //Cierre modal respectivo
         setModalUsrDataDetail (!modalUsrDataDetail);
     }
-    /**
-     * Columnas del componente DataGrid, invocado desde el componente TablaResultSrcSIEC
-     * @date 2025-04-09
-     * @author IGAC - DIP
-     * @dateUpdated 2025-04-10
-     * @changes Adaptación del atributo width a todas las columnas
-     * @changes Adaptación columna Operaciones, para adicionar botón Descarga
-     * @dateUpdated 2025-05-09
-     * @changes Incluir columnas según el consumo del servicio
-     * @dateUpdated 2025-05-12
-     * @changes Actualizar ancho (width) a campo Código Firma 180 => 240  
-     * @changes Actualizar ancho (width) a campo Instrumento 220 => 270 
-     * @changes Actualizar ancho (width) a campo Proyecto 210 => 240  
-     * @changes Actualizar ancho (width) a campo Archivo firma 220 => 270
-     * @dateUpdated 2025-05-16
-     * @changes Unificación opción Detalles
-     * @changes Actualización invocación método openCloseModalDetail
-     * @changes Actualizar ancho (width) a campo Operaciones 106 => 220
-     * @changes Actualizar ancho (width) a campo Instrumento 270 => 340
-     * @changes Actualizar ancho (width) a campo Archivo firma 270 => 450 (320 Opt)
-     * @dateUpdated 2025-05-23
-     * @changes Actualizar ancho (width) a campo Ubicación 90 => 340
-     * @dateUpdated 2025-06-19
-     * @changes Especificar columna Operaciones antes de columna Object Id
-     * @dateUpdated 2025-06-25
-     * @changes Desactivar atributo type dado por {field:"type", headerName:"Cobertura", width: 150}, por no existir en el servicio (cambio temporal)
-     * @changes Suprimir columna Código Firma dado por atributo codSig {field:"codSig", headerName:"Código Firma", width: 240}
-     * @changes Suprimir columna Instrumento dado por atributo ins{field:"ins", headerName:"Instrumento", width: 340}
-     * @changes Suprimir columna Altura snm dado por atributo alsnm {field:"alsnm", headerName:"Altura snm",width: 100} 
-     * @changes Suprimir columna % pureza dado por atributo speInteg {field:"speInteg", headerName:"% pureza", width: 90}
-     * @dateUpdated 2025-06-27
-     * @changes Actualizar ancho (width) a campo Proyecto 240 => 500
-     * @changes Actualizar ancho (width) a campo Campaña 160 => 305
-     * @dateUpdated 2025-07-01
-     * @changes Invocar método downloadZipFile(), bajo opción Descarga
-     * @dateUpdated 2025-07-22
-     * @changes Ocultamiento campo id => Object Id
-     * @dateUpdated 2025-08-13
-     * @changes Actualización invocación método downloadZipFile, pasando los params {emailUsr, passUsr, string param phSig (photo signature), string nomFile + ext}
-     * @dateUpdated 2025-09-02
-     * @changes Actualizar ancho (width) a campo Ubicación 340 => 270
-     * @changes Actualizar ancho (width) a campo Operaciones 220 => 208
-     * @changes Actualizar ancho (width) a campo Archivo firma 450 => 300
-     * @remarks Fuente consulta https://stackoverflow.com/questions/64331095/how-to-add-a-button-to-every-row-in-mui-x-data-grid
-     * @remarks Medidas campos Tabla Resultados en unidades px (pixels)
-     */
-    const columnsSrcSIEC = [
-        {field:"oper", headerName:"Operaciones", width: 208,
-            sortable: false, 
-            renderCell: ({ row }) => 
-            <>
-                <Button type="primary" onClick={() => regUserDownloadZip('','',row.phSig + '.zip', generarFileStand(row.phSig) + '.zip')} disabled={isDownloading}>Descarga</Button>&nbsp;&nbsp;
-                <Button type="primary" onClick={() => openCloseModalDetail(row)}>Detalles</Button>
-            </>
-        },
-        {field:"id", headerName:"Object Id", width: 78},
-        {field:"proj", headerName:"Proyecto", width: 500},
-        {field:"camp", headerName:"Campaña", width: 305},
-        {field:"locat", headerName:"Ubicación", width: 270},
-        {field:"phSig", headerName:"Archivo firma", width: 300}
-    ]
 
     /**
-     * togglePanel => Método para controlar el estado de los paneles Metadatos y firma
-     * @date 2025-07-18
-     * @author IGAC - DIP
-     * @remarks FUENTE consulta: Claude AI => https://claude.ai/chat/ed738d40-4823-4e17-b083-37219a422714 
+     * Cierra el modal de registro de usuario desde el encabezado.
      */
+    const handleCloseUsrModal = function () {
+        openCloseModalUsrDetail('');
+    }
+    
+    /**
+     * Actualiza el modelo de paginacion usado por la tabla nativa.
+     *
+     * @param model Estado de pagina y cantidad de filas por pagina.
+     */
+    const handlePaginationModelChange = function (model: PaginationModelTR) {
+        setPaginationModel(model);
+    }
+
+    /**
+     * Procesa el click de una fila en la tabla y aplica zoom en el mapa.
+     *
+     * @param row Registro asociado a la fila seleccionada.
+     */
+    const handleTableRowClick = function (row: TablaResultadosRow) {
+        setSelecRow([row.id]);
+        zoomPointSelected(row);
+    }
+
+    /**
+     * Mantiene sincronizado el estado de seleccion de filas.
+     *
+     * @param ids Identificadores de filas seleccionadas.
+     */
+    const handleTableRowSelectionChange = function (ids: Array<string | number>) {
+        setSelecRow(ids);
+    }
+
+    /**
+     * Dispara la accion de descarga para una fila de resultados.
+     *
+     * @param row Registro con el archivo de firma asociado.
+     */
+    const handleTableDownloadClick = function (row: TablaResultadosRow) {
+        regUserDownloadZip('', '', row.phSig + '.zip', generarFileStand(row.phSig) + '.zip');
+    }
+
+    /**
+     * Abre el modal de detalle para la fila seleccionada.
+     *
+     * @param row Registro del punto de muestreo a consultar.
+     */
+    const handleTableDetailsClick = function (row: TablaResultadosRow) {
+        openCloseModalDetail(row);
+    }
+
     
     const togglePanel = function (panelName: string) {
         setPanelStates (prev => ({
@@ -1609,38 +1305,11 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         }));
     }
 
-    /**
-     * Método para expandir / contraer el collapsable en todas secciones => {metadatos,firmas,imágenes}
-     * @date 2025-09-12
-     * @author IGAC - DIP
-     * @param {string} secc
-     * @remarks FUENTE consulta: Claude AI => https://claude.ai/chat/40d5ca55-213a-46ef-a7db-f0cc3b581a98
-     */
     const handleRowCollapClick = function (secc) {
         togglePanel (secc);
     }
 
-    /**
-     * Sección procesamiento archivos en formato XML
-     */
-
-    /**
-     * getXmlMetadato => Método para obtener información de los metadatos firmas, en archivo formato xml.
-     * @date 2025-07-24
-     * @author IGAC - DIP
-     * @param obj
-     * @dateUpdated 2025-07-28
-     * @changes Asignación objeto rootXml
-     * @changes Construcción estructura XML, según modelo cliente
-     * @dateUpdated 2025-07-29
-     * @changes Actualización estructura XML, según modelo cliente, dado en comunicado "RE: Validación de campos faltantes en metadato XML",  29/07/2025, 12:23
-     * @changes Estructuración método por secciones: root xml, optimizaciones tags, consumo servicios API, descarga archivo xml
-     * @dateUpdated 2025-07-30
-     * @changes Consumo API para obtener los nombres de archivos asociados a los objetos {PhotoCover, PhotoContext, PhotoSky, SpectraGraph}
-     * @changes Implementación Array de objetos para asociar los objetos {PhotoCover, PhotoContext, PhotoSky, SpectraGraph}
-     * @return {file}
-     * @remarks Fuente consulta: Claude AI => https://claude.ai/chat/4e4e2115-69ec-4631-beb9-c68754643de3
-     */
+   
     const getXmlMetadato = async function (obj){
         //Sección inicialización objetos locales
         //Objeto Metadato
@@ -1715,13 +1384,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         downloadXmlMetadato (xmlObj, generarFileStand (obj.modalBody.fileSig) + '.xml');
     }
 
-    /**
-     * removeValNulos => Método para reemplazar valores null en los atributos por vacío
-     * @date 2025-07-25
-     * @author IGAC - DIP
-     * @param objXml 
-     * @remarks FUENTE consulta: claude AI => https://claude.ai/chat/4e4e2115-69ec-4631-beb9-c68754643de3
-     */
+ 
     const removeValNulos = function (objXml){
         if (objXml === null || typeof objXml === 'undefined'){
             return '';
@@ -1741,30 +1404,12 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         return objXml;
     }
 
-    /**
-     * expandXmlTags => método para generar los tags XML completos de la forma <attr></attr>
-     * @date 2025-07-25
-     * @author IGAC - DIP
-     * @param xmlObj 
-     * @remarks FUENTE consulta: Claude AI => https://claude.ai/chat/4e4e2115-69ec-4631-beb9-c68754643de3
-     */
+   
     const expandXmlTags = function (xmlObj) {
         return xmlObj.replace (/<(\w+)\s*\/>/g, '<$1></$1>');
     }
 
-    /**
-     * getXMLStruct => Método para construir la estructura jerárquica del objeto XML
-     * @date 2025-07-29
-     * @author IGAC - DIP
-     * @param xmlObjOptim 
-     * @param projObj 
-     * @param insObj
-     * @param filesArr
-     * @dateUpdated 2025-07-30
-     * @changes Inclusión @param filesArr, el cual contiene los objetos de la sección photoImages
-     * @returns {object}
-     * @remarks filesArrObj = {PhotoCover, PhotoContext, PhotoSky, SpectraGraph}
-     */
+   
     const getXMLStruct = function (xmlObjOptim, projObj, insObj, filesArrObj) {
         //Definición objetos locales
         var xmlNewOptim: Object = {};
@@ -1861,16 +1506,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         return xmlNewOptim;
     }
 
-    /**
-     * downloadXmlMetadato => Descarga del contenido en formato xml, archivo local
-     * @date 2025-07-25
-     * @author IGAC - DIP
-     * @param content
-     * @param fileXml
-     * @returns {file}
-     * @remarks Fuente consulta: Claude AI => https://claude.ai/chat/4e4e2115-69ec-4631-beb9-c68754643de3
-     */
-
+ 
     const downloadXmlMetadato = function (content, fileXml = 'xmlData.xml'){
         //Construcción objeto Blob
         const blobFile  =   new Blob ([content], {
@@ -1892,16 +1528,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         URL.revokeObjectURL (urlFile);
     }
 
-    /**
-     * addRootAttrib => Método para adicionar atributos a los nodos XML
-     * @date 2025-07-28
-     * @author IGAC - DIP
-     * @param xmlObj 
-     * @param rootName 
-     * @param atribs
-     * @returns {string} XML con atributos
-     * @remarks FUENTE consulta: Claude AI => https://claude.ai/chat/4e4e2115-69ec-4631-beb9-c68754643de3
-     */
+  
     const addRootAttrib = function (xmlObj, rootName, atribs) {
         if (!atribs.trim())
             return xmlObj;
@@ -1911,30 +1538,13 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         return xmlObj.replace (rootOpenT, rootWithAttrib);
     }
 
-    /**
-     * Sección validadores de formulario Información usuario por descarga     * 
-     */
-
-    /**
-     * Método para realizar ajuste a la altura del control de manera automática
-     * @date 2025-08-26
-     * @author IGAC - DIP
-     * @param evtCtrl 
-     * @remarks FUENTE consulta: Claude AI => https://claude.ai/chat/4d8fd538-d03d-4afa-98d5-356587a8064a
-     */
+  
     const autoResizeCtrl  = function (evtCtrl: HTMLTextAreaElement){
         evtCtrl.style.height    =   'auto';
         evtCtrl.style.height    =   `${evtCtrl.scrollHeight}px`;
     }
 
-    /**
-     * handleTxtNomApeChange => Evento para detectar cambio sobre control Nombre y apellido
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {string} value 
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392
-     */
+ 
     const handleTxtNomApeChange = function (fld, value){
         setFormUsrDownSigData (prevState => ({
             ...prevState,
@@ -1946,120 +1556,47 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         }
     }
 
-    /**
-     * handleTxtNomApeBlur => Evento para detectar salida del cursor cuando se encuentra sobre el campo Nombre y apellido
-     * @date 2025-08-25
-     * @param {string} fld 
-     * @param {string} value 
-     * @param {object} tValid 
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392
-     */
+  
     const handleTxtNomApeBlur = function (fld, value, tValid){
         validateField (fld, value, tValid);
     }
 
-    /**
-     * handleTxtEmailChange => Evento para detectar cambio sobre control Email
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {string} value 
-     * @remarks Basado en método handleTxtNomApeChange()
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392     
-     */
+   
     const handleTxtEmailChange = function (fld, value){
         handleTxtNomApeChange (fld, value);
     }
 
-    /**
-     * handleTxtEmailBlur => Evento para detectar salida del cursor cuando se encuentra sobre el campo Correo electrónico
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {string} value  
-     * @param {object} tValid 
-     * @remarks Basado en método handleTxtNomApeBlur()
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392     
-     */
     const handleTxtEmailBlur = function (fld, value, tValid){
         handleTxtNomApeBlur (fld, value, tValid);
     }
 
-    /**
-     * handleTxtEmprWorkChange => Evento para detectar cambio sobre control Empresa / Org
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {string} value
-     * @remarks Basado en método handleTxtNomApeChange()
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392      
-     */
+ 
     const handleTxtEmprWorkChange = function (fld, value) {
         handleTxtNomApeChange (fld, value)   
     }
 
-    /**
-     * handleTxtEmprWorkBlur => Evento para detectar salida del cursor cuando se encuentra sobre el campo Empresa / Organización
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {string} value  
-     * @param {object} tValid 
-     * @remarks Basado en método handleTxtNomApeBlur()
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392     
-     */
+  
     const handleTxtEmprWorkBlur = function (fld, value, tValid) {
         handleTxtNomApeBlur (fld, value, tValid);
     }
 
-    /**
-     * handleTxtPurpDataChange => Evento para detectar cambio sobre control "Interés en los datos" 
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {string} value 
-     * @remarks Basado en método handleTxtNomApeChange()
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392     
-     */
     const handleTxtPurpDataChange = function (fld, value){
         //Invocación validador
         handleTxtNomApeChange (fld, value);
     }
 
-    /**
-     * handleTxtPurpDataBlur => Evento para detectar salida del cursor cuando se encuentra sobre el campo Describa el interés sobre los datos.
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {string} value  
-     * @remarks Basado en método handleTxtNomApeBlur()
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392     
-     */
+   
     const handleTxtPurpDataBlur = function (fld, value, tValid){
         //console.log("Verificando validador Describa el interés...=>",tValid);
         handleTxtNomApeBlur (fld, value, tValid);
     }
 
-    /**
-     * handleTxtPurpDataInput => Evento que controla el ingreso de información al campo "Interés sobre los datos"
-     * @date 2025-08-26
-     * @author IGAC - DIP
-     * @param {Event} evt
-     * @remarks FUENTE consulta: Claude AI =>  https://claude.ai/chat/4d8fd538-d03d-4afa-98d5-356587a8064a
-     */
+   
     const handleTxtPurpDataInput = function (evt: React.ChangeEvent<HTMLTextAreaElement>){
         autoResizeCtrl (evt.target);
     }
 
-    /**
-     * handleSelCountryChange => Evento para detectar cambio sobre control País
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {string} value
-     * @remarks Basado en método handleTxtNomApeChange()
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392
-     */
+  
     const handleSelCountryChange = function (fld, evt){
         //Objetos locales
         const value = evt.target.value;
@@ -2067,16 +1604,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         handleTxtNomApeChange (fld, value);
     }
 
-    /**
-     * handleSelCountryBlur => Validador campo país, al salir del control
-     * @date 2025-09-16
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {Event} evt 
-     * @param {function} tValid
-     * @remarks Invocación método handleTxtNomApeBlur() 
-     * @remarks Asociado a incidencia => "Ventana emergente control usuario para descarga", P1
-     */
+   
     const handleSelCountryBlur = function (fld, evt, tValid){
         //Objetos locales
         const value =   formUsrDownSigData.pais;
@@ -2084,17 +1612,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         handleTxtNomApeBlur (fld, value, tValid);
     }
 
-    /**
-     * handleSelOcupProfChange => Evento para detectar cambio sobre control Ocupación
-     * @date 20025-08-25
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {object} evt 
-     * @dateUpdated 2025-09-16
-     * @changes cambio nombre método handleSelOcupProf => handleSelOcupProfChange
-     * @remarks Basado en método handleTxtNomApeChange()
-     * @remarks FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392
-     */
+  
     const handleSelOcupProfChange = function (fld, evt){
          //Objetos locales
         const value = evt.target.value;
@@ -2102,16 +1620,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         handleTxtNomApeChange (fld, value);
     }
 
-    /**
-     * handleSelOcupProfBlur => Evento al salir del campo Ocupación, se analice la existencia del dato, con sus respectivos validadores
-     * @date 2025-09-16
-     * @author IGAC - DIP
-     * @param {string} fld 
-     * @param {object} evt 
-     * @param {function} tValid 
-     * @remarks Invocación método handleSelCountryBlur
-     * @remarks Asociado a incidencia => "Ventana emergente control usuario para descarga", P1
-     */
+    
     const handleSelOcupProfBlur = function (fld, evt, tValid){
         //Objetos locales
         const value =  formUsrDownSigData.ocupa;
@@ -2119,21 +1628,6 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         handleTxtNomApeBlur (fld, value, tValid);
     }
 
-    /**
-     * validateForm => Método para realizar validación al formulario Información Usuario Descarga Firma, cuando se selecciona la opción Registrar Usuario
-     * @date 2025-08-25
-     * @author IGAC - DIP
-     * @dateUpdated 2025-09-15
-     * @changes Act invocación método validateField 3 param func => text
-     * @dateUpdated 2025-09-16
-     * @changes Act invocación campo purpDataValid
-     * @dateUpdated 2025-09-22
-     * @changes Actualización validador objeto nameApeUsrValid tValidators.required => tValidators.text 
-     * @changes Actualización validador objeto emprWorkUsrValid tValidators.required => tValidators.textSigle
-     * @returns {boolean}
-     * @remarks  FUENTE consulta: Claude, AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392
-     * @remarks Asociado a incidencia => "Ventana emergente control usuario para descarga", P1
-     */
     const validateForm = function (){
         const nameApeUsrValid   =   validateField ('nameLastName', formUsrDownSigData.nameLastName, tValidators.text);
         const emailUsrValid     =   validateField ('email', formUsrDownSigData.email, tValidators.email);
@@ -2153,37 +1647,11 @@ const tablaResultados = function (props: AllWidgetProps<any>){
     emprWorkUsrValid && purpDataValid;
     }
     
-    /**
-     * processForm => Método para devolver valores de los campos formulario Información Usuario Descarga Firma
-     * @date 2025-08-27
-     * @author IGAC - DIP
-     * @returns {object}
-     */
     const processForm = async function () {        
         return await formUsrDownSigData;
     }
     
-    /**
-     * handleBtnFormUsrSubmit => Evento sobre la opción "Registrar Usuario" con el fin de registrar en BD al usuario que descargará la firma
-     * @date 2025-08-25
-     * @author IGAC - DIP
-     * @param {object} evt
-     * @dateUpdated 2025-08-27
-     * @changes Implementación objeto JSON asociado a la información de los campos formulario Información Usuario Descarga Firma
-     * @changes Implementación consumo operación API desde objeto api_postUsrDownSig
-     * @dateUpdated 2025-08-29
-     * @changes Implementación validación de registro al API, cuando el campo Correo electrónico es único. Adicionalmente, se cierra el modal y se procede a autorizar la descarga del archivo asociado a la firma seleccionada.
-     * @changes Ejecución cronometro de tiempos, para validación de expiración en milisegundos (ms) del tiempo de sesión asociado al campo Correo electrónico.
-     * @dateUpdated 2025-09-01
-     * @changes Actualización validador categoria  error => warning.
-     * @changes Implementación autorización descarga del validador a tiempo dado por el objeto timeDownLoad
-     * @dateUpdated 2025-09-02
-     * @changes Fix Bug tiempo sesión => actualizar sesión campo Correo electrónico
-     * @changes Fix Bug tiempo sesión => Inicio cuenta de tiempo sesión en método downLoadFileUsr()
-     * @dateUpdated 2025-09-03
-     * @changes Actualizar control de errores, lanzando un throw al retorno de la petición desde el servidor
-     * @remarks Implementación cronometro de tiempos se toma la fuente de consulta: Claude, AI => https://claude.ai/chat/1524c133-89ab-4f4c-a923-c5a6b3f5cf4e
-     */
+   
     const handleBtnFormUsrSubmit    = async function (evt: {preventDefault: () => void}){
         //Objetos locales
         var msg, urlServicioSIEC, tokenSeg  :string =   "";
@@ -2365,20 +1833,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         }        
         console.log (msg,JSON.stringify (jsonUsrForm, null, 2));
     }
-    /**
-     * downLoadFileUsr => Evento sobre la opción Continuar descarga, el cual permite continuar el proceso de descarga del archivo, después de registrar la información del formulario "Información Usuario Descarga Firma"
-     * @date 2025-08-27
-     * @author IGAC - DIP
-     * @dateUpdated 2025-08-28
-     * @changes Solucionar bugs:
-     * @changes Bug 1. Limpiar controles formulario por encontrarse procesados
-     * @changes Bug 2. Limpiar validadores
-     * @changes Bug 3. Reasignar states opciones Registrar usuario y continuar descarga
-     * @dateUpdated 2025-09-01
-     * @changes Cerrar validador de usuario existente si y solo si, se encuentra activo
-     * @dateUpdated 2025-09-02
-     * @changes Fix Bug tiempo sesión => iniciar tiempo de sesión para usuario nuevo, como para usuario existente
-     */
+  
     const downLoadFileUsr = function (){
         //Objetos locales
         var filesArr    = [];
@@ -2432,28 +1887,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         //Descarga archivo desde consumo API
         downloadZipFile('','',filesArr[0], generarFileStand (filesArr[0]) + '.zip');
     }
-    /**
-     * Sección procesamiento información sobre mapa base
-     */
-
-    /**
-     * markerMapDataGrid => Método generación markers en mapa, según geometría.
-     * @date 2025-05-13
-     * @author IGAC - DIP
-     * @param rows 
-     * @dateUpdated 2025-05-14
-     * @changes Implementar markers para varios puntos, asociados al data Grid
-     * @dateUpdated 2025-05-15
-     * @changes Fix validación eError al crear paquete ZIPxistencia geometría brindada por el servicio, para generar los correspondientes markers
-     * @dateUpdated 2025-06-11
-     * @changes Implementación componente popUpTemplate, para visualización de información detallada de firma, asociado al marker sobre mapa
-     * @dateUpdated 2025-06-25
-     * @changes Suprimir desde objeto popupTemplateObj, atributo "Firma asociada"
-     * @changes Suprimir desde objeto popupTemplateObj, atributo "Cobertura" (<li>Cobertura: ${rows[cont].type} </li>), por no existir atributo en servicio (cambio temporal)
-     * @changes Suprimir desde objeto popupTemplateObj, atributo Altura snm
-     * @changes Suprimir desde objeto popupTemplateObj, atributo Instrumento
-     * @changes Suprimir desde objeto popupTemplateObj, atributo Porcentaje pureza
-     */
+   
     function markerMapDataGrid(rows)
     {
         var LatLonArr = [];
@@ -2525,18 +1959,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             }
         }
     }
-    /**
-     * zoomPointSelected => Método para resaltar punto en el mapa, según el visualizado en Tabla Resultados
-     * @date 2025-07-25
-     * @author IGAC - DIP
-     * @param {object} gridRow
-     * @dateUpdated 2025-07-28
-     * @changes Actualización factor zoom 15 => 21
-     * @dateUpdated 2025-10-09
-     * @changes Inclusión validaciones, para determinar cargue de coordenadas X y Y, si se llama a través de la selección de un punto en mapabase, o bien, desde la selección sobre el registro del Data Grid.
-     * @remarks tomado del método zoomToDataGridSelected, componente tablaResultCS asociado al widget Consulta simple
-     * @remarks Fuente de consulta complementaria: Claude AI => https://claude.ai/chat/334b3a36-54a2-48b3-accb-4c97ffcf99bd
-     */
+  
     const zoomPointSelected = async function (gridRow){
         //Objetos locales
         var pointDG: object =   {};
@@ -2591,116 +2014,39 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             jimuMapView.view.graphics.add(highlightGraphic);
           })
     }
+   
     /**
-     * convCoord => Objeto asociado al hook para manejo de clics...
-     * @date 2025-10-07
-     * @author IGAC - DIP
-     * @remarks Activar y usar, cuando los sistemas de coordenadas sean distintos entre si (orig:EPSG 4326 Dest:EPSG 9377)
+     * Desplaza el contenedor de la tabla hasta una fila especifica.
+     *
+     * @param idRow Identificador de fila a enfocar visualmente.
      */
-    /* const convCoord = function (){
-        var found: boolean  =   null;
-        var minDist         =   Infinity;
-        const viewMap       =   jimuMapView.view;
-        //Cuando se requiera transformar coordenadas entre EPSG: 4326 a EPSG:9377
-        //Definición del Sistema de Referencia destino (EPSG:9377 - Colombia)
-        const targetSystRef =   new SpatialReference ({ wkid: 9377});
-        clickHandlerRef.current =   viewMap.on ('click', async (evt) => {
-            const mapBasePnt  =   evt.mapPoint;
-            //Coordenadas originales EPSG: 4326
-            console.log ("Test Coordenadas Obj =>", mapBasePnt);
-            console.log ("Test Coordenadas Long X =>", mapBasePnt.longitude);
-            console.log ("Test Coordenadas Lat Y =>", mapBasePnt.latitude);
-
-            // Conversón del punto a EPSG:9377
-            const projPoint =   projection.project (mapBasePnt, targetSystRef) || 'undefined';
-            if (!projPoint){
-                console.warn ("No se puede proyectar punto!");
-                return;
-            }
-            console.log ("Test Coordenadas rect X=>", projPoint["x"]);
-            console.log ("Test Coordenadas rect Y=>", projPoint["y"]);
-            
-            console.log('Test Coordenadas projected (client)=>', projPoint && { x: projPoint["x"], y: projPoint["y"], wkid: projPoint["spatialReference"]?.wkid});
-
-            //Proyección del punto seleccionado en el mapa base
-            const px    =   projPoint["x"];
-            const py    =   projPoint["y"];
-
-            //Búsqueda del registro más cercano al clic sobre mapa base
-            //Según escala (metros)
-            const tolerFactor   =   500;
-            console.log ("Test Object rows =>",rows);
-            //Recorrido de los puntos
-            rows.forEach ((r) => {
-                //Coordenadas del objeto asociado al DataGrid
-                const rx    =   Number (r.pointLon);
-                const ry    =   Number (r.pointLat);
-
-                //Conversón del punto a EPSG:9377
-                const objJSONPoint = {
-                    pRectX: rx,
-                    pREctY: ry
-                }
-                const dgPnt =   projection.project (objJSONPoint, targetSystRef );
-                const dx    =   rx - px;
-                const dy    =   ry - py;
-                const dist  =   Math.sqrt (dx * dx + dy * dy);
-                //console.log (`Test Distancia a ${r.phSig}: ${dist.toFixed(2)} m (X:${rx}, Y:${ry})`);
-                console.log (`Test Punto proyectado X => ${px} , Y => ${py}`);
-                console.log (`Test Punto original X => ${rx} , Y => ${ry}`);
-
-                if (dist < tolerFactor && dist < minDist){
-                    minDist =   dist;
-                    found   =   r;
-                }
-            });
-        });
-    } */
-    
-    /**
-     * Método para centrado del registro en Data Grid, según punto del mapa base
-     * @date 2025-10-09
-     * @author IGAC - DIP
-     * @remarks Fuente de consulta: AI, ChatGPT => https://chatgpt.com/c/68e55098-ada0-8332-9717-1c287d96fc6f
-     */
-    const scrollDGToRow = function (idRow) {
-        const el = document.querySelector(`[data-id="${idRow}"]`);
-        if (el && gridContainerDGRef.current) {
+    const scrollDGToRow = function (idRow: string | number) {
+        const root = gridContainerDGRef.current;
+        const el = root ? root.querySelector(`[data-id="${idRow}"]`) : null;
+        if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             el.classList.add('row-highlight');
             setTimeout(() => el.classList.remove('row-highlight'), 600);
         }
     }
     
-    /**
-     * Sección Hooks del sistema
-     */
-
-    /**
-     * Hook para realizar Ajuste de altura inicial al control Interés sobre los datos (TextArea)
-     * @date 2025-08-26
-     * @author IGAC - DIP
-     * @remarks FUENTE Consulta: Claude AI => https://claude.ai/chat/4d8fd538-d03d-4afa-98d5-356587a8064a
-     */
+  
     useEffect (() => {
         if (purpDataRef.current){
             autoResizeCtrl (purpDataRef.current);
         }
     }, []);
-    /**
-	* Hook para ejecución del Data Grid, con análisis state asociado al objeto props, donde se realiza recepción del data dispatch, desde componente ppal searchSIEC (widget)
-	* @date 2025-06-09
-	* @author Ing.RRH
-    * @dateUpdated 2025-06-10
-    * @changes Recepción parámetro iniExtent
-    * @dateUpdated 2025-06-12
-    * @changes Adicionar validación, para borrar la información detallada, asociada a cada punto (marker) sobre el mapa.
-    * @remarks Recepción del data dispatch, desde componente ppal searchSIEC (widget)
-    */
+  
     useEffect(() => {
-        if (props.hasOwnProperty('stateProps')) {
+        if (props.hasOwnProperty('stateProps') && props.stateProps.dataFromDispatchWidget_searchSIEC) {
             const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatchWidget_searchSIEC)
-            console.log("Lista de data desde props =>", dataFromDispatch)
+            console.log("dataFromDispatch =>", {
+                props,
+                dataFromDispatch,
+                rows,
+                selecRow,
+                numPageDG
+            })
             setRows(dataFromDispatch.dataToRows)
             //Verificación cuando dataToRows es cero (0) - 2025-06-12
             console.log("Rows DG en tablaResultados =>",dataFromDispatch.dataToRows);
@@ -2719,13 +2065,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         
     }, [props])
 
-	/**
- 	 * Hook para Visualizar los markers sobre el mapa, de acuerdo al state de rows en componente Data Grid
-	 * @date 2025-06-10
-	 * @author IGAC - DIP
-     * @remarks Traido desde el método componentDidUpdate asociado al componente TablaResultSrcSIEC
-	*/
-
+	
     useEffect(() => {
         //Inserción de markers
         if (rows)
@@ -2737,19 +2077,8 @@ const tablaResultados = function (props: AllWidgetProps<any>){
 
     },[rows]);
 
-    /**
-     * Hook para manejo de clics sobre botón izquierdo del mouse, dados sobre mapa base
-     * @date 2025-10-07
-     * @author IGAC - DIP
-     * @dateUpdated 2025-10-08
-     * @changes Incluir salto de página al registro seleccionado, de acuerdo al punto sobre mapa base seleccionado.
-     * @dateUpdated 2025-10-09
-     * @changes Revisión salto registro, cuando se encuentra en página distinta a la actual
-     * @remarks FUENTE consulta chatGPT (AI) => https://chatgpt.com/c/68e55098-ada0-8332-9717-1c287d96fc6f
-     * @remarks States asociados al objeto jimuMapView,  al objeto rows y al objeto paginationModel
-     */
     useEffect (() => {
-        var found               : boolean       =   null;        
+        var found               : TablaResultadosRow | null   =   null;
         var indexRegDG, targPage: number        =   -1;
         var minDist         =   Infinity;
         if (!jimuMapView || !jimuMapView.view){
@@ -2861,20 +2190,13 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         };
     }, [jimuMapView, rows, paginationModel.pageSize, paginationModel.page]);
 
-    /**
-     * Hook para desplazar el DataGrid a la página, según la selección del punto base
-     * @date 2025-10-09
-     * @author IGAC - DIP
-     * @remarks Fuente de consulta: AI ChatGPT => https://chatgpt.com/c/68e55098-ada0-8332-9717-1c287d96fc6f 
-     * @remarks Estado analizado page
-     */
-
     useEffect (() => {
         if (pendingSelectionDGRef.current !== null){
             const  idRegDG                  =   pendingSelectionDGRef.current;
             
             const waitSelectDG = function () {
-                const el    =   document.querySelector (`[data-id="${idRegDG}"]`);
+                const root  =   gridContainerDGRef.current;
+                const el    =   root ? root.querySelector (`[data-id="${idRegDG}"]`) : null;
                 if (el){
                     setSelecRow ([idRegDG]);
                     scrollDGToRow (idRegDG);
@@ -2890,41 +2212,6 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         }
     }, [paginationModel.page]);
 
-    /**
-     * Hook aplicación del registro de selección pendiente almacenado en hook desplazamiento página
-     * @date 2025-10-09
-     * @author IGAC - DIP
-     * @remarks Fuente de consulta: AI ChatGPT => https://chatgpt.com/c/68e55098-ada0-8332-9717-1c287d96fc6f 
-     */
-
-    /* useEffect (() => {
-        if (!pendingSelectionDG){
-            return;
-        }
-        const { idSeleccDG, targPagSelecc } =   pendingSelectionDG;
-
-        if (paginationModel.page === targPagSelecc){
-            setSelecRow ([idSeleccDG]);
-            const el    =   document.querySelector (`[data-id="${idSeleccDG}"]`);
-            if (el){
-                el.scrollIntoView ({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-                setPendingSelectionDG (null);
-            }
-        }
-    }, [paginationModel.page]); */
-
-    /**
-     * Hook para manejo contador de tiempo
-     * @date 2025-08-14
-     * @author IGAC - DIP
-     * @dateUpdated 2025-08-29
-     * @changes Actualización state usrDat => emailUsrDownSig
-     * @changes Actualización state expiresTok => sessExpires
-     * @remarks Fuente consulta: Claude AI => https://claude.ai/chat/1524c133-89ab-4f4c-a923-c5a6b3f5cf4e
-     */
     useEffect ( () => {
         if (emailUsrDownSig && sesStartTime){
             //Inicio contador cada 200ms
@@ -2956,42 +2243,16 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         };
     }, [emailUsrDownSig, sesStartTime, sessExpires]);
 
-    /**
-     * Hook para verificación del state asociado al campo País.
-     * @date 2025-08-25
-     * @author IGAC - DIP
-     */
+   
     useEffect (() => {
         console.log("State del pais =>",countryUsrDownSig)
     }, [countryUsrDownSigLst])
-
-    /**
-     * Hook para validaciones
-     * @date 2025-08-25
-     * @author IGAC - DIP
-     * @returns {object, string, object}
-     * @remarks Fuente consulta: Claude AI => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392
-     */
 
     const useSimpleValidation = function () {
         //Estados asociados al error del validador
         const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-        /**
-         * validateField => Validador de campo
-         * @date 2025-08-25
-         * @author IGAC - DIP
-         * @param {string} fieldName 
-         * @param {string} value 
-         * @param {any} validationFunction 
-         * @dateUpdated 2025-09-15
-         * @changes Mantenimiento validador
-         * @dateUpdated 2025-09-16
-         * @changes Mantenimiento validador verificando tipos compuestos del mismo (P.Ej.Campo Describa el interés en los datos)
-         * @returns {boolean} Estado de error true o false
-         * @remarks FUENTE consulta: AI Claude => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392
-         * @remarks Asociado a incidencia => "Ventana emergente control usuario para descarga", P1
-         */
+      
         const validateField = function (fieldName, value, validationFunction) {
             //Objetos locales   
             var errorMessage: string = "";
@@ -3013,12 +2274,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             }));
             return errorMessage  === '';
         };
-        /**
-         * clearError => Método para limpiar error anterior
-         * @date 2025-08-25
-         * @param fieldName 
-         * @remarks FUENTE consulta: AI Claude => https://claude.ai/chat/5b18640b-67bd-4e3d-9658-dbc103456392
-         */
+    
         const clearError = function (fieldName) {
             setErrors (prevState => ({
                 ...prevState,
@@ -3045,42 +2301,21 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 : null
             }
         <>
-            <Button size="sm" className="mb-1" type="primary" onClick={()=>console.log("retornarFormulario")}>
-                Tabla Resultados</Button>                   
-            <DataGrid 
-                sx={{'.MuiTablePagination-root':
-                    {color: '#126a92', backgroundColor: '#ffff'},
-                    '.css-yseucu-MuiDataGrid-columnHeaderRow':
-                    {color: '#126a92', backgroundColor: '#ffff'},
-                    '.css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone':
-                    {color: '#126a92', backgroundColor: '#ffff'},
-                    '& .row-highlight': {
-                        backgroundColor: 'red !important',
-                        transition: 'background-color 0.6s ease'
-                    }
-                }}
-                className="css-1hr2sou-MuiTablePagination-root MuiTablePagination-root p-1"
-                columns={columnsSrcSIEC}
-                localeText={dataGridLang}
-                columnVisibilityModel={columnVisibilityModel}                
+            {/* <Button size="sm" className="mb-1" type="primary" onClick={()=>console.log("retornarFormulario")}>
+                Tabla Resultados</Button> */}   
+            <h5>Tabla Resultados</h5>
+            <TablaResultadosTable
                 rows={rows}
-                pagination
-                paginationMode='client'
-                pageSizeOptions={numPageDG}
                 paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
-                onCellClick={zoomPointSelected}
-                rowSelectionModel={selecRow}
-                onRowSelectionModelChange={(ids) => setSelecRow (ids)}
-                slotProps={
-                    {
-                        pagination: {
-                            labelRowsPerPage: 'Filas por página:',
-                            labelDisplayedRows: ({ from, to, count }) =>
-                                `${from}–${to} de ${count !== -1 ? count : `más de ${to}`}`,
-                        },
-                    }
-                }
+                pageSizeOptions={numPageDG}
+                selectedRowIds={selecRow}
+                isDownloading={isDownloading}
+                containerRef={gridContainerDGRef}
+                onPaginationModelChange={handlePaginationModelChange}
+                onRowSelectionChange={handleTableRowSelectionChange}
+                onRowClick={handleTableRowClick}
+                onDownloadClick={handleTableDownloadClick}
+                onDetailsClick={handleTableDetailsClick}
             />
             {/* Modal correspondiente a la opción Detalles*/ }
             <Modal
@@ -3278,7 +2513,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                                     <span id="fldOfVSpan">{modalBody.FieldOfView}</span>
                                                 </div>
                                                 <div className='row'>
-                                                    <label class="projLab">Accesorio</label>
+                                                    <label className="projLab">Accesorio</label>
                                                     {
                                                         entorno === 'dev' ?
                                                         <span id="adOptSpan">{modalBody.Id_AdaptedOptics}</span>:
@@ -3614,7 +2849,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                         <label>Información usuario descarga firma</label>:
                         <label className='titleUsrDownSigDataLbl_prod'>Información usuario descarga firma</label>
                     }
-                    <Button className="closeBtn app-root-emotion-cache-ltr-xg0zwy" onClick={openCloseModalUsrDetail}>x</Button> 
+                    <Button className="closeBtn app-root-emotion-cache-ltr-xg0zwy" onClick={handleCloseUsrModal}>x</Button> 
                 </ModalHeader> 
                 <ModalBody>
                     <form onSubmit={handleBtnFormUsrSubmit}>
@@ -3664,7 +2899,6 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                     <Select placeholder='Seleccione país...'
                                         value={formUsrDownSigData.pais}
                                         onChange={(evt) => handleSelCountryChange ('pais', evt)}
-                                        onBlur={(evt) => handleSelCountryBlur ('pais', evt, tValidators.required)}
                                     >
                                         {
                                             countryUsrDownSigLst.map ((paisItem) => (
@@ -3682,7 +2916,6 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                         placeholder='Seleccione profesión...'
                                         value={formUsrDownSigData.ocupa}
                                         onChange={(evt) => handleSelOcupProfChange ('ocupa', evt)}
-                                        onBlur={(evt) => handleSelOcupProfBlur ('ocupa', evt, tValidators.required)}
                                     >
                                         {
                                             occupUsrDownSigLst.map ((ocupaItem) => (

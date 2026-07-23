@@ -36,6 +36,63 @@
 }
 
 /*
+    Estilos para tabla nativa de resultados y paginacion manual
+    @date 2026-07-21
+    @author IGAC - DIP
+*/
+
+.tr-results-wrapper {
+    background-color: #ffffff;
+    border: 1px solid #0c4660;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.tr-results-table-container {
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.tr-results-table thead th {
+    color: #126a92;
+    background-color: #ffffff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.tr-results-table tbody tr {
+    cursor: pointer;
+}
+
+.tr-results-selected,
+.row-highlight {
+    background-color: rgba(18, 106, 146, 0.18) !important;
+    transition: background-color 0.6s ease;
+}
+
+.tr-results-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+    color: #126a92;
+}
+
+.tr-results-pagination-left,
+.tr-results-pagination-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tr-results-pagination-label {
+    margin: 0;
+    font-weight: 600;
+}
+
+/*
     Clase para visualización Data Grid (Tabla Resultados)
     @date 2025-09-02
     @author IGAC - DIP

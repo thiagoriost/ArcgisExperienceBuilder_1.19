@@ -1,17 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react'
-import PropTypes from 'prop-types'
+import { React, type AllWidgetProps } from 'jimu-core'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis' // The map object can be accessed using the JimuMapViewComponent
 import { Pagination } from 'jimu-ui'
 import { Bar} from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js"
 import { typeMSM } from '../../../commonWidgets/modal/interfaces'
-import type { LabelItem } from '../../../searchFirmasEspectrales/src/runtime/widget'
+import type { LabelItem } from '../../../searchSIEC2026/src/runtime/widget'
+import type { MouseEvent } from 'react'
+import type { Chart as ChartJSInstance } from 'chart.js'
+
+const { useEffect, useState, useRef } = React
+
 
 // Registrar los componentes necesarios
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 
-const BarChart = (props) => {
+const barChart = (props: AllWidgetProps<any>) => {
 
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
   const [initialExtent, setInitialExtent] = useState(null)
@@ -27,7 +31,7 @@ const BarChart = (props) => {
       subBody: ''
     })
 
-  const chartRef = useRef(null)
+ const chartRef = useRef<ChartJSInstance<'bar'> | null>(null)
 
 
   const activeViewChangeHandler = (jmv: JimuMapView) => {
@@ -38,9 +42,9 @@ const BarChart = (props) => {
     }
   }
 
-  const handleChartClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleChartClick = (event: MouseEvent<HTMLCanvasElement>) => {
       if (chartRef.current) {
-        const activeElement = chartRef.current.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false)
+        const activeElement = chartRef.current.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, false)
         if (activeElement.length > 0) {
           const datasetIndex = activeElement[0].datasetIndex
           const index = activeElement[0].index
@@ -141,7 +145,6 @@ const BarChart = (props) => {
           // Envia features y parametros para ajustar la data a renderizar
       }
 
-      return () => {}
     }, [props])
 
   useEffect(() => {
@@ -153,10 +156,10 @@ const BarChart = (props) => {
     }, [])
 
   return (
+    // eslint-disable-next-line jimu-theme/no-classic-css-utilities
     <div className='w-100 p-3 bg-primary'>
-      {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
+
         <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />
-      )}
 
       <>
               {
@@ -188,9 +191,9 @@ const BarChart = (props) => {
   )
 }
 
-BarChart.propTypes = {}
+// barChart.propTypes = {}
 
-export default BarChart
+export default barChart
 
 
 interface FontStyle {
