@@ -15,7 +15,7 @@
  * @changes Deshacer requerimiento 2025-06-03, ya que no se emplea la importación, se realiza bajo hook useEffect importación utilidades para módulos
  * @remarks Tomado del visor geográfico, REFA
  */
-console.log(1111111111111111111)
+
 import { React, AllWidgetProps, extensionSpec, appActions } from "jimu-core";
 import { JimuMapViewComponent, JimuMapView } from 'jimu-arcgis'; // The map object can be accessed using the JimuMapViewComponent
 import { useEffect, useRef } from "react";

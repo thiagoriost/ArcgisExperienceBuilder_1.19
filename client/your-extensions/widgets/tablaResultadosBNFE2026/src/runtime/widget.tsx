@@ -2303,7 +2303,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         <>
             {/* <Button size="sm" className="mb-1" type="primary" onClick={()=>console.log("retornarFormulario")}>
                 Tabla Resultados</Button> */}   
-            <h3>Tabla Resultados</h3>
+            <h5>Tabla Resultados</h5>
             <TablaResultadosTable
                 rows={rows}
                 paginationModel={paginationModel}
