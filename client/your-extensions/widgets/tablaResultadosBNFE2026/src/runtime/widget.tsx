@@ -162,10 +162,10 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         //Tiempo sesión
         const elaps =   getTimeInfo (sesStartTime, sesCurrTime, sessExpires);
 
-        console.log ("Email ses =>",emailSes);
-        console.log ("Control tiempos Inicio ses =>",elaps["elapsTime"])
-        console.log ("Control tiempos Restante ses =>" ,elaps["remainTime"]);
-        console.log ("Control tiempos Estado sesión expirada T / F =>", elaps["expired"]);
+        if(validaLoggerLocalStorage("logger")) console.log ("Email ses =>",{emailSes});
+        if(validaLoggerLocalStorage("logger")) console.log ("Control tiempos Inicio ses =>",elaps["elapsTime"]);
+        if(validaLoggerLocalStorage("logger")) console.log ("Control tiempos Restante ses =>" ,elaps["remainTime"]);
+        if(validaLoggerLocalStorage("logger")) console.log ("Control tiempos Estado sesión expirada T / F =>", elaps["expired"]);
         
         //Validación para autorizar descarga o solicitar información del usuario
         if ((typeof emailSes !== 'undefined' || emailSes === ' ') && (typeof elaps["expired"] !== 'undefined' && !elaps["expired"] && typeof elaps["remainTime"] !== 'undefined' && elaps["remainTime"] > 0)){
@@ -222,7 +222,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                             console.error("Error obteniendo data del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                         }
-                        console.log("Lista paises =>",sortPaises (paisDataLst["data"]));
+                        if(validaLoggerLocalStorage("logger")) console.log("Lista paises =>",sortPaises (paisDataLst["data"]));
                         //Asignación del state para la lista de paises
                         setCountryUsrDownSigLst (sortPaises (paisDataLst["data"]));
                     })
@@ -278,7 +278,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                             console.error("Error obteniendo data del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                         }
-                        console.log ("Listado ocupaciones ordenadas =>",sortOcupa (ocupaData.data));
+                        if(validaLoggerLocalStorage("logger")) console.log ("Listado ocupaciones ordenadas =>",sortOcupa (ocupaData.data));
                         //Actualización state del control Ocupación
                         setOccupUsrDownSigLst (sortOcupa (ocupaData.data));
                     })
@@ -288,7 +288,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                     jsonErr = {
                         "error" : error
                     }
-                    console.error ("Problema para obtener listado de profesiones en servidor remoto!. Error asociado =>",jsonErr["error"]);
+                    console.error ("Problema para obtener listado de ocupaciones en servidor remoto!. Error asociado =>",jsonErr["error"]);
                 }
             })
             //openCloseModalUsrDetail(usr);
@@ -309,9 +309,9 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             //Consumo de la sección metadatos, a través del API
             getToken (urls.api_host + urls.api_getToken).then((datToken) => {
                 tokenSeg  = datToken.data.access_token;
-                console.log("Token seg para consulta de metadatos Descarga Comprim =>", tokenSeg);
+                if(validaLoggerLocalStorage("logger")) console.log("Token seg para consulta de metadatos Descarga Comprim =>", tokenSeg);
                 urlServicioSIEC =   urls.api_host + urls.api_getMetaDatoIdMetaByPhSig + files.split(".")[0];
-                console.log("Petición asociada a Metadatos =>",urlServicioSIEC);
+                if(validaLoggerLocalStorage("logger")) console.log("Petición asociada a Metadatos =>",urlServicioSIEC);
                 try{
                     fetch(urlServicioSIEC,{
                         method:"GET",
@@ -339,7 +339,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                 "errorCode": rows["error"].code,
                                 "errorMsg": rows["error"].message
                             }
-                            console.error("Error Obteniendo lista de metadatos del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+                            if(validaLoggerLocalStorage("logger")) console.error("Error Obteniendo lista de metadatos del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                         }   
                         return rows.json();
@@ -353,16 +353,16 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                 "errorMsg": metaDataFirma["error"].message,
                                 "errorMsgDet": metaDataFirma["error"].details[0]
                             }
-                            console.error("Error obteniendo lista de metadatos del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+                            if(validaLoggerLocalStorage("logger")) console.error("Error obteniendo lista de metadatos del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                         }
-                        console.log("consulta metadato para descarga =>",metaDataFirma);
+                        if(validaLoggerLocalStorage("logger")) console.log("consulta metadato para descarga =>",metaDataFirma);
                         //Validador para existencia de metadatos asociados al punto de muestreo - 2025-09-03
                         if (metaDataFirma["data"].length > 0){
                             //Consumo servicio para obtener Id File por metadato
                             getToken (urls.api_host + urls.api_getToken).then((datToken) => {
                                 tokenSeg  = datToken.data.access_token;
-                                console.log("Token seg para consulta File Comprim por metadato =>", tokenSeg);                            
+                                if(validaLoggerLocalStorage("logger")) console.log("Token seg para consulta File Comprim por metadato =>", tokenSeg);
                                 //Petición consumo API obtener Id File por metadato
                                 urlServicioSIEC = urls.api_host + urls.api_getFileCompressByIdMeta + metaDataFirma.data[0].Id_Metadato;
                                 try{
@@ -392,7 +392,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                                 "errorCode": rows["error"].code,
                                                 "errorMsg": rows["error"].message
                                             }
-                                            console.error("Error Obteniendo Identificador de archivo desde los metadatos =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+                                            if(validaLoggerLocalStorage("logger")) console.error("Error Obteniendo Identificador de archivo desde los metadatos =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                                         }  
                                         return rows.json();
@@ -406,15 +406,15 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                                 "errorMsg": fileCompressId["error"].message,
                                                 "errorMsgDet": fileCompressId["error"].details[0]
                                             }
-                                            console.error("Error obteniendo data del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+                                            if(validaLoggerLocalStorage("logger")) console.error("Error obteniendo data del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                                         }
-                                        console.log("Consulta id files compress =>",fileCompressId.data);
+                                        if(validaLoggerLocalStorage("logger")) console.log("Consulta id files compress =>",fileCompressId.data);
                                         
                                         //Consumo servicio para obtener archivo comprimido
                                         getToken (urls.api_host + urls.api_getToken).then((datToken) => {
                                             tokenSeg  = datToken.data.access_token;
-                                            console.log("Token seg para generación archivo comprimido =>",tokenSeg);
+                                            if(validaLoggerLocalStorage("logger")) console.log("Token seg para generación archivo comprimido =>",tokenSeg);
                                             //Petición consumo API obtener archivo comprimido 
                                             //api_getCompressByIdFile
                                             urlServicioSIEC = urls.api_host + urls.api_getCompressByIdFile + fileCompressId.data[0].directus_files_id;
@@ -485,7 +485,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             }
                                             catch (error)
                                             {
-                                                console.log("Error generando achivo del server =>", error);
+                                                if(validaLoggerLocalStorage("logger")) console.log("Error generando achivo del server =>", error);
                                                 throw error;
                                             }
 
@@ -495,7 +495,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                 }
                                 catch (error)
                                 {
-                                    console.log("Error obteniendo archivo comprimido del server =>", error);
+                                    if(validaLoggerLocalStorage("logger")) console.log("Error obteniendo archivo comprimido del server =>", error);
                                     throw error;
                                 }
                             })
@@ -508,13 +508,13 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 }
                 catch (error)
                 {
-                    console.log("Error obteniendo metadatos del server =>", error);
+                    if(validaLoggerLocalStorage("logger")) console.log("Error obteniendo metadatos del server =>", error);
                     throw error;
                 }
             })
         }
         catch (error) {
-            console.error('Error al crear paquete ZIP =>', error);
+            if(validaLoggerLocalStorage("logger")) console.error('Error al crear paquete ZIP =>', error);
             setDownloadStatus('Error al crear paquete ZIP!');
         }
         finally{
@@ -541,8 +541,8 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         var tokenSeg: string;
         var urlServicioSIEC: string;
         var domVal: any;
-        console.log("Invocación Modal...",modalDetail);
-        console.log("Row =>",row);
+        if(validaLoggerLocalStorage("logger")) console.log("Invocación Modal...",{modalDetail});
+        if(validaLoggerLocalStorage("logger")) console.log("Row =>",{row});
 
         setModalDetail(!modalDetail);
         
@@ -553,7 +553,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             //Consumo de la sección metadatos, a través del API
             getToken (urls.api_host + urls.api_getToken).then((datToken) => {
                 tokenSeg  = datToken.data.access_token;
-                console.log("Token seg para consulta de metadatos =>", tokenSeg);
+                if(validaLoggerLocalStorage("logger")) console.log("Token seg para consulta de metadatos =>", tokenSeg);
                 //Petición consumo API incluyendo el parámetro phSig
                 urlServicioSIEC = urls.api_host + urls.api_getMetaDatoByPhSig + row.phSig;
                 
@@ -592,7 +592,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                 "errorCode": rows["error"].code,
                                 "errorMsg": rows["error"].message
                             }
-                            console.error("Error Obteniendo información de sección metadatos del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+                            if(validaLoggerLocalStorage("logger")) console.error("Error Obteniendo información de sección metadatos del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                         }   
                         return rows.json();
@@ -609,13 +609,13 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                             console.error("Error obteniendo data del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                         }
-                        console.log("Contenido json metadatos asociados =>", metaDataFirma.data);
-                        console.log("Contenido longitud =>",metaDataFirma.data.length);
+                        if(validaLoggerLocalStorage("logger")) console.log("Contenido json metadatos asociados =>", metaDataFirma.data);
+                        if(validaLoggerLocalStorage("logger")) console.log("Contenido longitud =>",metaDataFirma.data.length);
                         
                         //Consumo de la sección firmas, a través del API
                         getToken (urls.api_host + urls.api_getToken).then((datToken) => {
                             tokenSeg  = datToken.data.access_token;
-                            console.log("Token seg para consulta de firmas =>", tokenSeg);
+                            if(validaLoggerLocalStorage("logger")) console.log("Token seg para consulta de firmas =>", tokenSeg);
                             
                             //Petición consumo API incluyendo el parámetro ObjectId
                             urlServicioSIEC = urls.api_host + urls.api_getFirmasByObjectId + row.obj_id;
@@ -646,7 +646,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             "errorCode": rows["error"].code,
                                             "errorMsg": rows["error"].message
                                         }
-                                        console.error("Error Obteniendo la sección firmas del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+                                        if(validaLoggerLocalStorage("logger")) console.error("Error Obteniendo la sección firmas del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                                         throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                                     }       
                                     return rows.json();
@@ -660,11 +660,11 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             "errorMsg": firma["error"].message,
                                             "errorMsgDet": firma["error"].details[0]
                                         }
-                                        console.error("Error obteniendo data del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+                                        if(validaLoggerLocalStorage("logger")) console.error("Error obteniendo data del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                                         throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                                     }
-                                    console.log("Contenido json firmas (ptos muestreo) asociados =>", firma.data);
-                                    console.log("Contenido longitud =>",firma.data.length);
+                                    if(validaLoggerLocalStorage("logger")) console.log("Contenido json firmas (ptos muestreo) asociados =>", firma.data);
+                                    if(validaLoggerLocalStorage("logger")) console.log("Contenido longitud =>",firma.data.length);
                                     
                                     //Procesamiento metadatos y firmas
                                     //Conversión geometría del servicio rectangulares => decimales (Latitud, Longitud)
@@ -679,10 +679,10 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                         
                                         //Recorrido firmas
                                         for (var contFirm = 0; contFirm < firma.data.length; contFirm++){
-                                            //console.log("Indice asociado =>",contFirm);
+                                            if(validaLoggerLocalStorage("logger")) console.log("Indice asociado =>",contFirm);
                                             //Consumo llamando método getDominioValor
                                             domVal = await getDominioValor (tokenSeg, urls.api_host + urls.api_getValDominioByIdVal + firma.data[contFirm].Id_CoverType);
-                                            console.log("Valor dom =>",domVal);
+                                            if(validaLoggerLocalStorage("logger")) console.log("Valor dom =>",domVal);
                                             //Asignación valor dominio
                                             firma.data[contFirm].Id_CoverType = domVal.data[0].Descripcion_Valor;
 
@@ -701,7 +701,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             }
                                             firmaObj.push(firmaJSON);
                                         }
-                                        console.log("Objeto firmas =>",firmaObj);
+                                        if(validaLoggerLocalStorage("logger")) console.log("Objeto firmas =>",firmaObj);
 
                                         //Metadatos
                                         //Consumo para obtener valor dominio correspondiente
@@ -875,7 +875,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             signData: false,
                                             filesMetaData: false
                                         });
-                                        console.log("Objeto metadato + firmas =>",bodyJSON);
+                                        if(validaLoggerLocalStorage("logger")) console.log("Objeto metadato + firmas =>",bodyJSON);
                                         //Desactivar estado cargando sección metadatos
                                         setIsLoadState(false);
                                         //Seteo de los datos asociados desde el consumo del Web service al Body
@@ -885,7 +885,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                             }
                             catch (error)
                             {
-                                console.log("Error cargando data sección firmas del server =>", error);
+                                if(validaLoggerLocalStorage("logger")) console.log("Error cargando data sección firmas del server =>", error);
                                 throw error;    
                             }
                         })
@@ -894,13 +894,13 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                         getToken (urls.api_host + urls.api_getToken).then((datToken) => {
                             tokenSeg        = datToken.data.access_token;
                             if (metaDataFirma.data[0].Id_PhotoCover === null){
-                                console.log("Estado photocover...");
-                                console.log("Sin imágen asociada!");
+                                if(validaLoggerLocalStorage("logger")) console.log("Estado photocover...");
+                                if(validaLoggerLocalStorage("logger")) console.log("Sin imágen asociada!");
                                 setPhotoCover (null);
                             }
                             else{
                                 urlServicioSIEC = urls.api_host + urls.api_getFotoByIdFile + metaDataFirma.data[0].Id_PhotoCover;
-                                console.log("URL consumo photocover =>",urlServicioSIEC);
+                                if(validaLoggerLocalStorage("logger")) console.log("URL consumo photocover =>",urlServicioSIEC);
                                 //Imágen atributo PhotoCover
                                 try{
                                     const res = fetch(urlServicioSIEC, {
@@ -950,26 +950,26 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                         const imgUrl = URL.createObjectURL(resImg);
 
                                         //State de renderización de imagen
-                                        console.log("REspuesta Img photocover =>",imgUrl);
+                                        if(validaLoggerLocalStorage("logger")) console.log("REspuesta Img photocover =>",imgUrl);
                                         setPhotoCover (imgUrl);
                                     })
 
                                 }
                                 catch (error)
                                 {
-                                    console.log("Error obteniendo imágen photocover del server =>", error);
+                                    if(validaLoggerLocalStorage("logger")) console.log("Error obteniendo imágen photocover del server =>", error);
                                     throw error;    
                                 }
                             }
                             //Imágen atributo PhotoContext
                             if (metaDataFirma.data[0].Id_PhotoContext === null){
-                                console.log("Estado photocontext...");
-                                console.log("Sin imágen asociada!");
+                                if(validaLoggerLocalStorage("logger")) console.log("Estado photocontext...");
+                                if(validaLoggerLocalStorage("logger")) console.log("Sin imágen asociada!");
                                 setPhotoContext (null);
                             }
                             else{
                                 urlServicioSIEC = urls.api_host + urls.api_getFotoByIdFile + metaDataFirma.data[0].Id_PhotoContext;
-                                console.log("URL consumo PhotoContext =>",urlServicioSIEC);
+                                if(validaLoggerLocalStorage("logger")) console.log("URL consumo PhotoContext =>",urlServicioSIEC);
                                 try{
                                     const res = fetch(urlServicioSIEC, {
                                         method: "GET",
@@ -1015,26 +1015,26 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                                         }
                                         const imgUrl = URL.createObjectURL(resImg);
-                                        console.log("REspuesta Img PhotoContext =>",imgUrl);
+                                        if(validaLoggerLocalStorage("logger")) console.log("REspuesta Img PhotoContext =>",imgUrl);
                                         //Seteo de los datos asociados desde el consumo del Web service
                                         setPhotoContext (imgUrl);
                                     })
                                 }
                                 catch (error)
                                 {
-                                    console.log("Error obteniendo imágen PhotoContext del server =>", error);
+                                    if(validaLoggerLocalStorage("logger")) console.log("Error obteniendo imágen PhotoContext del server =>", error);
                                     throw error;    
                                 }
                             }
                             //Imágen atributo PhotoSky
                             if (metaDataFirma.data[0].Id_PhotoSky === null){
-                                console.log("Estado photosky...");
-                                console.log("Sin imágen asociada!");
+                                if(validaLoggerLocalStorage("logger")) console.log("Estado photosky...");
+                                if(validaLoggerLocalStorage("logger")) console.log("Sin imágen asociada!");
                                 setPhotoSky (null);
                             }
                             else{
                                 urlServicioSIEC = urls.api_host + urls.api_getFotoByIdFile + metaDataFirma.data[0].Id_PhotoSky;
-                                console.log("URL consumo PhotoSky =>",urlServicioSIEC);
+                                if(validaLoggerLocalStorage("logger")) console.log("URL consumo PhotoSky =>",urlServicioSIEC);
                                 try{
                                     const res = fetch(urlServicioSIEC, {
                                         method: "GET",
@@ -1080,7 +1080,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                                         }
                                         const imgUrl = URL.createObjectURL(resImg);
-                                        console.log("REspuesta Img PhotoSky =>",imgUrl);
+                                        if(validaLoggerLocalStorage("logger")) console.log("REspuesta Img PhotoSky =>",imgUrl);
                                         
                                         //Seteo de los datos asociados desde el consumo del Web service
                                         setPhotoSky (imgUrl);
@@ -1088,19 +1088,19 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                 }
                                 catch (error)
                                 {
-                                    console.log("Error obteniendo imágen PhotoSky del server =>", error);
+                                    if(validaLoggerLocalStorage("logger")) console.log("Error obteniendo imágen PhotoSky del server =>", error);
                                     throw error;    
                                 }
                             }
                             //Imágen Spectra Graph, atributo IdSpectraGraph
                             if (metaDataFirma.data[0].IdSpectraGraph === null){
-                                console.log("Estado Photo Spectrum Graph...");
-                                console.log("Sin imágen asociada!");
+                                if(validaLoggerLocalStorage("logger")) console.log("Estado Photo Spectrum Graph...");
+                                if(validaLoggerLocalStorage("logger")) console.log("Sin imágen asociada!");
                                 setPhotoSpecGraph (null);
                             }
                             else{
                                 urlServicioSIEC = urls.api_host + urls.api_getFotoByIdFile + metaDataFirma.data[0].IdSpectraGraph;
-                                console.log("URL consumo Spectra Graph =>",urlServicioSIEC);
+                                if(validaLoggerLocalStorage("logger")) console.log("URL consumo Spectra Graph =>",urlServicioSIEC);
                                 try{
                                     const res = fetch(urlServicioSIEC, {
                                         method: "GET",
@@ -1146,7 +1146,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                                         }
                                         const imgUrl = URL.createObjectURL(resImg);
-                                        console.log("REspuesta Img Spectra Graph =>",imgUrl);
+                                        if(validaLoggerLocalStorage("logger")) console.log("REspuesta Img Spectra Graph =>",imgUrl);
 
                                         //Seteo de los datos asociados desde el consumo del Web service
                                         setPhotoSpecGraph (imgUrl);
@@ -1154,7 +1154,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                 }
                                 catch (error)
                                 {
-                                    console.log("Error obteniendo imágen (Spectra Graph) del server =>", error);
+                                    if(validaLoggerLocalStorage("logger")) console.log("Error obteniendo imágen (Spectra Graph) del server =>", error);
                                     throw error;    
                                 }
                             }
@@ -1164,7 +1164,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 }
                 catch (error)
                 {
-                    console.log("Error cargando data del server, sección metadato =>", error);
+                    if(validaLoggerLocalStorage("logger")) console.log("Error cargando data del server, sección metadato =>", error);
                     throw error;
                 }
             })
@@ -1191,9 +1191,9 @@ const tablaResultados = function (props: AllWidgetProps<any>){
     }
     
     const openCloseModalUsrDetail = function (files: string){
-        console.log("Invocación Modal...",modalUsrDataDetail);
+        if(validaLoggerLocalStorage("logger")) console.log("Invocación Modal...",modalUsrDataDetail);
         //console.log("Persona / usuario asociado =>", usr);
-        console.log("Archivo asociado para descarga =>",files);
+        if(validaLoggerLocalStorage("logger")) console.log("Archivo asociado para descarga =>",files);
         //AL cerrar el modal, se limpian los campos del formulario, y sus correspondientes validadores
         if (modalUsrDataDetail){
             //Limpieza campos formulario
@@ -1334,30 +1334,30 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             format: { pretty: true, indent: '  ' },
             wrapArray: { enabled: false }
         }
-        console.log("Objeto metadato asociado al id =>",obj.modalBody.Id_MetaDato);
+        if(validaLoggerLocalStorage("logger")) console.log("Objeto metadato asociado al id =>",obj.modalBody.Id_MetaDato);
         
         //Sección consumo servicios del API
         //Consumo objeto api_getProyectosByIdProy => Detalles proyectos
         tokenSeg        =   await getTokenAlt (urls.api_host + urls.api_getToken);
         projObj         =   await getProjDetailsByIdProj (tokenSeg["data"].access_token, urls.api_host + urls.api_getProyectosByIdProy + xmlObjOptim.Id_Proyecto);
-        console.log("Proj Details =>",projObj["data"]);
+        if(validaLoggerLocalStorage("logger")) console.log("Proj Details =>",projObj["data"]);
         
         //Consumo objeto api_getInstrumentosByNomInstrum => Detalles instrumentos
         tokenSeg        =   await getTokenAlt (urls.api_host + urls.api_getToken);
-        console.log("Token Seg en generateXml... ",tokenSeg["data"]);
+        if(validaLoggerLocalStorage("logger")) console.log("Token Seg en generateXml... ",tokenSeg["data"]);
         insObj          =   await getInstrumDetailsByNomInstrum (tokenSeg["data"].access_token, urls.api_host + urls.api_getInstrumentosByNomInstrum + (xmlObjOptim.firma[0].InstrumentName + "%20"));  //OJO, instrumento en campo InstrumenName tiene un espacio asociado al Id_Instrumento=8
-        console.log("Instrum Details =>",insObj);
+        if(validaLoggerLocalStorage("logger")) console.log("Instrum Details =>",insObj);
         
         //Consumo objeto api_getFileNameByIdFile => Nombres archivo asociado a las imágenes
         //PhotoCover
         tokenSeg        =   await getTokenAlt (urls.api_host + urls.api_getToken);
         coverFileObj    =   await getFileNameByIdFile (tokenSeg["data"].access_token, urls.api_host + urls.api_getFileNameByIdFile + xmlObjOptim.Id_PhotoCover + urls.api_getFileNameByIdFileFlds);
-        console.log("File name asociado Cover =>",coverFileObj);
+        if(validaLoggerLocalStorage("logger")) console.log("File name asociado Cover =>",coverFileObj);
         filesArrObj.push (coverFileObj);
         //PhotoContext
         tokenSeg        =   await getTokenAlt (urls.api_host + urls.api_getToken);
         contextFileObj  =   await getFileNameByIdFile (tokenSeg["data"].access_token, urls.api_host + urls.api_getFileNameByIdFile + xmlObjOptim.Id_PhotoContext + urls.api_getFileNameByIdFileFlds);
-        console.log("File name asociado Context =>",contextFileObj);
+        if(validaLoggerLocalStorage("logger")) console.log("File name asociado Context =>",contextFileObj);
         filesArrObj.push (contextFileObj);
         //PhotoSky
         tokenSeg        =   await getTokenAlt (urls.api_host + urls.api_getToken);
@@ -1367,7 +1367,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         tokenSeg        =   await getTokenAlt (urls.api_host + urls.api_getToken);
         spectraGrFileObj=   await getFileNameByIdFile (tokenSeg["data"].access_token, urls.api_host + urls.api_getFileNameByIdFile + xmlObjOptim.IdSpectraGraph + urls.api_getFileNameByIdFileFlds);        
         filesArrObj.push (spectraGrFileObj);
-        console.log("Array File names asociado =>",filesArrObj);   //[coverFileObj, contextFileObj, skyFileObj, spectraGrFileObj]
+        if(validaLoggerLocalStorage("logger")) console.log("Array File names asociado =>",filesArrObj);   //[coverFileObj, contextFileObj, skyFileObj, spectraGrFileObj]
         
         //Sección generación estructura XML
         xmlNewOptim     =   getXMLStruct (xmlObjOptim, projObj, insObj, filesArrObj)
@@ -1377,7 +1377,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         
         //Generar tags xml completos <b/> => <b></b>
         xmlObj          =   expandXmlTags (xmlObj);
-        console.log("Testing XML obj =>",expandXmlTags (xmlObj));
+        if(validaLoggerLocalStorage("logger")) console.log("Testing XML obj =>",expandXmlTags (xmlObj));
         xmlObj          =   addRootAttrib (xmlObj, rootXml, rootAttrib);
         
         //Descarga archivo generado en objeto xmlObj
@@ -1673,8 +1673,8 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 tokenSeg    =   tokenSegObj["data"].access_token;
                 //Consumo API registro usuario
                 urlServicioSIEC =   urls.api_host + urls.api_getUsrDownSig + usrDownSigData["email"];
-                console.log("Token acceso =>",tokenSeg);
-                console.log("Petición validac reg usr API =>",urlServicioSIEC);
+                if(validaLoggerLocalStorage("logger")) console.log("Token acceso =>",tokenSeg);
+                if(validaLoggerLocalStorage("logger")) console.log("Petición validac reg usr API =>",urlServicioSIEC);
                 try{
                     fetch (urlServicioSIEC, {
                         method: "GET",
@@ -1705,7 +1705,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                             console.error("Error Obteniendo usuario de la BD =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                           }
-                          console.log("Consultando state valida usr =>",usrDataState);
+                          if(validaLoggerLocalStorage("logger")) console.log("Consultando state valida usr =>",usrDataState);
                           return usrDataState.json();
                     })
                     .then ((usrData) => {
@@ -1720,7 +1720,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                             console.error("Error Obteniendo información usuario del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                             throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
                         }
-                        console.log ("Existe usuario en sistema =>",usrData["data"].length);
+                        if(validaLoggerLocalStorage("logger")) console.log ("Existe usuario en sistema =>",usrData["data"].length);
                         
                         //Validación para registro del usuario en API, por ser único su correo electrónico => registro a BD
                         if (usrData["data"].length === 0){
@@ -1741,7 +1741,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                 tokenSeg    =   tokSegObj["data"].access_token;
                                 //Consumo al API de persistencia
                                 urlServicioSIEC =   urls.api_host + urlsPost.api_postUsrDownSig;
-                                console.log("Petición consumo operac POST =>",urlServicioSIEC);
+                                if(validaLoggerLocalStorage("logger")) console.log("Petición consumo operac POST =>",urlServicioSIEC);
                                 try{
                                     fetch (urlServicioSIEC,{
                                         "method": "POST",
@@ -1781,7 +1781,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                                             //Seteo en la variable state que controla la sesión 
                                             setEmailUsrDownSig (regBDServer["data"].Correo_Electronico);
                                            
-                                            console.log ("Usuario con email =>",regBDServer["data"].Correo_Electronico," ","fue aprobado para la descarga!");
+                                            if(validaLoggerLocalStorage("logger")) console.log ("Usuario con email =>",regBDServer["data"].Correo_Electronico," ","fue aprobado para la descarga!");
                                             
                                             //Deshabilitación opciones, cierre modal y descarga autorizada
                                             downLoadFileUsr ();
@@ -1801,7 +1801,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                         }
                         //Validación cuando el correo electrónico existe en la BD del servidor
                         else{
-                            console.log ("Usuario existente en la BD, asociado al correo electrónico"+" " + usrDownSigData["email"]);
+                            if(validaLoggerLocalStorage("logger")) console.log ("Usuario existente en la BD, asociado al correo electrónico"+" " + usrDownSigData["email"]);
                             
                             //Invocar modal de usuario existente
                             setAlertDial(true);          
@@ -1831,7 +1831,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             msg         =   "Formulario con datos requeridos!";
             jsonUsrForm = {};
         }        
-        console.log (msg,JSON.stringify (jsonUsrForm, null, 2));
+        if(validaLoggerLocalStorage("logger")) console.log (msg,JSON.stringify (jsonUsrForm, null, 2));
     }
   
     const downLoadFileUsr = function (){
@@ -1847,7 +1847,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 deployed: false,
                 type: typeMSM.warning,
                 tittle: 'Usuario existente en el sistema',
-                body: 'Ya existe el usuario asociado al correo electrónico'+' '+ formUsrDownSigData["email"]
+                body: 'Ya existe el usuario asociado al correo electrónico'+' '+ (validaLoggerLocalStorage("logger") ? formUsrDownSigData["email"] : '')
             }); 
         }
         
@@ -1893,11 +1893,11 @@ const tablaResultados = function (props: AllWidgetProps<any>){
         var LatLonArr = [];
         if (rows && rows.length > 0){
             if (typeof rows[0].pointX !== 'undefined' && typeof rows[0].pointY !== 'undefined'){
-                console.log("Geometry =>",rows);
-                console.log("x=>",rows[0].pointX);
-                console.log("y=>",rows[0].pointY);
+                if(validaLoggerLocalStorage("logger")) console.log("Geometry =>",rows);
+                if(validaLoggerLocalStorage("logger")) console.log("x=>",rows[0].pointX);
+                if(validaLoggerLocalStorage("logger")) console.log("y=>",rows[0].pointY);
             }
-            console.log("Data rows =>",rows);
+            if(validaLoggerLocalStorage("logger")) console.log("Data rows =>",rows);
             //Recorrido del array asociado a las filas del datagrid (rows), para obtener la geometria de los resultados
             for (var cont = 0; cont < rows.length; cont++){
                 //Validación existencia atributo PointX y PointY
@@ -1944,16 +1944,16 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                     })            
                     //Adición al mapa
                     if (jimuMapView){
-                        console.log("Point al mapa =>",pointMap);
-                        console.log("Layer al mapa =>",layerPointGraphMap);
+                        if(validaLoggerLocalStorage("logger")) console.log("Point al mapa =>",pointMap);
+                        if(validaLoggerLocalStorage("logger")) console.log("Layer al mapa =>",layerPointGraphMap);
                         jimuMapView.view.map.add(layerPointGraphMap);
-                        console.log("Punto adicionado correctamente!");
-                        console.log("Verificación objeto PopUp =>",popupTemplateObj);
+                        if(validaLoggerLocalStorage("logger")) console.log("Punto adicionado correctamente!");
+                        if(validaLoggerLocalStorage("logger")) console.log("Verificación objeto PopUp =>",popupTemplateObj);
                         setPopUp(popupTemplateObj);
                     }
                     else
                     {
-                        console.log("Revisar adición punto al mapa!");
+                        if(validaLoggerLocalStorage("logger")) console.log("Revisar adición punto al mapa!");
                     }
                 }
             }
@@ -1970,7 +1970,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             'esri/Graphic', 'esri/symbols/SimpleMarkerSymbol', 'esri/geometry/Point'
           ]);
         
-        console.log("Row DG para ampliar punto =>",gridRow);
+        if(validaLoggerLocalStorage("logger")) console.log("Row DG para ampliar punto =>",gridRow);
         
         //Validaciones según se cargue las coordenadas (desde mapa base o desde Data Grid)
         if (typeof gridRow.row === 'undefined'){
@@ -1988,7 +1988,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 spatialReference: jimuMapView.view.spatialReference
             });
         }
-          console.log("Point to Zoom =>",pointDG);
+          if(validaLoggerLocalStorage("logger")) console.log("Point to Zoom =>",pointDG);
           //Ubicación del punto en mapa
           jimuMapView.view.goTo({
             target: pointDG,
@@ -2040,7 +2040,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
     useEffect(() => {
         if (props.hasOwnProperty('stateProps') && props.stateProps.dataFromDispatchWidget_searchSIEC) {
             const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatchWidget_searchSIEC)
-            console.log("dataFromDispatch =>", {
+            if(validaLoggerLocalStorage("logger")) console.log("dataFromDispatch =>", {
                 props,
                 dataFromDispatch,
                 rows,
@@ -2049,7 +2049,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             })
             setRows(dataFromDispatch.dataToRows)
             //Verificación cuando dataToRows es cero (0) - 2025-06-12
-            console.log("Rows DG en tablaResultados =>",dataFromDispatch.dataToRows);
+            if(validaLoggerLocalStorage("logger")) console.log("Rows DG en tablaResultados =>",dataFromDispatch.dataToRows);
             //Validación borrado PopUps asociados a los markers
             if (dataFromDispatch.dataToRows.length === 0)
             {
@@ -2059,7 +2059,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 }
             }
         }
-        console.log("props locales en TablaResultados =>",props);
+        if(validaLoggerLocalStorage("logger")) console.log("props locales en TablaResultados =>",props);
     
         return () => { }
         
@@ -2073,7 +2073,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             markerMapDataGrid(rows);
         }
         
-        console.log("Rows para DG en TR... =>",rows);
+        if(validaLoggerLocalStorage("logger")) console.log("Rows para DG en TR... =>",rows);
 
     },[rows]);
 
@@ -2102,8 +2102,8 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 */
 
                 //Coordenadas originales tanto del punto, como del Data Grid (TablaResultados) (EPSG: 4326)
-                console.log ("Test Coordenadas Long X en mapa =>", mapBasePnt.longitude.toPrecision(8));
-                console.log ("Test Coordenadas Lat Y en mapa =>", mapBasePnt.latitude.toPrecision(8));
+                if(validaLoggerLocalStorage("logger")) console.log ("Test Coordenadas Long X en mapa =>", mapBasePnt.longitude.toPrecision(8));
+                if(validaLoggerLocalStorage("logger")) console.log ("Test Coordenadas Lat Y en mapa =>", mapBasePnt.latitude.toPrecision(8));
 
 
                 //Búsqueda del registro más cercano al clic sobre mapa base
@@ -2120,8 +2120,8 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                     const dy    =   ry - Number (mapBasePnt.latitude.toPrecision(8));
                     const dist  =   Math.hypot (dx, dy);
                     
-                    console.log (`Test Punto original Long => ${rx}`);
-                    console.log (`Test Punto original Lat => ${ry}`);
+                    if(validaLoggerLocalStorage("logger")) console.log (`Test Punto original Long => ${rx}`);
+                    if(validaLoggerLocalStorage("logger")) console.log (`Test Punto original Lat => ${ry}`);
 
                     if (dist < tolerFactor && dist < minDist){
                         minDist =   dist;
@@ -2129,10 +2129,10 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                     }
                 });
                 if (found){
-                    console.log (`Test Punto original Long => `,found["pointLon"]);
-                    console.log (`Test Punto original Lat => `, found["pointLat"]);
-                    console.log ("Test Id encontrado según mapa =>", found["id"]);
-                    console.log ("Test Id 2 encontrado según mapa =>", found["obj_id"]);
+                    if(validaLoggerLocalStorage("logger")) console.log (`Test Punto original Long => `,found["pointLon"]);
+                    if(validaLoggerLocalStorage("logger")) console.log (`Test Punto original Lat => `, found["pointLat"]);
+                    if(validaLoggerLocalStorage("logger")) console.log ("Test Id encontrado según mapa =>", found["id"]);
+                    if(validaLoggerLocalStorage("logger")) console.log ("Test Id 2 encontrado según mapa =>", found["obj_id"]);
                     //setSelecRow ([found["id"]]);
 
                      //Ampliar el punto encontrado - 2025-10-09 (en pruebas)
@@ -2143,9 +2143,9 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                     
                     //Calcular la página donde está el registro
                     targPage    =   Math.floor (indexRegDG / paginationModel.pageSize);
-                    console.log ("Test Target página calculada =>",targPage + 1);
+                    if(validaLoggerLocalStorage("logger")) console.log ("Test Target página calculada =>",targPage + 1);
                     if (indexRegDG === -1){
-                        console.log ("Test NO encontró registro!");
+                        if(validaLoggerLocalStorage("logger")) console.log ("Test NO encontró registro!");
                         return;
                     }
 
@@ -2222,7 +2222,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
                 //Verificación expiración sesión
                 const elapTimeSess  =   timeNow - sesStartTime;
                 if (elapTimeSess >= sessExpires){
-                    console.log("Sesión expirada!");
+                    if (validaLoggerLocalStorage("logger")) console.log("Sesión expirada!");
                     setEmailUsrDownSig (undefined);
                 }
             }, 200);
@@ -2245,7 +2245,7 @@ const tablaResultados = function (props: AllWidgetProps<any>){
 
    
     useEffect (() => {
-        console.log("State del pais =>",countryUsrDownSig)
+        if (validaLoggerLocalStorage("logger")) console.log("State del pais =>",countryUsrDownSig)
     }, [countryUsrDownSigLst])
 
     const useSimpleValidation = function () {
@@ -2259,12 +2259,12 @@ const tablaResultados = function (props: AllWidgetProps<any>){
             //Validación para campos que requieran required y número mínimo de posiciones
             if (fieldName === 'purpData'){
                 errorMessage    =   validationFunction(value.split(';')[1],value.split(';')[0]);
-                console.log ("Verif error =>", errorMessage);
+                if(validaLoggerLocalStorage("logger")) console.log ("Verif error =>", errorMessage);
             }
             //Validadores para campos con un tipo de validador 
             else{
                 //console.log ("Verif validationFunc =>",validationFunction(value));
-                console.log ("Valor asociado al campo"+" "+fieldName+"=>",value);
+                if(validaLoggerLocalStorage("logger")) console.log ("Valor asociado al campo"+" "+fieldName+"=>",value);
                 errorMessage    =   validationFunction(value);
             }
             
