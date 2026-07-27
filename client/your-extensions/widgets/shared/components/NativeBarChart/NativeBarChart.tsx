@@ -34,7 +34,7 @@ export interface NativeBarChartSeries {
  * Propiedades del componente de grafico de barras nativo.
  */
 export interface NativeBarChartProps {
-  records: Array<Record<string, any>>
+  records: Array<{ [key: string]: any }>
   definitions: BarChartDefinition[]
   title?: string
   height?: number
@@ -49,7 +49,7 @@ export interface NativeBarChartProps {
 const { useEffect, useMemo, useState } = React
 
 const SVG_WIDTH = 1000
-const SVG_HEIGHT = 420
+const SVG_HEIGHT = 520
 const DEFAULT_HEIGHT = 420
 const MARGIN = {
   top: 24,
@@ -66,11 +66,11 @@ const MARGIN = {
  * @returns Serie calculada para cada definicion.
  */
 export const buildNativeBarChartSeries = (
-  records: Array<Record<string, any>>,
+  records: Array<{ [key: string]: any }>,
   definitions: BarChartDefinition[]
 ): NativeBarChartSeries[] => {
   return definitions.map((definition) => {
-    const groupedValues = records.reduce<Record<string, number>>((accumulator, record) => {
+    const groupedValues = records.reduce<{ [key: string]: number }>((accumulator, record) => {
       const key = String(record?.[definition.label] ?? 'Sin Datos')
       accumulator[key] = (accumulator[key] ?? 0) + 1
       return accumulator
@@ -112,7 +112,7 @@ const NativeBarChart = function (props: NativeBarChartProps) {
     onBarClick
   } = props
 
-  
+
   const [currentPage, setCurrentPage] = useState(1)
 
   /**
@@ -184,8 +184,7 @@ const NativeBarChart = function (props: NativeBarChartProps) {
   const bars = currentSeries?.points ?? []
   const stepWidth = bars.length > 0 ? innerWidth / bars.length : innerWidth
   const barWidth = Math.max(24, stepWidth * 0.62)
-
-  if(validaLoggerLocalStorage('logger')) console.log('Widget NativeBarChart seriesList:',
+  if(validaLoggerLocalStorage('logger')) { console.log('Widget NativeBarChart seriesList:',
     {
         seriesList,
         currentSeries,
@@ -205,7 +204,7 @@ const NativeBarChart = function (props: NativeBarChartProps) {
         MARGIN,
         tickCount,
         tickStep,
-    })
+    }) }
   return (
     <div
       className='native-bar-chart'
@@ -217,12 +216,12 @@ const NativeBarChart = function (props: NativeBarChartProps) {
         padding: 12,
         display: 'flex',
         flexDirection: 'column',
-        gap: 12,
-        minHeight: height
+        // gap: 12,
+        // minHeight: height
       }}
     >
       {title && (
-        <div style={{ color: '#126a92', fontWeight: 700, fontSize: 16 }}>
+        <div style={{ color: '#126a92', fontWeight: 700, fontSize: 20 }}>
           {title}
         </div>
       )}
@@ -232,16 +231,16 @@ const NativeBarChart = function (props: NativeBarChartProps) {
           current={currentPage}
           size='default'
           totalPage={totalPages}
-          onChangePage={(page: number) => setCurrentPage(page)}
+          onChangePage={(page: number) => { setCurrentPage(page) }}
         />
       )}
 
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <div style={{ /* flex: 1, */ minHeight: 0 }}>
         <svg
           viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
           role='img'
           aria-label={currentSeries.definition.tituloGrafico}
-          style={{ width: '100%', height: '100%', display: 'block' }}
+          style={{ width: '100%', height: '100%', display: 'block', padding: '10px 0px 0px 0px', margin: '5px 0px' }}
         >
           <defs>
             <linearGradient id='nativeBarChartBackground' x1='0%' y1='0%' x2='0%' y2='100%'>
@@ -252,7 +251,7 @@ const NativeBarChart = function (props: NativeBarChartProps) {
 
           <rect x='0' y='0' width={SVG_WIDTH} height={SVG_HEIGHT} fill='url(#nativeBarChartBackground)' rx='12' ry='12' />
 
-          <text x={MARGIN.left} y={18} fill='#0c4660' fontSize='20' fontWeight='700'>
+          <text x={MARGIN.left + 40} y={18} fill='#0c4660' fontSize='30' fontWeight='700' >
             {currentSeries.definition.tituloGrafico}
           </text>
 
@@ -269,7 +268,7 @@ const NativeBarChart = function (props: NativeBarChartProps) {
                   stroke='#dbe8ef'
                   strokeWidth='1'
                 />
-                <text x={MARGIN.left - 10} y={y + 4} textAnchor='end' fontSize='11' fill='#126a92'>
+                <text x={MARGIN.left - 10} y={y + 4} textAnchor='end' fontSize='20' fill='#126a92'>
                   {formatValue(tick)}
                 </text>
               </g>
@@ -302,7 +301,7 @@ const NativeBarChart = function (props: NativeBarChartProps) {
             const barBottomY = MARGIN.top + innerHeight
 
             return (
-              <g key={`${point.label}-${index}`}> 
+              <g key={`${point.label}-${index}`}>
                 <rect
                   x={x}
                   y={y}
@@ -313,20 +312,20 @@ const NativeBarChart = function (props: NativeBarChartProps) {
                   fill={currentSeries.definition.color}
                   opacity='0.9'
                   style={{ cursor: onBarClick ? 'pointer' : 'default' }}
-                  onClick={() => onBarClick?.({
+                  onClick={() => { onBarClick?.({
                     definition: currentSeries.definition,
                     point,
                     chartIndex: currentIndex
-                  })}
+                  }) }}
                 >
                   <title>{`${point.label}: ${formatValue(point.value)}`}</title>
                 </rect>
-                <text x={barCenterX} y={y - 8} textAnchor='middle' fontSize='11' fill='#0c4660'>
+                <text x={barCenterX} y={y - 8} textAnchor='middle' fontSize='20' fill='#0c4660'>
                   {formatValue(point.value)}
                 </text>
-                <text x={barCenterX} y={barBottomY + 18} textAnchor='middle' fontSize='11' fill='#0c4660'>
+                <text x={barCenterX} y={barBottomY + 25} textAnchor='middle' fontSize='20' fill='#0c4660'>
                   {labelLines.map((line, lineIndex) => (
-                    <tspan key={lineIndex} x={barCenterX} dy={lineIndex === 0 ? 0 : 14}>
+                    <tspan key={lineIndex} x={barCenterX} dy={lineIndex === 0 ? 0 : 30} fontSize='30' fill='#0c4660'>
                       {line}
                     </tspan>
                   ))}

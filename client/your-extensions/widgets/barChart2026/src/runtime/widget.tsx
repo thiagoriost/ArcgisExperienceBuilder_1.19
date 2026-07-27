@@ -64,6 +64,15 @@ useEffect(() => {
   }, [props])
 
   useEffect(() => {
+
+    if (utilsModule?.logger()) console.log('chartDefinitionsRecords:', {chartDefinitions, chartRecords})
+    
+  
+    return () => {}
+  }, [chartDefinitions, chartRecords])
+  
+
+  useEffect(() => {
       // setResponseConsulta(dataPruebaResponse)
       import('../../../utils/module').then(modulo => { setUtilsModule(modulo) })
        import('../../../commonWidgets/widgetsModule').then(modulo => { setWidgetModules(modulo) })
@@ -83,7 +92,7 @@ useEffect(() => {
                   <NativeBarChart
                     records={chartRecords}
                     definitions={chartDefinitions}
-                    title='render gráfico'
+                    title=''
                     onBarClick={({ definition, point }) => {
                       if (utilsModule?.logger()) {
                         console.log('Barra seleccionada:', { definition, point })

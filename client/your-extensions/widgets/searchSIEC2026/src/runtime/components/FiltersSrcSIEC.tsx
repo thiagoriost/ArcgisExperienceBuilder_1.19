@@ -24,10 +24,10 @@
     @changes Deshacer requerimiento 2025-06-16, por cambio control a icono
     @dateUpdated 2025-08-25
     @changes Importación objetos sortDptos, sortMpios, sortCober
-    @changes Importación objetos sortCampa_as, sortProyectos
+    @changes Importación objetos sortCampaAs, sortProyectos
     @remarks Sección de importación
 */
-console.log(22222222222222222)
+
 import React, { useEffect } from 'react';
 import { Button, Label, Radio, Select, TextInput } from 'jimu-ui'; // import components
 //2025-06-20 => Pruebas popUp
@@ -43,7 +43,7 @@ import { urls } from '../../../../api/serviciosFirmasEspectrales';
 //Imagenes - Path del sistema acceso (2025-06-18)
 //getToken metodo (2025-07-18)
 //getDominioValor (2025-08-14)
-import { getToken, getTokenAlt, getDominioValor, pathDataGridSIEC, sortCampa_as, sortCober, sortDptos, sortMpios, sortProyectos } from '../../types/dataDG';
+import { getToken, getTokenAlt, getDominioValor, pathDataGridSIEC, sortCampaAs, sortCober, sortDptos, sortMpios, sortProyectos } from '../../types/dataDG';
 
 //Importaciones varias - Objetos
 import { codDeptoDivip, outFieldsService, sketchHelpParams, entorno } from '../../types/dataDG';
@@ -64,6 +64,7 @@ import logoBNE from '../../images_server/Logo_BNE.png';
 // @ts-expect-error
 import ayudaBuscFE from '../../images_server/ayudaBuscFE.png';
 import { validaLoggerLocalStorage } from '../../../../shared/utils/export.utils';
+import { WIDGET_IDS } from '../../../../shared/constants/widget-ids';
 
 
 
@@ -376,7 +377,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
   function componentDidUpdate ()
   {
       if (props.state === 'CLOSED'){
-        console.log("Cerrado...");
+        if (validaLoggerLocalStorage('logger')) console.log("Cerrado...");
         props.dispatch(appActions.closeWidget(props.widgetId));
         
         //Limpieza controles
@@ -404,14 +405,14 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       }
       else
       {
-        console.log("En pruebas widget abierto...");
-        /* console.log("Estado del sketch =>",sketchWeb);
-        console.log("Estado opción Buscar en catálogo =>", catalBtnDis);
+        if (validaLoggerLocalStorage('logger')) console.log("En pruebas widget abierto...");
+        /* if (validaLoggerLocalStorage('logger')) console.log("Estado del sketch =>", {sketchWeb});
+        if (validaLoggerLocalStorage('logger')) console.log("Estado opción Buscar en catálogo =>", {catalBtnDis});
         if (typeof radValueNav !== 'undefined'){
-          console.log("Valor radio =>",radValueNav);  
+          if (validaLoggerLocalStorage('logger')) console.log("Valor radio =>", {radValueNav});  
         }
         if (typeof chkValueHelp !== 'undefined'){
-          console.log("Valor Ayuda =>",chkValueHelp);
+          if (validaLoggerLocalStorage('logger')) console.log("Valor Ayuda =>", {chkValueHelp});
         } */
         //Establecer atributo cargando en falso
         setIsLoadState(false);
@@ -456,21 +457,21 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
           //Validación widget Sketch existente y en memoria
           else
           {
-            console.log("Visibilidad widget =>",sketchWeb.visible);
+            if (validaLoggerLocalStorage('logger')) console.log("Visibilidad widget =>", {sketchWeb: sketchWeb.visible});
             if (!sketchWeb.visible){
               //Widget Sketch al mapa estando oculto el mismo
               jimuMapView.view.ui.add(sketchWeb, "bottom-left");
               //Actualización estado objeto sketch
               sketchWeb.visible = true;
-              console.log("Componente sketch adicionado! =>",sketchWeb.visible);
+              if (validaLoggerLocalStorage('logger')) console.log("Componente sketch adicionado! =>", {sketchWeb: sketchWeb.visible});
             }
             
           }
-          console.log("Verificación objeto sketchWeb =>",sketchWeb.activeTool);
+          if (validaLoggerLocalStorage('logger')) console.log("Verificación objeto sketchWeb =>", {sketchWeb: sketchWeb.activeTool});
         }
         else if (radValueNav === 'navMap')
         {
-            console.log("Especificar punto del mapa!");
+            if (validaLoggerLocalStorage('logger')) console.log("Especificar punto del mapa!");
             if (jimuMapView) {
               jimuMapView.view.on('click', (evt) => {
                 const pointMap: Point = jimuMapView.view.toMap({
@@ -478,10 +479,10 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                   y: evt.y
                 })
                 //Coordenadas decimales
-                console.log("Verif coordenada lat =>",pointMap.latitude);
-                console.log("Verif coordenada lon =>",pointMap.longitude);
-                console.log("Verif coordenada lat filtro =>",pointMap.latitude.toFixed(3));
-                console.log("Verif coordenada lon filtro =>",pointMap.longitude.toFixed(3));
+                if (validaLoggerLocalStorage('logger')) console.log("Verif coordenada lat =>", {lat: pointMap.latitude});
+                if (validaLoggerLocalStorage('logger')) console.log("Verif coordenada lon =>", {lon: pointMap.longitude});
+                if (validaLoggerLocalStorage('logger')) console.log("Verif coordenada lat filtro =>", {lat: pointMap.latitude.toFixed(3)});
+                if (validaLoggerLocalStorage('logger')) console.log("Verif coordenada lon filtro =>", {lon: pointMap.longitude.toFixed(3)});
                 //Seteo en las variables de estado setValorLat y setValorLon las coordenadas latitud, longitud
                 //setValorLatState(pointMap.latitude.toFixed(3)); 
                 setValorLatState(pointMap.latitude.toString());
@@ -491,8 +492,8 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 setLonPtoState(pointMap.longitude.toFixed(3));
 
                 //Coordenadas rectangulares
-                console.log("Verif coordenada lon (X) =>",pointMap.x);
-                console.log("Verif coordenada lat (Y) =>",pointMap.y);
+                if (validaLoggerLocalStorage('logger')) console.log("Verif coordenada lon (X) =>", {x: pointMap.x});
+                if (validaLoggerLocalStorage('logger')) console.log("Verif coordenada lat (Y) =>", {y: pointMap.y});
                 
               });
             }
@@ -501,7 +502,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
             if (typeof sketchWeb !== 'undefined')
             {
               sketchWeb.visible = false;
-              console.log("Componente sketch oculto! =>",sketchWeb.visible);
+              if (validaLoggerLocalStorage('logger')) console.log("Componente sketch oculto! =>", {sketchWeb: sketchWeb.visible});
             }
         }
       }
@@ -527,7 +528,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
     const sketchHelp = function(){
       //Sección ayuda
       //Definición PopUpTemplate según opción Ayuda - 2025-06-17
-      console.log("Ayuda activada =>",chkValueHelp);
+      if (validaLoggerLocalStorage('logger')) console.log("Ayuda activada =>", {chkValueHelp});
       //console.log("Objeto jimuMapView para ayuda =>",jimuMapView);
       if (jimuMapView && chkValueHelp)
       {
@@ -641,8 +642,8 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               //Desactivar estado cargando
               setIsLoadState(false);
     
-              console.log("Contenido json desde petición =>", sortProyectos (data.data));
-              console.log("Contenido longitud =>",data.length);
+              if (validaLoggerLocalStorage("logger")) console.log("Contenido json desde petición =>", sortProyectos (data.data));
+              if (validaLoggerLocalStorage("logger")) console.log("Contenido longitud =>",data.length);
               //Seteo de los datos asociados desde el consumo del Web service
               setJsonSERV(sortProyectos (data.data));
             })
@@ -682,7 +683,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       {
         var jsonSIEC: any           = "";
         var proyectos: Array<string>= [];          
-        console.log("Ingresando a proyectos data...=>",jsonSERV);
+        if (validaLoggerLocalStorage("logger")) console.log("Ingresando a proyectos data...=>",jsonSERV);
         
         //Obtener listado de proyectos
         for (var cont = 0; cont < jsonSERV.length; cont++)
@@ -712,10 +713,10 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         }
         proyectos = procesaDuplic (proyectos, 'prj');
 
-        //console.log("Lista proyectos incluyendo todos =>",proyArr);
+        if (validaLoggerLocalStorage("logger")) console.log("Lista proyectos incluyendo todos =>",proyectosSW);
 
         //Adicionar item         
-        console.log("Lista proyectos FINAL=>",proyectos);
+        if (validaLoggerLocalStorage("logger")) console.log("Lista proyectos FINAL=>",proyectos);
         
         //Seteo sobre el state asociado al listado de proyectos
         setProyLst(proyectos);
@@ -800,7 +801,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 console.error("Error obteniendo data del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
                 throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
               }
-              console.log ("Coberturas primarias =>",coberDataPrim.data);
+              if (validaLoggerLocalStorage("logger")) console.log ("Coberturas primarias =>",coberDataPrim.data);
 
               //Obtener listado de coberturas desde el servidor
               for (var cont = 0; cont < coberDataPrim.data.length; cont++)
@@ -813,13 +814,13 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               }
               coberturaArr = procesaDuplic (coberturaArr, 'cov');
               //ordenamiento array
-              console.log("Lista coberturas =>",sortCober (coberturaArr));
+              if (validaLoggerLocalStorage("logger")) console.log("Lista coberturas =>",sortCober (coberturaArr));
               //Actualización sobre el objeto coberLst
               setCoberLst(sortCober (coberturaArr));
             })
           }
           catch (error){
-            console.log ("Error obteniendo coberturas del servidor! =>",error);
+            if (validaLoggerLocalStorage("logger")) console.log ("Error obteniendo coberturas del servidor! =>",error);
           }
         })
     }
@@ -888,7 +889,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         {
           //Consumo API para obtener Coberturas secundarias / terciarias
           urlServicioSIEC = urls.api_host + urls.api_getCoberSecTer + coberId;
-          console.log("Petición para control"+" "+idControl+" "+"=>",urlServicioSIEC);
+         if (validaLoggerLocalStorage("logger")) console.log("Petición para control"+" "+idControl+" "+"=>",urlServicioSIEC);
           coberSecData    = await getDominioValor (tokenSeg["data"].access_token, urlServicioSIEC);
         
           //Validación para data existente sean Coberturas 1 / Coberturas 2
@@ -900,7 +901,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 //Procesamiento coberturas 1 => Nivel 2  - texto del control - 2025-10-28
                 if (idControl === 'Coberturas1'){
                   //Obtener conteo de valor dominio, desde atributo Id_Valor_Dominio, mapeado al campo Id_Valor_Dom_Padre
-                  console.log ("Test Num regs asociados al dominio " + coberSecData["data"][conCoberSec].Id_Valor_Dominio + " "+"=>",await getNumRegsCober1 (coberSecData["data"][conCoberSec].Id_Valor_Dominio));
+                  if (validaLoggerLocalStorage("logger")) console.log ("Test Num regs asociados al dominio " + coberSecData["data"][conCoberSec].Id_Valor_Dominio + " "+"=>",await getNumRegsCober1 (coberSecData["data"][conCoberSec].Id_Valor_Dominio));
                   //Obtener número registros asociados al campo Nivel 3
                   const numRegs  = await getNumRegsCober1 (coberSecData["data"][conCoberSec].Id_Valor_Dominio);
                   if (numRegs["data"].length > 0){
@@ -916,7 +917,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 if (idControl === "Coberturas2"){
                   //Obtener número registros asociados al campo Nivel 3 - 2025-11-06
                   const numRegs = await getNumRegsCoberN3 (coberSecData["data"][conCoberSec].Descripcion_Valor);
-                  console.log ("Test Num regs Nivel 3 =>",numRegs);
+                  if (validaLoggerLocalStorage("logger")) console.log ("Test Num regs Nivel 3 =>",numRegs);
                   if (parseInt (numRegs) > 0){
                     //Armado de la estructura JSON correspondiente 
                     jsonData = {
@@ -934,7 +935,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               //Validar duplicados
               coberSec2Arr  = procesaDuplic (coberSec2Arr, 'cov');
               //Ordenamiento array
-              console.log ("Coberturas secundarias =>",sortCober (coberSec2Arr));
+              if (validaLoggerLocalStorage("logger")) console.log ("Coberturas secundarias =>",sortCober (coberSec2Arr));
               //Actualizar al state el objeto ordenado - 2025-08-15
               setCoberFilt1LstState (sortCober (coberSec2Arr));
               //Habilitar control Coberturas 1 - 2025-08-20
@@ -949,7 +950,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 //Validar duplicados
                 coberSec2Arr  = procesaDuplic (coberSec2Arr, 'cov');
                 //ordenamiento array
-                console.log ("Coberturas terciarias =>",sortCober (coberSec2Arr));
+                if (validaLoggerLocalStorage("logger")) console.log ("Coberturas terciarias =>",sortCober (coberSec2Arr));
                 
                 //Actualizar al state el objeto ordenado 
                 setCoberFilt2LstState (sortCober (coberSec2Arr)); 
@@ -990,7 +991,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         }
       }
       catch (error) {
-        console.log("Error obteniendo coberturas secundarias del server =>", error);
+        if (validaLoggerLocalStorage("logger")) console.log("Error obteniendo coberturas secundarias del server =>", error);
         throw error;    
       }
      
@@ -1027,7 +1028,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       var where, urlServicioSIEC: string  = "";
       
       //Acceso al MapServer
-      console.log ("Test Cobertura Niv 3 =>",selCoberTxt);
+      if (validaLoggerLocalStorage("logger")) console.log ("Test Cobertura Niv 3 =>",selCoberTxt);
 
       //Se usa la petición para paso de parámetros
       //Definición de criterio al mapserver según parámetro
@@ -1035,7 +1036,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         where           = "tipo_cobertura='"+selCoberTxt+"'";
         urlServicioSIEC = await getWhere(outFieldsService.fieldsOut, urls.firmasEspTCober, true, where, '', '', '', '', '4326', 'esriSpatialRelIntersects', '3857');
         
-        console.log("Test URL consumo =>", urlServicioSIEC);
+        if (validaLoggerLocalStorage("logger")) console.log("Test URL consumo =>", urlServicioSIEC);
         return await getSelectedDataFilter (urlServicioSIEC,'qry');
       }
       return -1;
@@ -1067,7 +1068,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
     const getJSONDptos = async function () {
       const critSeleccDpto: string  = "1=1";  
       const urlDivipolaDptos = await getWhere("decodigo,denombre", urls.Departamentos, false, critSeleccDpto, '', '', '', '', '', '', '');
-      console.log("Petición consumo Dptos =>",urlDivipolaDptos);
+      if (validaLoggerLocalStorage("logger")) console.log("Petición consumo Dptos =>",urlDivipolaDptos);
 
       //Activar estado cargando Lista departamentos
       setIsLoadState(true);
@@ -1127,7 +1128,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
           };
           DptosDataLst.features.push(jsonSIEC);
           //console.log("Array Dptos =>", DptosDataLst.features);
-          console.log("Array Lista Dptos sorted =>", sortDptos (DptosDataLst.features));
+          if (validaLoggerLocalStorage("logger")) console.log("Array Lista Dptos sorted =>", sortDptos (DptosDataLst.features));
           //Asignación lista Dptos ordenados por nombre al State del control Departamentos
           setJsonDptoState (sortDptos (DptosDataLst.features));
         })
@@ -1167,16 +1168,16 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
      */
     const getCampaByProj = function  (proyId, proy)
     {
-      console.log("ID proyecto asociado =>",proyId);
-      console.log("Proy =>",proy);
+      if (validaLoggerLocalStorage("logger")) console.log("ID proyecto asociado =>",proyId);
+      if (validaLoggerLocalStorage("logger")) console.log("Proy =>",proy);
 
       var jsonSIEC: any;
       var campaArr = [];
       var tokenSeg: string = "";
       var urlServicioSIEC: string; 
       
-      //console.log("Ingresando a cobertura data...=>",jsonSERV);
-      console.log("Longitud campaña Lst =>",campaLst.length);
+      //if (validaLoggerLocalStorage("logger")) console.log("Ingresando a cobertura data...=>",jsonSERV);
+      if (validaLoggerLocalStorage("logger")) console.log("Longitud campaña Lst =>",campaLst.length);
       if (campaLst.length >= 0)
       {
         setCampaLst([]);  
@@ -1240,8 +1241,8 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
             //Desactivar estado cargando
             setIsLoadState(false);
       
-            console.log("Contenido json campañas desde petición =>", data);
-            console.log("Contenido longitud =>",data.length);
+            if (validaLoggerLocalStorage("logger")) console.log("Contenido json campañas desde petición =>", data);
+            if (validaLoggerLocalStorage("logger")) console.log("Contenido longitud =>",data.length);
             //Seteo de los datos asociados desde el consumo del Web service
 
             //Obtener listado de campañas asociado al proyecto
@@ -1251,7 +1252,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               /*proyectos = data.features[cont].projectname;
               console.log("Proyecto "+cont+" =>",proyectos);*/
               //Incluir la opción Todas
-              //{"objectid": "*","codigofirma": null, "projectname": null, "campananame": "[Todas]"}
+              //if (validaLoggerLocalStorage("logger")) console.log("Incluir la opción Todas =>", {"objectid": "*","codigofirma": null, "projectname": null, "campananame": "[Todas]"});
               if (cont === 0)
               {
                 jsonSIEC = {
@@ -1261,8 +1262,8 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 };
                 campaArr.push(jsonSIEC);
               }
-              console.log("Campaña src =>", data.data[cont].CampanaName);
-              console.log("ID Proy Campaña =>",data.data[cont].Id_Proyecto);
+              if (validaLoggerLocalStorage("logger")) console.log("Campaña src =>", data.data[cont].CampanaName);
+              if (validaLoggerLocalStorage("logger")) console.log("ID Proy Campaña =>",data.data[cont].Id_Proyecto);
               if ((data.data[cont].Id_Proyecto == proyId || proyId === "*") && data.data[cont].CampanaName != null)
               {
                 jsonSIEC = {
@@ -1275,16 +1276,16 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
             }
             campaArr = procesaDuplic (campaArr, 'cam');
             //Ordenamiento campañas
-            console.log("Lista campañas =>",sortCampa_as (campaArr));
+            if (validaLoggerLocalStorage("logger")) console.log("Lista campañas =>",sortCampaAs (campaArr));
             
             //Set al state de campañas ordenadas
-            setCampaLst(sortCampa_as (campaArr));
+            setCampaLst(sortCampaAs (campaArr));
 
           })
         }
         catch (error)
         {
-          console.log("Error cargando data del server =>", error);
+          if (validaLoggerLocalStorage("logger")) console.log("Error cargando data del server =>", error);
           throw error;
         }
         
@@ -1519,7 +1520,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         setMunicDisabState (false);
         codDpto = evt.target.value.toString();
       }
-      console.log("Dpto val =>",codDpto);
+      if (validaLoggerLocalStorage("logger")) console.log("Dpto val =>",codDpto);
       
       //Al state
       setDptoSelState (codDpto);
@@ -1620,13 +1621,13 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
             }
           };
           mpiosDataLst.features.push (jsonSIEC);
-          console.log("Array Mpios Sorted =>", sortMpios (mpiosDataLst.features));
+          if (validaLoggerLocalStorage("logger")) console.log("Array Mpios Sorted =>", sortMpios (mpiosDataLst.features));
           setMpioLstState (sortMpios (mpiosDataLst.features));
         })
       }
       catch (error)
       {
-        console.log("Error obteniendo municipios del server =>", error);
+        console.error("Error obteniendo municipios del server =>", error);
         throw error;
       }
     }
@@ -1696,7 +1697,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         //Inclusión validación para campos requeridos (al menos 1 es requerido)
         if ((typeof selCoberVal !== "undefined" && typeof selCoberFilt1Val === "undefined" && coberFilt1Lst.length === 0 || (typeof selCoberFilt1Val !== "undefined" && typeof selCoberFilt2Val !== "undefined" && coberFilt2Lst.length === 0)) && typeof dptoSel === "undefined" && typeof mpioSel === "undefined" && (txtValorLatSuIz.trim() === "" && txtValorLatInDe.trim() === "") && ((txtValorLonSuIz.trim() === "" && txtValorLonInDe.trim() === "") && (txtValorLat.trim() === "" && txtValorLon.trim() === "")) &&  typeof selProyVal === "undefined" && typeof selCampaVal === "undefined")
         {
-          console.log("Error, campos requeridos!!!");
+          if (validaLoggerLocalStorage('logger')) console.log("Error, campos requeridos!!!");
           setAlertDial(true);
           
           setMensModal({
@@ -1715,10 +1716,16 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         setRows([]);
 
         //Limpieza widgets Tabla Resultados        
+        if(validaLoggerLocalStorage('logger')) {
+          console.log("Limpieza widgets Tabla Resultados y Bar-Chart",{
+            TABLA_RESULTADOS_BNFE: WIDGET_IDS.TABLA_RESULTADOS_BNFE,
+            BAR_CHART_BNFE2026: WIDGET_IDS.BAR_CHART_BNFE2026
+          });
+        }
         const dataToRenderTablaResultados = JSON.stringify({ dataToRows: [] });
-        props.dispatch(appActions.widgetStatePropChange('widget_9', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados));   
+        props.dispatch(appActions.widgetStatePropChange(WIDGET_IDS.TABLA_RESULTADOS_BNFE, 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados));   
         const dataToRenderBarChart = JSON.stringify({ dataToRows: [], labels: []})
-        props.dispatch(appActions.widgetStatePropChange('widget_13', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
+        props.dispatch(appActions.widgetStatePropChange(WIDGET_IDS.BAR_CHART_BNFE2026, 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
 
         //Borrado markers anteriores
         borradoMarkers(jimuMapView);
@@ -1871,7 +1878,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
             //console.log ("Petición API =>",urlApiServicioSIEC);
             try{
               var coberNiv3Obj  = await getDominioValor (tokenSeg, urlApiServicioSIEC);
-              console.log ("Consumo objetos nivel 3 =>",coberNiv3Obj);
+              if (validaLoggerLocalStorage("logger")) console.log ("Consumo objetos nivel 3 =>",{coberNiv3Obj});
               //Recorrido de los parámetros asociados al objeto Nivel 3
               for (var contNiv3 = 0; contNiv3 < coberNiv3Obj["data"].length; contNiv3++){
                //console.log ("Recorrido Niv 3 =>"+contNiv3+" "+"=>"+coberNiv3Obj["data"][contNiv3].Descripcion_Valor);
@@ -1884,7 +1891,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               }
               //Compactación última ',' que no aplica
               paramNiv3Str  = paramNiv3Str.slice (0, -1);
-              console.log ("Params Nivel 3 =>",paramNiv3Str);
+              if (validaLoggerLocalStorage("logger")) console.log ("Params Nivel 3 =>",{paramNiv3Str});
 
               //Generación consulta
               where = "tipo_cobertura"+" "+"IN"+" "+"("+paramNiv3Str+ ")";
@@ -1896,7 +1903,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
           }
           //Procesamiento coberturas 1 => Nivel 2, cuando coberturas 2 => Nivel 3 no es seleccionado y tiene lista definida 
           else if (typeof selCoberFilt2Val === 'undefined' && coberFilt2Lst.length > 0){
-           console.log ("Visualización elementos Nivel 3 =>",coberFilt2Lst[0]);
+           if (validaLoggerLocalStorage("logger")) console.log ("Visualización elementos Nivel 3 =>",coberFilt2Lst[0]);
             //Generar parámetros de elementos Nivel 3
             try{
               //Recorrido de los parámetros asociados al objeto Nivel 3
@@ -1911,7 +1918,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               }
               //Compactación última ',' que no aplica
               paramNiv3Str  = paramNiv3Str.slice (0, -1);
-              console.log ("Params Nivel 3 =>",paramNiv3Str);
+              if (validaLoggerLocalStorage("logger")) console.log ("Params Nivel 3 =>",{paramNiv3Str});
 
               //Generación consulta
               where = "tipo_cobertura"+" "+"IN"+" "+"("+paramNiv3Str+ ")";
@@ -2088,13 +2095,13 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
           where = "1=1";
         } 
             
-        console.log("Criterio where =>",where);
-        console.log("Criterio Input Geometry =>",geomCoords);
+        if (validaLoggerLocalStorage("logger")) console.log("Criterio where =>",{where});
+        if (validaLoggerLocalStorage("logger")) console.log("Criterio Input Geometry =>",{geomCoords});
         
         //Se usa la petición para paso de parámetros
         const urlServicioSIEC = await getWhere(outFieldsService.fieldsOut, urls.firmasEspTCober, true, where, '', '', geomCoords, tGeometry, '4326', 'esriSpatialRelIntersects', '3857');
         
-        console.log("URL consumo =>", urlServicioSIEC);
+        if (validaLoggerLocalStorage("logger")) console.log("URL consumo =>",{urlServicioSIEC});
         
         //Limpieza del data Grid antes de obtener la información del servicio
         setRows([]);
@@ -2146,7 +2153,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 "errorMsg": dataRows.statusText
               }
               //throw new Error(`HTTP error! status: ${dataRows.status}`);
-              throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["error"];
+              throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["error"]+")";
               return jsonErr;
             }
             //Validador consumo por error del server (cód http <> 200 )
@@ -2155,7 +2162,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 "errorCode": dataRows["error"].code,
                 "errorMsg": dataRows["error"].message
               }
-              console.error("Error Obteniendo lista departamentos del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+              console.error("Error Obteniendo lista departamentos del server =>" ,jsonErr["errorMsg"]+" "+"("+"código http =>"+jsonErr["errorCode"]+")");
               throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
             }  
             return dataRows.json();
@@ -2172,14 +2179,14 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               console.error("Error obteniendo data asociado al filtro de consulta del Mapserver (" + urlServicioSIEC +") =>" ,jsonErr["errorMsg"]+" "+"("+"Detalle error asociado => "+jsonErr["errorMsgDet"]+")"+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")");
               throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
             }
-            console.log("Data traida desde remoto...",dataJSON);
+            if (validaLoggerLocalStorage("logger")) console.log("Data traida desde remoto...",{dataJSON});
             
             //Procesar generación filas data grid
             generateRowsDG(dataJSON.features);
           });
         }
         catch (error){
-          console.log("Error generado =>",error);
+          console.error("Error generado =>",error);
         }
       }
       else{
@@ -2196,7 +2203,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 "errorMsg": dataRows.statusText
               }
               //throw new Error(`HTTP error! status: ${dataRows.status}`);
-              throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["error"];
+              throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["error"]+")";
               return jsonErr;
             }
             //Validador consumo por error del server (cód http <> 200 )
@@ -2205,7 +2212,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 "errorCode": dataRows["error"].code,
                 "errorMsg": dataRows["error"].message
               }
-              console.error("Error Obteniendo lista departamentos del server =>" ,jsonErr["errorMsg"])+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
+              console.error("Error Obteniendo lista departamentos del server =>" ,jsonErr["errorMsg"]+" "+"("+"código http =>"+jsonErr["errorCode"]+")");
               throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
             }  
             return dataRows.json().then((dataJSON) => {
@@ -2220,7 +2227,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 console.error("Error obteniendo data asociado al filtro de consulta del Mapserver (" + urlServicioSIEC +") =>" ,jsonErr["errorMsg"]+" "+"("+"Detalle error asociado => "+jsonErr["errorMsgDet"]+")"+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")");
                 throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
               }
-              console.log("Data traida desde remoto...",dataJSON);
+              if (validaLoggerLocalStorage("logger")) console.log("Data traida desde remoto...",{dataJSON});
               
               //Devolver longitud de la data traida desde remoto
               return dataJSON.features.length;
@@ -2228,7 +2235,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
           })
         }
         catch (error){
-          console.log("Error generado =>",error);
+          console.error("Error generado =>",error);
         }
       }
     }
@@ -2308,14 +2315,14 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       var jsonStr, urlDivipolaMpios: any;
       var codDptoDivipola, codMpioDivipola, critSeleccDpto: string = "";
       
-      console.log("Consulta registros =>",dataJSON);
+      if (validaLoggerLocalStorage("logger")) console.log("Consulta registros =>", {dataJSON});
       //console.log("Contenido dptos json traidos al state =>",jsonDpto);
       if (typeof dataJSON !== 'undefined' && dataJSON.length > 0)
       {
         //Normalización petición para cargue lista de municipios asociados al servicio
         critSeleccDpto   = "1=1";   //Listado de todos los municipios
         urlDivipolaMpios = await getWhere(outFieldsService.fieldOutDivipola, urls.Municipios, false, critSeleccDpto, '', '', '', '', '', '', '');
-        console.log("URL consumo divipola mpios =>",urlDivipolaMpios);
+        if (validaLoggerLocalStorage("logger")) console.log("URL consumo divipola mpios =>", {urlDivipolaMpios});
         
         //Activar estado cargando lista de municipíos
         setIsLoadState(true);
@@ -2326,7 +2333,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
             method:"GET"
           })
           .then((rows) => {
-            console.log ("State rows servicio lista Mpios =>",rows);
+            if (validaLoggerLocalStorage("logger")) console.log ("State rows servicio lista Mpios =>", {rows});
             if (!rows.ok)
             {
               var jsonErr: any = {};
@@ -2348,14 +2355,14 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               console.error("Error obteniendo lista Mpios del server =>" ,jsonErr["errorMsg"])+" " + "("+ jsonErr["errorDetails"]+ ")"+" "+"("+"código http =>"+jsonErr["errorCode"]+")";
               throw jsonErr["errorMsg"]+" "+"("+"código http =>"+" "+jsonErr["errorCode"]+")";
             }
-            console.log("data JSON del servicio =>",rows);
+            if (validaLoggerLocalStorage("logger")) console.log("data JSON del servicio =>", {rows});
             const jsonData = rows.json();
             return jsonData;
           })
           .then((data) => {
             var jsonErr : any = {};
             if (typeof (data["error"]) !== 'undefined'){
-              console.log ("Error Mpios =>",data["error"]);
+              if (validaLoggerLocalStorage("logger")) console.log ("Error Mpios =>", {dataError: data["error"]});
               jsonErr = {
                 "errorCode": data["error"].code,
                 "errorMsg": data["error"].message,
@@ -2368,7 +2375,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
             /* console.log("Contenido mpios json desde petición =>", data.features);
             console.log("Contenido longitud =>",data.features.length);*/
             //console.log("Array Mpios obtenido del depto"+" ",codDptoDivipola+"=>",data.features);
-            console.log("Data mpios =>",data);
+            if (validaLoggerLocalStorage("logger")) console.log("Data mpios =>", {data});
             //console.log("Contenido longitud =>",data.features.length);  
             //Validación despliegue lista municipios del server correcta     
             if (typeof data["error"] === 'undefined'){
@@ -2384,10 +2391,10 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                   //Copia del código Mpio
                   codMpioDivipola = dataJSON[cont].attributes.codigo_municipio;
                   //Búsqueda del departamento
-                  console.log("Depto Src =>",codDptoDivipola);
+                  if (validaLoggerLocalStorage("logger")) console.log("Depto Src =>", {codDptoDivipola});
                   
                   //Procesamiento municipios
-                  console.log("Revisión Mpio =>",dataJSON[cont].attributes.codigo_departamento);
+                  if (validaLoggerLocalStorage("logger")) console.log("Revisión Mpio =>", {codigo_departamento: dataJSON[cont].attributes.codigo_departamento});
 
                   //
                   //Recorrido para búsqueda de municipio desde servicio municipios
@@ -2446,7 +2453,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
                 }
               }
               
-              console.log("Array resultante data =>",jsonArr);
+              if (validaLoggerLocalStorage("logger")) console.log("Array resultante data =>", {jsonArr});
               //Seteo al state asociado a las filas del Data Grid
               setRows(jsonArr); 
             } 
@@ -2469,18 +2476,18 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
               }
               jsonArr.push(jsonStr);
               
-              console.log("Array resultante data =>",jsonArr);
+              if (validaLoggerLocalStorage("logger")) console.log("Array resultante data =>", {jsonArr});
               //Seteo al state asociado a las filas del Data Grid
               setRows(jsonArr);
             }
           })
           .catch (errFetch => {
-            console.log("Error en fetch =>",errFetch);
+            if (validaLoggerLocalStorage("logger")) console.log("Error en fetch =>", {errFetch});
           }) 
         }
         catch (error)
         {
-          console.log("Error cargando data del server =>", error);
+          if (validaLoggerLocalStorage("logger")) console.log("Error cargando data del server =>", {error});
           throw error;
         }
         
@@ -2536,7 +2543,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       coberFilt1Lst.length = 0;
       setCoberFilt1LstState ([]);               
       
-      console.log ("Verif val cober prim =>",evt.target.value);
+      if (validaLoggerLocalStorage("logger")) console.log ("Verif val cober prim =>", {value: evt.target.value});
 
       //Limpieza controles dependientes
       coberFilt1Lst.length  = 0;
@@ -2610,7 +2617,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
         setCoberFilt2LstState ([]);
         
         //Se toma el valor txt y se asigna al control Coberturas 1
-        console.log ("Coberturas primarias val =>",evt.target.value);
+        if (validaLoggerLocalStorage("logger")) console.log ("Coberturas primarias val =>", {value: evt.target.value});
         //Se asigna al control Coberturas 1 toda la dupla <id>+';'+<txt>
         setSelCoberFilt1ValState (evt.target.value);
       }
@@ -2627,7 +2634,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
      */
     const handleSelCober2Change = function (evt){
       //Seteo del valor asociado al campo Coberturas 2
-      console.log("Valor texto asociado =>",evt.target.value);
+      if (validaLoggerLocalStorage("logger")) console.log("Valor texto asociado =>", {value: evt.target.value});
       setSelCoberFilt2ValState (evt.target.value);
     }
     /**
@@ -2771,9 +2778,9 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
       
       //Limpieza widgets Tabla Resultados y Bar-Chart
       dataToRenderBarChart = JSON.stringify({ dataToRows: [], labels: []})
-      props.dispatch(appActions.widgetStatePropChange('widget_13', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
+      props.dispatch(appActions.widgetStatePropChange(WIDGET_IDS.BAR_CHART_BNFE2026, 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart));
       dataToRenderTablaResultados = JSON.stringify({ dataToRows: [] });
-      props.dispatch(appActions.widgetStatePropChange('widget_9', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))   
+      props.dispatch(appActions.widgetStatePropChange(WIDGET_IDS.TABLA_RESULTADOS_BNFE, 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))
     }
 
     /**
@@ -2843,7 +2850,7 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
      */
     useEffect(() =>
     {
-      console.log("Var PRoy State =>",jsonSERV);
+      if (validaLoggerLocalStorage("logger")) console.log("Var PRoy State =>", {jsonSERV});
       if (proyLst.length == 0 && jsonSERV.length > 0)
       { 
         getJSONProyectos();
@@ -2895,11 +2902,11 @@ const FiltersSrcSIEC = function({jsonSERV, setJsonSERV, selCoberVal, setCoberSta
      */
     useEffect (() => {
       if (typeof coberFilt1Lst !== 'undefined' && coberFilt1Lst.length > 0){ 
-        console.log ("Lista Coberturas 1 =>",coberFilt1Lst);
+        if (validaLoggerLocalStorage("logger")) console.log ("Lista Coberturas 1 =>", {coberFilt1Lst});
       }
       if (typeof selCoberVal !== 'undefined' && coberFilt1Lst.length === 0){
-        console.log ("Lista Coberturas 1 Long =>",coberFilt1Lst.length);
-        console.log ("Valor State Cobertura =>",selCoberVal);
+        if (validaLoggerLocalStorage("logger")) console.log ("Lista Coberturas 1 Long =>", {length: coberFilt1Lst.length});
+        if (validaLoggerLocalStorage("logger")) console.log ("Valor State Cobertura =>", {selCoberVal});
         setCoberState (selCoberVal);
       }
     }, [selCoberVal,coberFilt1Lst])

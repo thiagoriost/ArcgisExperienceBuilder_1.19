@@ -46,6 +46,8 @@ import { InterfaceResponseBusquedaFirmas, InterfaceMensajeModal, typeMSM } from 
 //Utilidades webMercator
 import * as webMercatorUtils from "@arcgis/core/geometry/support/webMercatorUtils";
 import { IMConfig } from "../config";
+import { WIDGET_IDS } from "../../../shared/constants/widget-ids";
+import { validaLoggerLocalStorage } from "../../../shared/utils/export.utils";
 
 //Definición objetos
 //Estados
@@ -289,8 +291,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
      * @changes Establecer estado cargando en false
      */
     useEffect(() => {
-      console.log("Iniciando Widget...",props.state);  
-      console.log("Hook tst =>",ResponseBusquedaFirma);
+       if(validaLoggerLocalStorage("logger"))  console.log("Iniciando Widget...", {state:props.state, ResponseBusquedaFirma});        
       if (!ResponseBusquedaFirma)
         return;
       const {features} = ResponseBusquedaFirma;
@@ -331,8 +332,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
      * @author IGAC - DIP
      */
     useEffect(() => {
-      console.log("controlForms (Filter y DG) =>",controlForms);
-      console.log("Props locales widget ppal =>",props);
+      if(validaLoggerLocalStorage("logger")) console.log("controlForms (Filter y DG) =>",{props, controlForms});      
     }, [controlForms])
 
     /**
@@ -404,13 +404,11 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
       let selGraphic = null;
       let sketchWeb: Sketch;
       let objJSON: any = "";
-      console.log("Ingresando al evento objeto JimuMapView...");
+      if(validaLoggerLocalStorage("logger")) console.log("Ingresando al evento objeto JimuMapView...",{jmv, radValueNav, sketchWeb, objJSON});
       if (jmv) {
         setJimuMapView(jmv);
-        if (initialExtent === null)
-        {
-          setInitialExtent(jmv.view.extent);  //Guarda el extent inicial
-          console.log("Estableciendo extent inicial...");
+        if (initialExtent === null) {
+          setInitialExtent(jmv.view.extent);  //Guarda el extent inicial          
         }
         
         //Creación capa gráficos - 2025-05-02
@@ -447,19 +445,19 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
         }
         // console.log("GraphicsLayer length =>",layerWeb.graphics.length);
         //Invocación widget en mapa ubicación inferior derecha, solo cuando se selecciona la opción Seleccionar Area
-        console.log("Opc de sel area o navegar =>",radValueNav);
-        console.log("Componente sketch =>",sketchWeb);
+        if(validaLoggerLocalStorage("logger")) console.log("Opc de sel area o navegar =>",radValueNav);
+        if(validaLoggerLocalStorage("logger")) console.log("Componente sketch =>",sketchWeb);
         //Al state
         setSketch(sketchWeb);
         //Opción Seleccionar Area, habilita el widget Sketch
         if (radValueNav === 'selArea')
         {
-          console.log("Estado sketch =>",sketchWeb.visible);
+          if(validaLoggerLocalStorage("logger")) console.log("Estado sketch =>",sketchWeb.visible);
           if (sketchWeb.visible){          
             //Al mapa
             jmv.view.ui.add(sketchWeb, "bottom-left");
           }
-          console.log("Componente sketch adicionado! =>",sketchWeb.visible);
+          if(validaLoggerLocalStorage("logger")) console.log("Componente sketch adicionado! =>",sketchWeb.visible);
           
           //Evento que se genera al finalizar dibujo
           sketchWeb.on("create", function(event){
@@ -480,14 +478,14 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
               //Cálculo de los límites asociados al Extent del polígono, obtenido con el widget Sketch
               if (ext){
                 //Visualizar objeto ext, con las propiedades xmin, ymin, xmax, ymax
-                /* console.log("Extent es =>",ext);
-                console.log("Long, Latitud Top Left (min) =>",webMercatorUtils.xyToLngLat(ext.xmin, ext.ymin));
-                console.log("Long, Latitud Bot Right (max) =>",webMercatorUtils.xyToLngLat(ext.xmax, ext.ymax));
+                /* if(validaLoggerLocalStorage("logger")) console.log("Extent es =>",ext);
+                if(validaLoggerLocalStorage("logger")) console.log("Long, Latitud Top Left (min) =>",webMercatorUtils.xyToLngLat(ext.xmin, ext.ymin));
+                if(validaLoggerLocalStorage("logger")) console.log("Long, Latitud Bot Right (max) =>",webMercatorUtils.xyToLngLat(ext.xmax, ext.ymax));
                 //Coord Rectangulares
-                console.log("Coord X Sup Izq =>",ext.xmin);
-                console.log("Coord Y Sup Izq =>",ext.ymax);
-                console.log("Coord X Inf Der =>",ext.xmax);
-                console.log("Coord Y Inf Der =>",ext.ymin); */
+                if(validaLoggerLocalStorage("logger")) console.log("Coord X Sup Izq =>",ext.xmin);
+                if(validaLoggerLocalStorage("logger")) console.log("Coord Y Sup Izq =>",ext.ymax);
+                if(validaLoggerLocalStorage("logger")) console.log("Coord X Inf Der =>",ext.xmax);
+                if(validaLoggerLocalStorage("logger")) console.log("Coord Y Inf Der =>",ext.ymin); */
                 
                 //Lat, Long
                 //Coordenadas Sup Izq
@@ -512,23 +510,23 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
                 setLonInfDerFilter(coordBotRight[0].toFixed(3));
 
                 //Borrado del polígono
-                console.log("Objeto gráfico =>",selGraphic);
+                if(validaLoggerLocalStorage("logger")) console.log("Objeto gráfico =>",{selGraphic});
                 if (selGraphic)
                 {
                   try{
                     sketchWeb.complete();
                     jmv.view.map.layers.remove (sketchWeb.layer);
-                    console.log("Borrado ejecutado!");
+                    if(validaLoggerLocalStorage("logger")) console.log("Borrado ejecutado!");
                   }
                   catch (error)
                   {
                     if (error.name === 'AbortError')
                     {
-                      console.warn("Abort error!!!");
+                      if(validaLoggerLocalStorage("logger")) console.warn("Abort error!!!");
                     }
                     else
                     {
-                      console.warn(error);                      
+                      if(validaLoggerLocalStorage("logger")) console.warn(error);
                     }
                   }
                 }
@@ -557,7 +555,7 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
     const enviarDispatchs = function (rows) {
       //Envío al widget TablaResultados
       const dataToRenderTablaResultados = JSON.stringify({ dataToRows: rows })
-      props.dispatch(appActions.widgetStatePropChange('widget_9', 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))
+      props.dispatch(appActions.widgetStatePropChange(WIDGET_IDS.TABLA_RESULTADOS_BNFE, 'dataFromDispatchWidget_searchSIEC', dataToRenderTablaResultados))
       
       //Gráficos
       //logica para la barra de graficos
@@ -589,14 +587,17 @@ const Widget = (props: AllWidgetProps<IMConfig>) => {
 
       //Envío al widget Bar-Chart
       const dataToRenderBarChart = JSON.stringify({ dataToRows: rows, labels})
-      props.dispatch(appActions.widgetStatePropChange('widget_13', 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart))   
+      if(validaLoggerLocalStorage('logger')) {
+        console.log("Limpieza widgets Tabla Resultados y Bar-Chart",{
+          TABLA_RESULTADOS_BNFE: WIDGET_IDS.TABLA_RESULTADOS_BNFE,
+          BAR_CHART_BNFE2026: WIDGET_IDS.BAR_CHART_BNFE2026
+        });
+      }
+      props.dispatch(appActions.widgetStatePropChange(WIDGET_IDS.BAR_CHART_BNFE2026, 'dataFromDispatchWidget_searchSIEC', dataToRenderBarChart))
     }
     
     return (
-      <div
-        className="w-100 p-3 bg-primary text-white div-padre-scroll-complemento"
-        
-      >
+      <div className="w-100 p-3 bg-primary text-white div-padre-scroll-complemento" >
        <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />          
         
         

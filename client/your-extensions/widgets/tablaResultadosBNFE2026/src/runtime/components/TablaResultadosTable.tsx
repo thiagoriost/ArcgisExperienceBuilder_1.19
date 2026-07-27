@@ -132,7 +132,7 @@ const TablaResultadosTable = function (props: TablaResultadosTableProps) {
                 >
                   <td style={{display:'flex', justifyContent:'center', alignItems:'center'}}>
                     <Button
-                      type='primary'
+                      // type='tertiary'
                       onClick={(evt) => {
                         evt.stopPropagation()
                         onDownloadClick(row)
@@ -143,7 +143,7 @@ const TablaResultadosTable = function (props: TablaResultadosTableProps) {
                       Descarga
                     </Button>
                     <Button
-                      type='primary'
+                      // type='tertiary'
                       onClick={(evt) => {
                         evt.stopPropagation()
                         onDetailsClick(row)
