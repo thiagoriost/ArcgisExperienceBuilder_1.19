@@ -65,7 +65,7 @@ const Widget = (props: AllWidgetProps<any>) => {
           <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />
         )}
         {
-          widgetModules && widgetModules.FILTROS_INDICADORES(props.dispatch, departamentos, jimuMapView)
+          widgetModules && widgetModules.TAB_INDICADORES(props.dispatch, departamentos, jimuMapView)
         }
       </div>
     )

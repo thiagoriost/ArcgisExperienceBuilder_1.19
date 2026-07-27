@@ -104,7 +104,7 @@ const TabIndicadores: React.FC<any> = ({
     setSelectIndicadores(initSelectIndicadores);
     // resetNuevoFlujoIndicadores();
 
-    const findSubSistema = dataFuenteIndicadores.find((e) => e.value === target.value,);
+    const findSubSistema:any  = dataFuenteIndicadores.find((e) => e.value === target.value,);
     utilsModule?.logger() && console.log(findSubSistema);
     setApuestaEstrategica(findSubSistema);
     setIndicadores(null);
