@@ -27,6 +27,12 @@ export interface SimpleBarChartProps {
   title?: string
   emptyMessage?: string
   maxLabelLength?: number
+  onBarClick?: (payload: {
+    label: string
+    value: number
+    index: number
+    datasetLabel?: string
+  }) => void
 }
 
 /**
@@ -53,6 +59,38 @@ const trimLabel = (label: string, maxLength: number): string => {
 }
 
 /**
+ * Divide un titulo en maximo dos lineas para evitar desbordamiento horizontal.
+ *
+ * @param title Texto base del titulo.
+ * @param maxChars Cantidad maxima de caracteres por linea.
+ * @returns Arreglo de lineas (1 o 2 lineas).
+ */
+const splitTitleLines = (title: string, maxChars = 90): string[] => {
+  if (!title) return []
+  if (title.length <= maxChars) return [title]
+
+  const words = title.split(/\s+/)
+  const lines: string[] = []
+  let currentLine = ''
+
+  words.forEach((word) => {
+    const candidate = currentLine ? `${currentLine} ${word}` : word
+    if (candidate.length > maxChars && currentLine) {
+      lines.push(currentLine)
+      currentLine = word
+    } else {
+      currentLine = candidate
+    }
+  })
+
+  if (currentLine) lines.push(currentLine)
+
+  if (lines.length <= 2) return lines
+  const mergedSecondLine = lines.slice(1).join(' ')
+  return [lines[0], trimLabel(mergedSecondLine, maxChars)]
+}
+
+/**
  * Grafica de barras ligera en SVG para escenarios donde no se desea
  * depender de librerias de charting externas.
  *
@@ -65,17 +103,19 @@ const SimpleBarChart = (props: SimpleBarChartProps) => {
   const [SVG_WIDTH, setSvgWidth] = useState(1280)
   const [SVG_HEIGHT, setSvgHeight] = useState(560)
   const [MARGIN, setMargin] = useState({
-    top: 80,
+    top: 100,
     right: 130,
     bottom: 300,
     left: 240
   })
+  const [fontSize, setFontSize] = useState('20px')
 
   const {
     data,
     title,
     emptyMessage = 'No hay datos para graficar.',
-    maxLabelLength = 28
+    maxLabelLength = 28,
+    onBarClick
   } = props
 
   const labels = Array.isArray(data?.labels)
@@ -103,68 +143,78 @@ const SimpleBarChart = (props: SimpleBarChartProps) => {
   const ticks = Array.from({ length: tickCount + 1 }, (_, index) => {
     return Math.round((maxValue / tickCount) * index)
   })
+  const titleLines = splitTitleLines(title ?? '')
 
-  if(validaLoggerLocalStorage('logger')) console.log('SimpleBarChart:', {
+  if(validaLoggerLocalStorage('logger')) { console.log('SimpleBarChart:', {
     SVG_WIDTH, SVG_HEIGHT, MARGIN, data, title, emptyMessage, maxLabelLength, labels, dataset, values, innerWidth, innerHeight, maxValue, stepWidth, barWidth, color, ticks, tickCount
-  })
+  }) }
 
   return (
     <div style={{ width: '100%', display:'flex'/* , minHeight: 470 */ }}>
-      {/* {
-        validaLoggerLocalStorage('logger') && (
+      {
+        (validaLoggerLocalStorage('logger') && !true) && (
           <div style={{ color: '#2d3a4a', fontSize: 12, marginBottom: 8, position: 'absolute', top: 0, right: 0, padding: 4, borderRadius: 4 }}>
             <p>Formulario para modificar los valores del state</p>
-            <div style={{ marginBottom: 4 }}>
+            <div >
+              <label style={{ marginRight: 4 }}>Font Size:</label>
+              <input
+                type='number'
+                value={parseInt(fontSize, 10)}
+                onChange={(e) => { setFontSize(`${e.target.value}px`) }}
+              />
+            </div>
+            <div >
               <label style={{ marginRight: 4 }}>SVG_WIDTH:</label>
               <input
                 type='number'
                 value={SVG_WIDTH}
-                onChange={(e) => setSvgWidth(Number(e.target.value))}
+                onChange={(e) => { setSvgWidth(Number(e.target.value)) }}
               />
             </div>
-            <div style={{ marginBottom: 4 }}>
+            <div >
               <label style={{ marginRight: 4 }}>SVG_HEIGHT:</label>
               <input
                 type='number'
                 value={SVG_HEIGHT}
-                onChange={(e) => setSvgHeight(Number(e.target.value))}
+                onChange={(e) => { setSvgHeight(Number(e.target.value)) }}
               />
             </div>
-            <div style={{ marginBottom: 4 }}>
+            <div >
               <label style={{ marginRight: 4 }}>MARGIN.top:</label>
               <input
                 type='number'
                 value={MARGIN.top}
-                onChange={(e) => setMargin({ ...MARGIN, top: Number(e.target.value) })}
+                onChange={(e) => { setMargin({ ...MARGIN, top: Number(e.target.value) }) }}
               />
             </div>
-            <div style={{ marginBottom: 4 }}>
+            <div >
               <label style={{ marginRight: 4 }}>MARGIN.right:</label>
               <input
                 type='number'
                 value={MARGIN.right}
-                onChange={(e) => setMargin({ ...MARGIN, right: Number(e.target.value) })}
+                onChange={(e) => { setMargin({ ...MARGIN, right: Number(e.target.value) }) }}
               />
             </div>
-            <div style={{ marginBottom: 4 }}>
+            <div >
               <label style={{ marginRight: 4 }}>MARGIN.bottom:</label>
               <input
                 type='number'
                 value={MARGIN.bottom}
-                onChange={(e) => setMargin({ ...MARGIN, bottom: Number(e.target.value) })}
+                onChange={(e) => { setMargin({ ...MARGIN, bottom: Number(e.target.value) }) }}
               />
             </div>
-            <div style={{ marginBottom: 4 }}>
+            <div >
               <label style={{ marginRight: 4 }}>MARGIN.left:</label>
               <input
                 type='number'
                 value={MARGIN.left}
-                onChange={(e) => setMargin({ ...MARGIN, left: Number(e.target.value) })}
+                onChange={(e) => { setMargin({ ...MARGIN, left: Number(e.target.value) }) }}
               />
             </div>
+
           </div>
         )
-      } */}
+      }
       <svg
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
         style={{ width: '100%', height: '100%', display: 'block' }}
@@ -180,9 +230,13 @@ const SimpleBarChart = (props: SimpleBarChartProps) => {
 
         <rect x='0' y='0' width={SVG_WIDTH} height={SVG_HEIGHT} fill='url(#simpleBarChartBackground)' rx='12' ry='12' />
 
-        {title && (
-          <text x={MARGIN.left} y='38' fill='#0c4660' fontSize='28' fontWeight='700'>
-            {title}
+        {titleLines.length > 0 && (
+          <text x={MARGIN.left} y='34' fill='#0c4660' fontSize={fontSize} fontWeight='700'>
+            {titleLines.map((line, lineIndex) => (
+              <tspan key={`${lineIndex}-${line}`} x={MARGIN.left} dy={lineIndex === 0 ? 0 : 32}>
+                {line}
+              </tspan>
+            ))}
           </text>
         )}
 
@@ -234,6 +288,15 @@ const SimpleBarChart = (props: SimpleBarChartProps) => {
                 rx='6'
                 ry='6'
                 opacity='0.9'
+                style={{ cursor: onBarClick ? 'pointer' : 'default' }}
+                onClick={() => {
+                  onBarClick?.({
+                    label: labels[index],
+                    value,
+                    index,
+                    datasetLabel: dataset?.label
+                  })
+                }}
               >
                 <title>{`${labels[index]}: ${value.toLocaleString('es-CO')}`}</title>
               </rect>

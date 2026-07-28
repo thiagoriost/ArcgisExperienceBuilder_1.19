@@ -594,6 +594,18 @@ const Indicadores = (props: AllWidgetProps<any>) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  function handleOnBarClick(payload: { label: string; value: number; index: number; datasetLabel?: string }): void {
+    if (utilsModule.logger()) console.log('Bar clicked:', payload)
+    const { label, value, index, datasetLabel } = payload
+    setMensajeModal({
+      deployed: true,
+      type: typeMSM.info,
+      tittle: 'Info',
+      body: `"${label}": ${value}.`,
+      subBody: `${index}, ${datasetLabel ?? 'N/A'}`
+    })
+  }
+
   return (
     <div className="w-100 p-3  text-white" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
       {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
@@ -617,7 +629,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
               {
                 dataGrafico.map((d, i) => (
                   currentpage === (i + 1) &&
-                  <SimpleBarChart data={d} title={options?.plugins?.title?.text} maxLabelLength={30} />
+                  <SimpleBarChart data={d} title={options?.plugins?.title?.text} maxLabelLength={30} onBarClick={handleOnBarClick}/>
                 ))
               }
           </div>
