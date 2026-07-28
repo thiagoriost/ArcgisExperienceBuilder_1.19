@@ -605,12 +605,14 @@ const Indicadores = (props: AllWidgetProps<any>) => {
             <div style={{ padding: '10px', width: '100%', minHeight: '520px', border: 'solid', borderRadius: '10px', backgroundColor: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '10px' }}>
               {
                 totalPage > 1 &&
+                <div style={{position:'absolute'}}>
                   <Pagination
                     current={currentpage}
                     size="default"
                     totalPage={totalPage}
                     onChangePage={e => { setCurrentpage(e) }}
                   />
+                </div>
               }
               {
                 dataGrafico.map((d, i) => (

@@ -1,4 +1,6 @@
 import { React } from 'jimu-core'
+import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
+import { useState } from 'react'
 
 /**
  * Serie de datos compatible con estructuras tipo chart.js.
@@ -25,15 +27,6 @@ export interface SimpleBarChartProps {
   title?: string
   emptyMessage?: string
   maxLabelLength?: number
-}
-
-const SVG_WIDTH = 1200
-const SVG_HEIGHT = 620
-const MARGIN = {
-  top: 82,
-  right: 24,
-  bottom: 170,
-  left: 76
 }
 
 /**
@@ -68,6 +61,16 @@ const trimLabel = (label: string, maxLength: number): string => {
  * @returns {JSX.Element} Grafica de barras con ejes y etiquetas.
  */
 const SimpleBarChart = (props: SimpleBarChartProps) => {
+
+  const [SVG_WIDTH, setSvgWidth] = useState(1280)
+  const [SVG_HEIGHT, setSvgHeight] = useState(560)
+  const [MARGIN, setMargin] = useState({
+    top: 80,
+    right: 130,
+    bottom: 300,
+    left: 240
+  })
+
   const {
     data,
     title,
@@ -101,8 +104,67 @@ const SimpleBarChart = (props: SimpleBarChartProps) => {
     return Math.round((maxValue / tickCount) * index)
   })
 
+  if(validaLoggerLocalStorage('logger')) console.log('SimpleBarChart:', {
+    SVG_WIDTH, SVG_HEIGHT, MARGIN, data, title, emptyMessage, maxLabelLength, labels, dataset, values, innerWidth, innerHeight, maxValue, stepWidth, barWidth, color, ticks, tickCount
+  })
+
   return (
-    <div style={{ width: '100%', minHeight: 470 }}>
+    <div style={{ width: '100%', display:'flex'/* , minHeight: 470 */ }}>
+      {/* {
+        validaLoggerLocalStorage('logger') && (
+          <div style={{ color: '#2d3a4a', fontSize: 12, marginBottom: 8, position: 'absolute', top: 0, right: 0, padding: 4, borderRadius: 4 }}>
+            <p>Formulario para modificar los valores del state</p>
+            <div style={{ marginBottom: 4 }}>
+              <label style={{ marginRight: 4 }}>SVG_WIDTH:</label>
+              <input
+                type='number'
+                value={SVG_WIDTH}
+                onChange={(e) => setSvgWidth(Number(e.target.value))}
+              />
+            </div>
+            <div style={{ marginBottom: 4 }}>
+              <label style={{ marginRight: 4 }}>SVG_HEIGHT:</label>
+              <input
+                type='number'
+                value={SVG_HEIGHT}
+                onChange={(e) => setSvgHeight(Number(e.target.value))}
+              />
+            </div>
+            <div style={{ marginBottom: 4 }}>
+              <label style={{ marginRight: 4 }}>MARGIN.top:</label>
+              <input
+                type='number'
+                value={MARGIN.top}
+                onChange={(e) => setMargin({ ...MARGIN, top: Number(e.target.value) })}
+              />
+            </div>
+            <div style={{ marginBottom: 4 }}>
+              <label style={{ marginRight: 4 }}>MARGIN.right:</label>
+              <input
+                type='number'
+                value={MARGIN.right}
+                onChange={(e) => setMargin({ ...MARGIN, right: Number(e.target.value) })}
+              />
+            </div>
+            <div style={{ marginBottom: 4 }}>
+              <label style={{ marginRight: 4 }}>MARGIN.bottom:</label>
+              <input
+                type='number'
+                value={MARGIN.bottom}
+                onChange={(e) => setMargin({ ...MARGIN, bottom: Number(e.target.value) })}
+              />
+            </div>
+            <div style={{ marginBottom: 4 }}>
+              <label style={{ marginRight: 4 }}>MARGIN.left:</label>
+              <input
+                type='number'
+                value={MARGIN.left}
+                onChange={(e) => setMargin({ ...MARGIN, left: Number(e.target.value) })}
+              />
+            </div>
+          </div>
+        )
+      } */}
       <svg
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
         style={{ width: '100%', height: '100%', display: 'block' }}
@@ -178,7 +240,7 @@ const SimpleBarChart = (props: SimpleBarChartProps) => {
               <text x={x + (barWidth / 2)} y={y - 10} textAnchor='middle' fill='#233140' fontSize='16' fontWeight='600'>
                 {value.toLocaleString('es-CO')}
               </text>
-              <text x={x + (barWidth / 2)} y={MARGIN.top + innerHeight + 24} textAnchor='middle' fill='#233140' fontSize='14'>
+              <text x={x + (barWidth / 2)} y={MARGIN.top + innerHeight + 24} textAnchor='middle' fill='#233140' fontSize='16'>
                 {labelText}
               </text>
             </g>
