@@ -1,18 +1,20 @@
 import React, { useEffect, useState, useRef/* , useCallback */ } from 'react'
 import { type AllWidgetProps } from 'jimu-core'
 import { JimuMapViewComponent, type JimuMapView/* , loadArcGISJSAPIModules */ } from 'jimu-arcgis'
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, Filler } from 'chart.js'
-import { Bar/* , Bubble, Line  */ } from 'react-chartjs-2'
+// import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, Filler } from 'chart.js'
+// import { Bar/* , Bubble, Line  */ } from 'react-chartjs-2'
 // import { loadModules } from 'esri-loader'
 import { type InterfaceFeatureSelected } from '../types/interfacesIndicadores'
 // import { PieChart } from 'jimu-ui/advanced/lib/chart/pie'
+//@ts-expect-error
 import '../styles/style.css'
 import { Pagination } from 'jimu-ui'
 import { typeMSM } from '../../../commonWidgets/modal/interfaces'
+import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
-ChartJS.register(
+/* ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
@@ -22,7 +24,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   Filler
-)
+) */
 
 interface Grafico {
   label: string
@@ -38,6 +40,7 @@ const tiposGraficos: Grafico[] = [
 ]
 
 const Indicadores = (props: AllWidgetProps<any>) => {
+  if(validaLoggerLocalStorage('logger')) console.log('Indicadores ID:', {id:props.id, props})
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
   const [initialExtent, setInitialExtent] = useState(null)
   const [utilsModule, setUtilsModule] = useState<any>(null)
@@ -61,7 +64,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [responseQueryCapa, setResponseQueryCapa] = useState(null)
   // const [contador, setContador] = useState()
-  // const [poligonoSeleccionado, setPoligonoSeleccionado] = useState(undefined)
+  const [poligonoSeleccionado, setPoligonoSeleccionado] = useState(undefined)
   const [currentpage, setCurrentpage] = useState(1)
   const [totalPage, setTotalPage] = useState(0)
   const [mensajeModal, setMensajeModal] = useState({
@@ -378,7 +381,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
         legend: { position: 'top' as const },
         title: {
           display: true,
-          text: `${descripcion} - Municipio: ${poligonoSeleccionado.attributes.mpnombre ? poligonoSeleccionado.attributes.mpnombre : poligonoSeleccionado.attributes[0].attributes.mpnombre} - Departamento: ${departmentSelect?.label ? departmentSelect.label : poligonoSeleccionado.attributes.depto}`
+          text: `${descripcion} - Municipio: ${poligonoSeleccionado.attributes.mpnombre ? poligonoSeleccionado.attributes.mpnombre : poligonoSeleccionado.attributes[0].attributes.mpnombre} - Departamento: ${/* departmentSelect?.label ? departmentSelect.label : */ poligonoSeleccionado.attributes.depto}`
 
         },
         tooltip: {
@@ -520,7 +523,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
   useEffect(() => {
     import('../../../utils/module').then(modulo => {
       setUtilsModule(modulo)
-      if (modulo.logger()) console.log(props, props.id)
+      if (modulo.logger()) console.log({props, id:props.id})
     })
     import('../../../commonWidgets/widgetsModule').then(modulo => { setWidgetModules(modulo) })
     /* // este codigo sirve para probar los tipos de graficos
@@ -631,10 +634,11 @@ const Indicadores = (props: AllWidgetProps<any>) => {
                   />
               }
               {
-                  dataGrafico.map((d, i) => (
-                    currentpage === (i + 1) &&
-                    <Bar options={options} data={d} ref={chartRef} onClick={handleChartClick} />
-                  ))
+                dataGrafico.map((d, i) => (
+                  currentpage === (i + 1) &&
+                  <h1>Bar Graphics</h1>
+                  // <Bar options={options} data={d} ref={chartRef} onClick={handleChartClick} />
+                ))
               }
           </div>
           )}

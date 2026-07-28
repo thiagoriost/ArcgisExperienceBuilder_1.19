@@ -63,6 +63,7 @@ const MODAL = (mensajeModal, setMensajeModal) => (
 
 /**
  * Wrapper para la pestaña de filtros de indicadores.
+ * empleado en el SNFE
  */
 const TAB_INDICADORES = (dispatch, departamentos, jimuMapView) => (
     <TabIndicadores dispatch={dispatch} departamentos={departamentos} jimuMapView={jimuMapView}/>

@@ -11,9 +11,10 @@ import { loadModules } from "esri-loader";
 import { validaLoggerLocalStorage } from "../../shared/utils/export.utils";
 import { AjustarDatasetParams, CategoriaTematica, ChartData, DatasetItem, GeographicExtent, GraphicFeature, HandleIndicadorParams, IndicadorSeleccionado, IndicatorConfig, initApuestaEstrategica, initAreaEstudioNueva, initIndiSelected, initLastLayerDeployed, initSelectIndicadores, InitSelectIndicadores, inter_EsriModules, inter_poligonoSeleccionado, interf_APUESTA_ESTRATEGICA, interf_SUBSISTEMA, interfa_geometriasDepartamentos, interfa_indicadores, interfa_itemSelected, Interface_DepartmentSelect, interface_Extent, interface_Feature, InterfaceConstantes, InterfaceIndiSelected, LayerDeployed, NuevoFiltroAreaAdministrativa, NuevoFiltroAreaEstudio, NuevoFiltroCategoria, NuevoFiltroIndicador, OutStatistics, PoblarMunicipiosParams, ProcessedData, SelectionTarget, typeGeometria, typeMSM } from "./utilsTabIndicadores";
 import { DrawingInfo } from "./interfaceDrawingInfo";
+import {WIDGET_IDS} from '../../shared/constants/widget-ids'
 const { useEffect, useState } = React;
 
-const widgetIdIndicadores = "widget_48"; // se genera al ingresar al widget objetivo y generarlo en el effect de inicio con props.id
+; // se genera al ingresar al widget objetivo y generarlo en el effect de inicio con props.id
 
 /**
  * @dateUpdated 2025-10-16
@@ -608,7 +609,7 @@ const TabIndicadores: React.FC<any> = ({
 
       dispatch(
         appActions.widgetStatePropChange(
-          widgetIdIndicadores,
+          WIDGET_IDS.widgetIdIndicadores,
           "dataFromDispatch",
           dataToRender,
         ),
@@ -1180,7 +1181,7 @@ const TabIndicadores: React.FC<any> = ({
         });
         dispatch(
           appActions.widgetStatePropChange(
-            widgetIdIndicadores,
+            WIDGET_IDS.widgetIdIndicadores,
             "dataFromDispatch",
             dataToRender,
           ),
@@ -1750,9 +1751,10 @@ const TabIndicadores: React.FC<any> = ({
 
   const borrarSoloGraficas = () => {
     const dataToWidgetIndicadores = JSON.stringify({ clear: true });
+    if (utilsModule?.logger()) console.log("borrarSoloGraficas", { dataToWidgetIndicadores, widgetIdIndicadores:WIDGET_IDS.widgetIdIndicadores });
     dispatch(
       appActions.widgetStatePropChange(
-        widgetIdIndicadores,
+        WIDGET_IDS.widgetIdIndicadores,
         "dataFromDispatch",
         dataToWidgetIndicadores,
       ),
@@ -1902,7 +1904,7 @@ const TabIndicadores: React.FC<any> = ({
         )}
 
         {
-          (selectIndicadores.urlDepartal !== '' && widgetModules && departamentos.length > 0 && false) &&
+          (selectIndicadores.urlDepartal !== '' && widgetModules && departamentos.length > 0) &&
             widgetModules.INPUTSELECT(
               departamentos,
               handleDepartamentoSelected,
@@ -1912,7 +1914,7 @@ const TabIndicadores: React.FC<any> = ({
             )
         }
         {
-          (!usandoNuevoFlujoIndicadores && (esIndicador === "Departamental" || esIndicador === "Nacional") && departmentSelect?.value && municipios.length > 1 && false) &&
+          (!usandoNuevoFlujoIndicadores && (esIndicador === "Departamental" || esIndicador === "Nacional") && departmentSelect?.value && municipios.length > 1) &&
             widgetModules?.INPUTSELECT(
               municipios,
               handleMunicipioSelected,
