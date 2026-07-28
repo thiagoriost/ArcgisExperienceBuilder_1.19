@@ -518,7 +518,7 @@ exports.getCommon = function (commonOptions = {}) {
 
   exports.externalFunction = function({request, contextInfo}, callback) {
     if (isRequestExternal(request)) {
-      if(['react', 'react-dom', 'react-dom/client', 'react-dom/server'].indexOf(request) > -1){
+      if(['react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom', 'react-dom/client', 'react-dom/server'].indexOf(request) > -1){
         callback(null, 'system jimu-core/' + request);
       } else if (request.startsWith('@arcgis/core/')) {
         // for JSAPI ESM, we always use AMD, esri/xxx
@@ -553,7 +553,7 @@ exports.getCommon = function (commonOptions = {}) {
     const partialMatchPackages = ['dojo/', 'dijit/', 'dojox/', 'esri/', 'moment', 'dgrid', 'dstore', '@arcgis/core/', 'widgets/shared-code'];
 
     const fullMatchPackages = [
-      'react', 'react-dom', 'react-dom/client', 'react-dom/server',
+      'react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom', 'react-dom/client', 'react-dom/server',
       'jimu-core', 'jimu-core/dnd', 'jimu-core/emotion',
 
       'jimu-arcgis',

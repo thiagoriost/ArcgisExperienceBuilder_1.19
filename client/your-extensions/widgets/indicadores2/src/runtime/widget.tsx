@@ -9,6 +9,7 @@ import '../styles/style.css'
 import { Pagination } from 'jimu-ui'
 import { typeMSM } from '../../../commonWidgets/modal/interfaces'
 import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
+import { SimpleBarChart } from '../../../shared/components/NativeBarChart'
 
 const { useEffect, useState } = React
 
@@ -601,7 +602,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
       <>
         {
           (dataGrafico.length > 0/*  && poligonoSeleccionado.departmentSelect */) && (
-            <div style={{ padding: '10px', width: '100%', height: '400px', border: 'solid', borderRadius: '10px', backgroundColor: 'white', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ padding: '10px', width: '100%', minHeight: '520px', border: 'solid', borderRadius: '10px', backgroundColor: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '10px' }}>
               {
                 totalPage > 1 &&
                   <Pagination
@@ -614,7 +615,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
               {
                 dataGrafico.map((d, i) => (
                   currentpage === (i + 1) &&
-                  <SimpleBarChart data={d} title={options?.plugins?.title?.text} />
+                  <SimpleBarChart data={d} title={options?.plugins?.title?.text} maxLabelLength={30} />
                 ))
               }
           </div>
@@ -628,99 +629,6 @@ const Indicadores = (props: AllWidgetProps<any>) => {
 }
 
 export default Indicadores
-
-interface ChartDataset {
-  label?: string
-  data: number[]
-  backgroundColor?: string | string[]
-}
-
-interface ChartLikeData {
-  labels: any[]
-  datasets: ChartDataset[]
-}
-
-interface SimpleBarChartProps {
-  data: ChartLikeData
-  title?: string
-}
-
-/**
- * Renderiza una grafica de barras simple con SVG para evitar dependencias
- * externas de charting en el runtime de Experience Builder.
- */
-const SimpleBarChart = (props: SimpleBarChartProps) => {
-  const { data, title } = props
-  const labels = Array.isArray(data?.labels) ? data.labels.map(label => String(label ?? 'Sin dato')) : []
-  const dataset = data?.datasets?.[0]
-  const values = Array.isArray(dataset?.data)
-    ? dataset.data.map(value => Number(value ?? 0)).map(value => (Number.isFinite(value) ? value : 0))
-    : []
-
-  if (!labels.length || !values.length) {
-    return <div style={{ color: '#2d3a4a', width: '100%' }}>No hay datos para graficar.</div>
-  }
-
-  const width = 960
-  const height = 420
-  const margin = { top: 46, right: 18, bottom: 110, left: 56 }
-  const innerWidth = width - margin.left - margin.right
-  const innerHeight = height - margin.top - margin.bottom
-  const maxValue = Math.max(...values, 1)
-  const step = innerWidth / Math.max(values.length, 1)
-  const barWidth = Math.max(18, Math.min(56, step * 0.64))
-  const color = Array.isArray(dataset?.backgroundColor)
-    ? (dataset?.backgroundColor?.[0] ?? '#2f7db6')
-    : (dataset?.backgroundColor ?? '#2f7db6')
-
-  return (
-    <div style={{ width: '100%' }}>
-      <svg viewBox={`0 0 ${width} ${height}`} style={{ width: '100%', height: '100%' }} role='img' aria-label='Grafica de barras'>
-        <rect x='0' y='0' width={width} height={height} fill='#f7fbff' rx='10' ry='10' />
-        {title && (
-          <text x={margin.left} y={26} fill='#0c4660' fontSize='16' fontWeight='700'>
-            {title}
-          </text>
-        )}
-        <line
-          x1={margin.left}
-          y1={margin.top + innerHeight}
-          x2={margin.left + innerWidth}
-          y2={margin.top + innerHeight}
-          stroke='#6d7a8a'
-          strokeWidth='1'
-        />
-        <line
-          x1={margin.left}
-          y1={margin.top}
-          x2={margin.left}
-          y2={margin.top + innerHeight}
-          stroke='#6d7a8a'
-          strokeWidth='1'
-        />
-
-        {values.map((value, index) => {
-          const ratio = value / maxValue
-          const barHeight = ratio * innerHeight
-          const x = margin.left + (index * step) + ((step - barWidth) / 2)
-          const y = margin.top + innerHeight - barHeight
-
-          return (
-            <g key={`${labels[index]}-${index}`}>
-              <rect x={x} y={y} width={barWidth} height={Math.max(barHeight, 1)} fill={String(color)} rx='3' ry='3' />
-              <text x={x + (barWidth / 2)} y={y - 6} textAnchor='middle' fill='#233140' fontSize='10'>
-                {Number(value).toLocaleString('es-CO')}
-              </text>
-              <text x={x + (barWidth / 2)} y={margin.top + innerHeight + 14} textAnchor='middle' fill='#233140' fontSize='9'>
-                {String(labels[index]).length > 18 ? `${String(labels[index]).slice(0, 18)}...` : String(labels[index])}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
-    </div>
-  )
-}
 
 const ordenarDatos = (data) => {
   // Combinar las etiquetas y los valores correspondientes en un solo array de objetos
