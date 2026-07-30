@@ -425,7 +425,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
 
   useEffect(() => {
     if (props.hasOwnProperty('stateProps')) {
-      const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatch)
+      const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatch)      
       let descripcion: string = '', extentAjustado
       if (utilsModule?.logger()) console.log({ props, id: props.id, dataFromDispatch })
       if (dataFromDispatch?.clear) {

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 
 // @ts-expect-error
 import "../styles/style.css"
-import first from "lodash-es/first"
+
 
 const Widget = (props: AllWidgetProps<any>) => {
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()

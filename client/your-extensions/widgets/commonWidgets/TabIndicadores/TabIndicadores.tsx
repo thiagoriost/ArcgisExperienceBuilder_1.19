@@ -511,6 +511,22 @@ const TabIndicadores: React.FC<any> = ({
       target.value = 3
       handleIndicadorSelected({target});
       return;
+    }else if (target.value === "3_1_4_area_uaf_minima") {
+      target.value = 4
+      handleIndicadorSelected({target});
+      return;
+    }else if (target.value === "3_1_5_gini_privados_2024") {
+      target.value = 5
+      handleIndicadorSelected({target});
+      return;
+    }else if (target.value === "3_1_6_gini_frontera_agricola_2024") {
+      target.value = 6
+      handleIndicadorSelected({target});
+      return;
+    }else if (target.value === "3_1_7_gini_frontera_agricola_destino_2024") {
+      target.value = 7
+      handleIndicadorSelected({target});
+      return;
     }
     const indicador = areaEstudioNueva?.INDICADORES.find(
       (item) => item.value === target.value,
@@ -634,27 +650,24 @@ const TabIndicadores: React.FC<any> = ({
   // Maneja el indicadores seleccionado a nivel nacional
 
   const handleIndicadorSelected = async ({ target }: HandleIndicadorParams) => {
-    if (validaLoggerLocalStorage("logger")) console.log("handleIndicadorSelected:", { target, dataFuenteIndicadoresObjeto3Nuevos, selectIndicadores, geometriasDepartamentos, geometriaMunicipios });
     // 1. Inicialización del estado
     resetSelectionState();
-
+    
     // 2. Obtener indicador seleccionado
     const indiSelected = getSelectedIndicator(target.value);
-
+    
     // 3. Obtener geometrías departamentales si no existen
     const geometriasDepartamentales = await getDepartamentalGeometries();
-
+    
     // 4. Determinar configuración basada en el indicador
     const indicatorConfig = getIndicatorConfig(
       indiSelected,
       geometriasDepartamentales,
     );
-
+    
     // 5. Actualizar estado con la configuración
     updateStateWithConfig(indiSelected, indicatorConfig);
-
-    // 6. Procesar el indicador sin setTimeout
-    await handleIndicadorSelectedContinua({
+    const dataToSend = {
       indiSelected,
       target,
       _esIndicador: indicatorConfig._esIndicador,
@@ -664,7 +677,16 @@ const TabIndicadores: React.FC<any> = ({
       fieldValueToSetRangeCoropletico:
         indicatorConfig.fieldValueToSetRangeCoropletico,
       regionSeleccionada: "Nacional",
+    }
+    if (validaLoggerLocalStorage("logger")) console.log("handleIndicadorSelectedContinua:", {
+      dataToSend,
+      dataFuenteIndicadoresObjeto3Nuevos,
+      selectIndicadores,
+      geometriasDepartamentos,
+      geometriaMunicipios,
     });
+    // 6. Procesar el indicador sin setTimeout
+    await handleIndicadorSelectedContinua(dataToSend);
   };
 
   // Funciones auxiliares handleIndicadorSelected:
@@ -732,27 +754,17 @@ const TabIndicadores: React.FC<any> = ({
         baseConfig,
       });
     //Validadores inclusión indicadores 3.1.5, 3.1.6 y 3.1.7.
-    if (
-      indiSelected.label.includes("1.7.") ||
-      indiSelected?.label.includes("3.1.5") ||
-      indiSelected?.label.includes("3.1.6") ||
-      indiSelected?.label.includes("3.1.7")
-    ) {
-
+    if ( indiSelected.label.includes("1.7.") || indiSelected?.label.includes("3.1.5") || indiSelected?.label. includes("3.1.6") || indiSelected?.label.includes("3.1.7")) {
       return {
         ...baseConfig,
         _esIndicador: "es=1.7.",
         geometrias: geometriasDepartamentales,
-        urlIndicadorToGetData:
-          servicios?.urls.indicadoresDepartal[indiSelected.urlDepartal],
+        urlIndicadorToGetData: servicios?.urls.indicadoresDepartal[indiSelected.urlDepartal],
         fieldValueToSetRangeCoropletico: indiSelected.fieldValueDepartal,
       };
     }
 
-    if (
-      indiSelected.label.includes("3.1.1") ||
-      indiSelected.label.includes("3.1.2")
-    ) {
+    if ( indiSelected.label.includes("3.1.1") || indiSelected.label.includes("3.1.2") ) {
       return {
         ...baseConfig,
         urlIndicadorToGetData: servicios?.urls.indicadores[indiSelected.url],
@@ -760,11 +772,7 @@ const TabIndicadores: React.FC<any> = ({
     }
 
     //Validador para establecer tipo de operación en el gráfico de indicadores (promedio o totalizador)
-    if (
-      indiSelected?.label.includes("3.1.5") ||
-      indiSelected?.label.includes("3.1.6") ||
-      indiSelected?.label.includes("3.1.7")
-    ) {
+    if ( indiSelected?.label.includes("3.1.5") || indiSelected?.label.includes("3.1.6") || indiSelected?.label.includes("3.1.7") ) {
       statisticOper = "avg";
       outStatisticFldTit = "Promedio";
     } else {
@@ -970,10 +978,7 @@ const TabIndicadores: React.FC<any> = ({
           outStatistics: outStatistics,
           groupByFieldsForStatistics: groupByFieldsForStatistics,
         });
-      if (
-        !responseIndicador.features ||
-        responseIndicador?.features.length < 1
-      ) {
+      if ( !responseIndicador.features || responseIndicador?.features.length < 1 ) {
         if (utilsModule?.logger()) {
           console.error("Sin data en el responseIndicador => ", {
             responseIndicador,
@@ -1761,28 +1766,6 @@ const TabIndicadores: React.FC<any> = ({
     );
   };
 
-  const consultar = () => {    
-    console.log({
-      isLoading,
-      esIndicador,
-      clickHandler,
-      poligonoSeleccionado,
-      geometriaMunicipios,
-      dataFuenteIndicadores,
-      apuestaEstrategica,
-      selectApuestaEstategica,
-      selectCategoriaTematica,
-      indicadores,
-      selectIndicadores,
-      departmentSelect,
-      municipios,
-      municipioSelect,
-      rangosLeyenda,
-      esriModules,
-      departamentos,
-      });
-  };
-
   /**
    * cerrarPopUps => Método para cierre de popUps activos en el mapa base
    * @date 2025-10-23
@@ -1816,15 +1799,8 @@ const TabIndicadores: React.FC<any> = ({
   const formularioIndicadores = () => {
     const habilitaNuevosFiltrosObjeto3 = apuestaEstrategica?.value === 3 && selectApuestaEstategica?.value === 0;
     const usandoNuevoFlujoIndicadores = !!categoriaTematicaNueva || !!areaAdministrativaNueva || areaEstudioNueva.value !== '' || !!indicadorNuevoSeleccionado;
-    if (utilsModule?.logger()) {
-      if (validaLoggerLocalStorage("logger")) console.log("formularioIndicadores",{
-        habilitaNuevosFiltrosObjeto3,
-        usandoNuevoFlujoIndicadores,
-        categoriaTematicaNueva,
-        areaAdministrativaNueva,
-        areaEstudioNueva,
-        indicadorNuevoSeleccionado,
-      });
+    if (validaLoggerLocalStorage("logger")) {      
+      showAllStates(habilitaNuevosFiltrosObjeto3, usandoNuevoFlujoIndicadores);
     }
     return (
       <>
@@ -1909,17 +1885,17 @@ const TabIndicadores: React.FC<any> = ({
               departamentos,
               handleDepartamentoSelected,
               departmentSelect?.value,
-              "Departamentooo",
+              "Departamento",
               "",
             )
         }
         {
-          (!usandoNuevoFlujoIndicadores && (esIndicador === "Departamental" || esIndicador === "Nacional") && departmentSelect?.value && municipios.length > 1) &&
+          ((!usandoNuevoFlujoIndicadores || !indicadorNuevoSeleccionado) && (esIndicador === "Departamental" || esIndicador === "Nacional") && departmentSelect?.value && municipios.length > 1) &&
             widgetModules?.INPUTSELECT(
               municipios,
               handleMunicipioSelected,
               municipioSelect?.value,
-              "Municipiooo",
+              "Municipio",
               "",
             )
         }
@@ -2121,9 +2097,14 @@ const TabIndicadores: React.FC<any> = ({
     clearGraphigs();
   }
 
-  function showAllStates(): void {
+  function showAllStates(
+    habilitaNuevosFiltrosObjeto3 = false,
+    usandoNuevoFlujoIndicadores = false
+  ) {
     console.log(
       {
+        habilitaNuevosFiltrosObjeto3,
+        usandoNuevoFlujoIndicadores,        
         constantes,
         servicios,
         lastLayerDeployed,
@@ -2148,25 +2129,27 @@ const TabIndicadores: React.FC<any> = ({
         categoriaTematicaNueva,
         areaAdministrativaNueva,
         areaEstudioNueva,
-        indicadorNuevoSeleccionado
+        indicadorNuevoSeleccionado,
+        dataFuenteIndicadores,
+        esriModules,
+        departamentos,
       }
     )
-    consultar()
   }
 
   return (
     <div className="">
-      {formularioIndicadores()}
-      {widgetModules?.MODAL(mensajeModal, setMensajeModal)}
-      
       {
         validaLoggerLocalStorage("logger") && 
           <div>
             <button type="button" onClick={resetAllStates}>Reset all states</button>
-            <button type="button" onClick={showAllStates}>Show all states</button>
+            <button type="button" onClick={() => showAllStates()}>Show all states</button>
           </div>
         
       }      
+      {formularioIndicadores()}
+      {widgetModules?.MODAL(mensajeModal, setMensajeModal)}
+      
       {
         isLoading && widgetModules?.OUR_LOADING()
       }
