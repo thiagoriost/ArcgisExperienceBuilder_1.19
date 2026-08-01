@@ -63,8 +63,9 @@ const MODAL = (mensajeModal, setMensajeModal) => (
 
 /**
  * Wrapper para la pestaña de filtros de indicadores.
+ * empleado en el SNFE
  */
-const FILTROS_INDICADORES = (dispatch, departamentos, jimuMapView) => (
+const TAB_INDICADORES = (dispatch, departamentos, jimuMapView) => (
     <TabIndicadores dispatch={dispatch} departamentos={departamentos} jimuMapView={jimuMapView}/>
 )
 
@@ -80,6 +81,6 @@ export {
   INPUTSELECT,
   INPUT_TEXTAREA,
   MODAL,
-  FILTROS_INDICADORES,
+  TAB_INDICADORES,
   OUR_LOADING
 }

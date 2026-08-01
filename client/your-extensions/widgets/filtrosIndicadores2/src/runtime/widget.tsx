@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 
 // @ts-expect-error
 import "../styles/style.css"
-import first from "lodash-es/first"
+
 
 const Widget = (props: AllWidgetProps<any>) => {
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
@@ -26,7 +26,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     const dataResponse = await utilsModule.queryAttributesLayer({url:url+"/query", definitionExpression:"1=1", returnGeometry:false,outFields:"*"})
     const departAjustadosToRender = utilsModule.ajustarDataToRender(dataResponse,"decodigo","denombre")
     if (utilsModule.logger()) console.log({departAjustadosToRender})
-    departAjustadosToRender.unshift({value:0, label:"Seleccione ..."})
+    // departAjustadosToRender.unshift({value:0, label:"Seleccione ..."})
     setDepartamentos(departAjustadosToRender)
   }
 
@@ -65,7 +65,7 @@ const Widget = (props: AllWidgetProps<any>) => {
           <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />
         )}
         {
-          widgetModules && widgetModules.FILTROS_INDICADORES(props.dispatch, departamentos, jimuMapView)
+          widgetModules && widgetModules.TAB_INDICADORES(props.dispatch, departamentos, jimuMapView)
         }
       </div>
     )

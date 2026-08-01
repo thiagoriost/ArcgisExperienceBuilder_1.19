@@ -5,7 +5,7 @@ client/*
 !client/package.json
 !client/package-lock.json
 !client/webpack.config.js
-!client/webpack/webpack.common.js
+!client/webpack/
 !client/tsconfig.json
 server/
 soccerPromt.txt

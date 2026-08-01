@@ -1,18 +1,21 @@
-import React, { useEffect, useState, useRef/* , useCallback */ } from 'react'
-import { type AllWidgetProps } from 'jimu-core'
+import { React, type AllWidgetProps } from 'jimu-core'
 import { JimuMapViewComponent, type JimuMapView/* , loadArcGISJSAPIModules */ } from 'jimu-arcgis'
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, Filler } from 'chart.js'
-import { Bar/* , Bubble, Line  */ } from 'react-chartjs-2'
+// import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, PointElement, LineElement, Filler } from 'chart.js'
 // import { loadModules } from 'esri-loader'
 import { type InterfaceFeatureSelected } from '../types/interfacesIndicadores'
 // import { PieChart } from 'jimu-ui/advanced/lib/chart/pie'
+//@ts-expect-error
 import '../styles/style.css'
 import { Pagination } from 'jimu-ui'
 import { typeMSM } from '../../../commonWidgets/modal/interfaces'
+import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
+import { SimpleBarChart } from '../../../shared/components/NativeBarChart'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+const { useEffect, useState } = React
 
-ChartJS.register(
+// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
+
+/* ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
@@ -22,7 +25,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   Filler
-)
+) */
 
 interface Grafico {
   label: string
@@ -38,6 +41,7 @@ const tiposGraficos: Grafico[] = [
 ]
 
 const Indicadores = (props: AllWidgetProps<any>) => {
+  if(validaLoggerLocalStorage('logger')) console.log('Indicadores ID:', {id:props.id, props})
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
   const [initialExtent, setInitialExtent] = useState(null)
   const [utilsModule, setUtilsModule] = useState<any>(null)
@@ -61,7 +65,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [responseQueryCapa, setResponseQueryCapa] = useState(null)
   // const [contador, setContador] = useState()
-  // const [poligonoSeleccionado, setPoligonoSeleccionado] = useState(undefined)
+  const [poligonoSeleccionado, setPoligonoSeleccionado] = useState(undefined)
   const [currentpage, setCurrentpage] = useState(1)
   const [totalPage, setTotalPage] = useState(0)
   const [mensajeModal, setMensajeModal] = useState({
@@ -73,33 +77,11 @@ const Indicadores = (props: AllWidgetProps<any>) => {
   })
   const [widgetModules, setWidgetModules] = useState(null)
 
-  const chartRef = useRef(null)
-
   const activeViewChangeHandler = (jmv: JimuMapView) => {
     if (jmv) {
       setJimuMapView(jmv)
       setInitialExtent(jmv.view.extent)
     }
-  }
-
-  const handleChartClick = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    if (chartRef.current) {
-      /* const chart = chartRef.current
-      if (utilsModule.logger()) console.log(featureSelected.attributes)
-      const points = chart.getElementsAtEventForMode(event.nativeEvent, 'nearest', { intersect: true }, true)
-      if (points.length) {
-        const firstPoint = points[0]
-        const label = chart.data.labels.length>0 ? chart.data.labels[firstPoint.index] : ''
-        const value = chart.data.datasets[firstPoint.datasetIndex].data[firstPoint.index]
-        const datasetLabel = chart.data.datasets[firstPoint.datasetIndex].label
-        if (utilsModule.logger()) console.log({ label, value, datasetLabel })
-        setSelectedData({ label, value, datasetLabel,...featureSelected.attributes })
-      }else{
-        setSelectedData(null)
-      } */
-    }/* else{
-      setSelectedData(null)
-    } */
   }
 
   const getDataLayerToRenderGrafic = (_featureSelected: InterfaceFeatureSelected) => {
@@ -378,7 +360,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
         legend: { position: 'top' as const },
         title: {
           display: true,
-          text: `${descripcion} - Municipio: ${poligonoSeleccionado.attributes.mpnombre ? poligonoSeleccionado.attributes.mpnombre : poligonoSeleccionado.attributes[0].attributes.mpnombre} - Departamento: ${departmentSelect?.label ? departmentSelect.label : poligonoSeleccionado.attributes.depto}`
+          text: `${descripcion} - Municipio: ${poligonoSeleccionado.attributes.mpnombre ? poligonoSeleccionado.attributes.mpnombre : poligonoSeleccionado.attributes[0].attributes.mpnombre} - Departamento: ${/* departmentSelect?.label ? departmentSelect.label : */ poligonoSeleccionado.attributes.depto}`
 
         },
         tooltip: {
@@ -443,7 +425,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
 
   useEffect(() => {
     if (props.hasOwnProperty('stateProps')) {
-      const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatch)
+      const dataFromDispatch = JSON.parse(props.stateProps.dataFromDispatch)      
       let descripcion: string = '', extentAjustado
       if (utilsModule?.logger()) console.log({ props, id: props.id, dataFromDispatch })
       if (dataFromDispatch?.clear) {
@@ -520,7 +502,7 @@ const Indicadores = (props: AllWidgetProps<any>) => {
   useEffect(() => {
     import('../../../utils/module').then(modulo => {
       setUtilsModule(modulo)
-      if (modulo.logger()) console.log(props, props.id)
+      if (modulo.logger()) console.log({props, id:props.id})
     })
     import('../../../commonWidgets/widgetsModule').then(modulo => { setWidgetModules(modulo) })
     /* // este codigo sirve para probar los tipos de graficos
@@ -612,6 +594,18 @@ const Indicadores = (props: AllWidgetProps<any>) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  function handleOnBarClick(payload: { label: string; value: number; index: number; datasetLabel?: string }): void {
+    if (utilsModule.logger()) console.log('Bar clicked:', payload)
+    const { label, value, index, datasetLabel } = payload
+    setMensajeModal({
+      deployed: true,
+      type: typeMSM.info,
+      tittle: 'Info',
+      body: `"${label}": ${value}.`,
+      subBody: `${index}, ${datasetLabel ?? 'N/A'}`
+    })
+  }
+
   return (
     <div className="w-100 p-3  text-white" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
       {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
@@ -620,21 +614,23 @@ const Indicadores = (props: AllWidgetProps<any>) => {
       <>
         {
           (dataGrafico.length > 0/*  && poligonoSeleccionado.departmentSelect */) && (
-            <div style={{ padding: '10px', width: '100%', height: '400px', border: 'solid', borderRadius: '10px', backgroundColor: 'white', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ padding: '10px', width: '100%', minHeight: '520px', border: 'solid', borderRadius: '10px', backgroundColor: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: '10px' }}>
               {
                 totalPage > 1 &&
+                <div style={{position:'absolute'}}>
                   <Pagination
                     current={currentpage}
                     size="default"
                     totalPage={totalPage}
                     onChangePage={e => { setCurrentpage(e) }}
                   />
+                </div>
               }
               {
-                  dataGrafico.map((d, i) => (
-                    currentpage === (i + 1) &&
-                    <Bar options={options} data={d} ref={chartRef} onClick={handleChartClick} />
-                  ))
+                dataGrafico.map((d, i) => (
+                  currentpage === (i + 1) &&
+                  <SimpleBarChart data={d} title={options?.plugins?.title?.text} maxLabelLength={30} onBarClick={handleOnBarClick}/>
+                ))
               }
           </div>
           )}

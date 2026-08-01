@@ -95,6 +95,7 @@ const urls = {
     analisis_genero: 'https://services2.arcgis.com/RVvWzU3lgJISqdke/arcgis/rest/services/Analisis_de_genero_en_la_propiedad/FeatureServer',
     v_indice_gini_ids_depto: mapServerDepartal,
 
+
   },
 
   indicadores: { // municipales  Indicadores_municipios (MapServer)
@@ -123,19 +124,22 @@ const urls = {
     v_indice_gini_ids_mun: `${MapServerMunicipal}/9`,
     v_predios_uaf_mun: `${MapServerMunicipal}/10`,
     v_predios_conflicto_nacmun: `${mapServerNal}/10`,
-    v_predios_conflicto_mun: `${MapServerMunicipal}/11`,
     v_predios_etnicos_por_nacmun: `${mapServerNal}/11`,
-    v_predios_ley2da_mun: `${MapServerMunicipal}/12`,
     v_predios_etnicos_nacmun: `${mapServerNal}/12`,
-    v_predios_etnicos_por_mun: `${MapServerMunicipal}/13`,
-    v_predios_etnicos_mun: `${MapServerMunicipal}/14`,
     v_indice_gini_ids_nac_tot: `${mapServerNal}/17`,
     v_predios_ley2da_nacmun: `${mapServerNal}/18`,
     v_predios_zrc_nacmun: `${mapServerNal}/19`,
     v_predios_actualizados_depto: `${mapServerDepartal}/15`,
     v_municipios_actualizados_depto: `${mapServerDepartal}/16`,
+    v_indice_gini_ids_depto: `${mapServerDepartal}/9`,
+    v_indice_gini_predios_dest: `${mapServerDepartal}/18`,
+    v_indice_gini_predios_frontAgric: `${mapServerDepartal}/18`,
+    v_indice_gini_predios_frontAgric_dest: `${mapServerDepartal}/18`,
+    v_predios_conflicto_mun: `${MapServerMunicipal}/11`,
+    v_predios_ley2da_mun: `${MapServerMunicipal}/12`,
+    v_predios_etnicos_por_mun: `${MapServerMunicipal}/13`,
+    v_predios_etnicos_mun: `${MapServerMunicipal}/14`,
     v_predios_zrc_mun: `${MapServerMunicipal}/15`,
-    v_indice_gini_ids_depto: `${mapServerDepartal}/9`
 
   },
   /* indicadoresNaci: { // nacionales Indicadores_nacionales_municipales
@@ -189,7 +193,10 @@ const urls = {
     v_predios_zrc_depto: `${mapServerDepartal}/14`,
     v_predios_actualizados_depto: `${mapServerDepartal}/15`,
     v_municipios_actualizados_depto: `${mapServerDepartal}/16`,
-    v_predios_ley2da_depto: `${mapServerDepartal}/17`
+    v_predios_ley2da_depto: `${mapServerDepartal}/17`,
+    v_indice_gini_predios_dest: `${mapServerDepartal}/18`,
+    v_indice_gini_predios_frontAgric: `${mapServerDepartal}/18`,
+    v_indice_gini_predios_frontAgric_dest: `${mapServerDepartal}/18`
 
   },
   indicadoresNaciAlfanumerica: { // nacionales para graficas estadisticas

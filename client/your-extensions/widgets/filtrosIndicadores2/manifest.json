@@ -6,7 +6,7 @@
     "dependency": ["jimu-arcgis"],
     "exbVersion": "1.14.0",
     "author": "rigoriosh@gmail.com",
-    "description": "A hello world filtrosIndicadores widget",
+    "description": "widget utilizado en SNFE",
     "copyright": "",
     "license": "",
     "properties": {},

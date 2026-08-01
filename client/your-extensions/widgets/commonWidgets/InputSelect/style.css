@@ -1,3 +1,6 @@
+@import '../../utils/styles/stylesGlobals.css';
+@import '../../utils/styles/presetsSNRA.css';
+
 /*
     @dateUpdated 2026-06-10
     @author      Rigoberto Rios
@@ -5,9 +8,10 @@
     @changes Desactivar atributo color
 */
 label{
-    background-color: var(--primary-color);
+    background-color: #e3e3e3;
+    /* background-color: var(--primary-color); */
     border-radius: 5px;
-    /*color: white;*/
+    color: #000846;
     display: inline-block;
     font-weight: bold;
     margin: 10px 0px 5px 0px;

@@ -27,8 +27,8 @@
   /* ========================================
      COLORES PRIMARIOS
      ======================================== */
-  --color-primary: #8aa260;
-  --color-primary-hover: #54623a;
+  --color-primary: #e3e3e3;
+  --color-primary-hover: rgb(82 92 171);
   --color-primary-active: #004266;
   --color-primary-light: #e6f4fb;
 
@@ -143,4 +143,56 @@
   --overlay-medium: rgba(0, 0, 0, 0.08);
   --overlay-dark: rgba(0, 0, 0, 0.1);
   --color-primary-transparent: rgba(138, 162, 96, 0.25);
+
+  /* ========================================
+     ALIAS DE VARIABLES GENERALES
+     ======================================== */
+  --primary: var(--color-primary);
+  --primary-color: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --primary-color-hover: var(--color-primary-hover);
+  --primary-active: var(--color-primary-active);
+  --primary-color-active: var(--color-primary-active);
+  --primary-light: var(--color-primary-light);
+  --primary-color-light: var(--color-primary-light);
+
+  --secondary: var(--color-secondary);
+  --secondary-color: var(--color-secondary);
+  --secondary-hover: var(--color-secondary-hover);
+  --secondary-color-hover: var(--color-secondary-hover);
+  --secondary-light: var(--color-secondary-light);
+  --secondary-color-light: var(--color-secondary-light);
+
+  --success: var(--color-success);
+  --success-color: var(--color-success);
+  --warning: var(--color-warning);
+  --warning-color: var(--color-warning);
+  --danger: var(--color-danger);
+  --danger-color: var(--color-danger);
+  --info: var(--color-info);
+  --info-color: var(--color-info);
+
+  --text-color: var(--text-color-primary);
+  --text-primary: var(--text-color-primary);
+  --text-secondary: var(--text-color-secondary);
+  --text-light: var(--text-color-light);
+  --text-white: var(--text-color-white);
+  --text-black: var(--text-color-black);
+
+  --bg-color: var(--bg-color-white);
+  --background-color: var(--bg-color-white);
+  --background-light: var(--bg-color-light);
+  --bg-light: var(--bg-color-light);
+  --background-gray: var(--bg-color-gray);
+  --bg-gray: var(--bg-color-gray);
+  --background-dark: var(--bg-color-dark);
+  --bg-dark: var(--bg-color-dark);
+
+  --border-color: var(--border-color-medium);
+  --border-light: var(--border-color-light);
+  --border-medium: var(--border-color-medium);
+  --border-dark: var(--border-color-dark);
+
+  --accent: var(--color-secondary);
+  --accent-color: var(--color-secondary);
 }

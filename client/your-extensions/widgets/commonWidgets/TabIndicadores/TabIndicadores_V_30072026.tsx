@@ -140,7 +140,7 @@ const construirDatasetMicrofundiMinifundio = (
  * @dateUpdated 2025-10-16
  * @changes Asignación estado para conservar la URL del servicio Nacional.
  * @dateUpdated 2025-10-23
- * @changes Asignación estado para conservar criterio de selección asociado a los indicadores 3.1.5 Coeficiente de Gini, 3.1.6 Coeficiente de Gini y 3.1.7
+ * @changes Asignación estado para conservar criterio de selección asociado a los indicadores 3.1.5, 3.1.6 y 3.1.7
  * @param {object} dispatch
  * @param {Array} departamentos
  * @param {object} jimuMapView
@@ -189,7 +189,7 @@ const TabIndicadores: React.FC<any> = ({
   const [esIndicador, setEsIndicador] = useState("");
   //Estado para conservar la URL del servicio Nacional
   const [urlIndGetData, setUrlIndGetData] = useState(undefined);
-  //Estado para conservar el criterio where, para los indicadores 3.1.5 Coeficiente de Gini, 3.1.6 Coeficiente de Gini y 3.1.7
+  //Estado para conservar el criterio where, para los indicadores 3.1.5, 3.1.6 y 3.1.7
   const [whereIndica, setWhereIndica] = useState(undefined);
   //Estados para el flujo de filtros jerárquicos de nuevos indicadores (objeto value=3)
   const [categoriaTematicaNueva, setCategoriaTematicaNueva] = useState<NuevoFiltroCategoria | undefined>(undefined);
@@ -216,28 +216,6 @@ const TabIndicadores: React.FC<any> = ({
     setIndicadorNuevoSeleccionado(undefined);
   };
 
-  /**
-   * @description Agrega una opción inicial de referencia a los selectores del formulario.
-   * @param options Opciones disponibles para el selector.
-   * @param placeholderLabel Texto visible para la opción inicial.
-   * @returns Lista de opciones con el placeholder como primera entrada.
-   */
-  const agregarOpcionPlaceholder = <T extends { value?: string | number; label?: string }>(
-    options: T[] | undefined,
-    placeholderLabel = "Seleccione ...",
-  ) => {
-    const opciones = Array.isArray(options) ? options : [];
-
-    return [
-      { value: "", label: placeholderLabel } as T,
-      ...opciones.map((option) => ({
-        ...option,
-        value: option?.value ?? "",
-        label: option?.label ?? "",
-      })),
-    ];
-  };
-
   // 3. Función para manejar selección de subsistema
   const handleSubsistemaSelected = ({ target }: SelectionTarget) => {
     if (validaLoggerLocalStorage("logger")) console.log("Handling subsistema selection...", { target });
@@ -245,18 +223,7 @@ const TabIndicadores: React.FC<any> = ({
     setSelectApuestaEstategica(undefined);
     setSelectCategoriaTematica(undefined);
     setSelectIndicadores(initSelectIndicadores);
-    // @description Reestablece los filtros dependientes cuando el subsistema cambia o se vuelve al placeholder.
-    setDepartmentSelect(undefined);
-    setMunicipioSelect(undefined);
-    setMunicipios([]);
     // resetNuevoFlujoIndicadores();
-
-    if (target.value === "" || target.value === 0) {
-      setApuestaEstrategica(initApuestaEstrategica);
-      setIndicadores(null);
-      resetCommonState();
-      return;
-    }
 
     const findSubSistema:any  = dataFuenteIndicadores.find((e) => e.value === target.value,);
     utilsModule?.logger() && console.log(findSubSistema);
@@ -271,18 +238,8 @@ const TabIndicadores: React.FC<any> = ({
     clearGraphigs();
     setSelectCategoriaTematica(undefined);
     setSelectIndicadores(initSelectIndicadores);
-    // @description Cuando cambia la línea estratégica, se limpia la selección de departamento y municipio para evitar datos obsoletos.
-    setDepartmentSelect(undefined);
-    setMunicipioSelect(undefined);
-    setMunicipios([]);
     resetNuevoFlujoIndicadores();
     resetCommonState();
-
-    if (target.value === "" /* || target.value === 0 */) {
-      setSelectApuestaEstategica(undefined);
-      setIndicadores(null);
-      return;
-    }
 
     const APUESTA_ESTRATEGICA = apuestaEstrategica?.APUESTA_ESTRATEGICA.find(
       (e) => e.value === target.value,
@@ -375,8 +332,6 @@ const TabIndicadores: React.FC<any> = ({
     resetCommonState();
     if (target.value === "distribucion_de_la_tierra") {
       handleCategoriaTematicaSelected({ target: { value: 0 } });
-    }else if (target.value === "conflictos_de_uso") {
-      handleCategoriaTematicaSelected({ target: { value: 1 } });
     }
   };
 
@@ -692,14 +647,6 @@ const TabIndicadores: React.FC<any> = ({
       target.value = 7
       handleIndicadorSelected({target});
       return;
-    }else if (target.value === "3_1_5_subutilizacion_suelo") {
-      target.value = 1
-      handleIndicadorSelected({target});
-      return;
-    }else if (target.value === "3_1_6_territorios_ley_2da") {
-      target.value = 2
-      handleIndicadorSelected({target});
-      return;
     }
     const indicador = areaEstudioNueva?.INDICADORES.find(
       (item) => item.value === target.value,
@@ -942,7 +889,7 @@ const TabIndicadores: React.FC<any> = ({
    * @param indiSelected
    * @param geometriasDepartamentales
    * @dateUpdated 2025-10-15
-   * @changes Inclusión validadores alusivos a los indicadores 3.1.5 Coeficiente de Gini, 3.1.6 Coeficiente de Gini y 3.1.7
+   * @changes Inclusión validadores alusivos a los indicadores 3.1.5, 3.1.6 y 3.1.7
    * @changes Actualización atributo stasticype "sum" => "avg"
    * @changes Actualización atributo outStatisticFieldName "Total" => "Promedio"
    * @returns {object}
@@ -966,8 +913,8 @@ const TabIndicadores: React.FC<any> = ({
         geometriasDepartamentales,
         baseConfig,
       });
-    //Validadores inclusión indicadores 3.1.5 Coeficiente de Gini, 3.1.6 Coeficiente de Gini y 3.1.7.
-    if ( indiSelected.label.includes("1.7.") || indiSelected?.label.includes("3.1.5 Coeficiente de Gini") || indiSelected?.label. includes("3.1.6 Coeficiente de Gini") || indiSelected?.label.includes("3.1.7")) {
+    //Validadores inclusión indicadores 3.1.5, 3.1.6 y 3.1.7.
+    if ( indiSelected.label.includes("1.7.") || indiSelected?.label.includes("3.1.5") || indiSelected?.label. includes("3.1.6") || indiSelected?.label.includes("3.1.7")) {
       return {
         ...baseConfig,
         _esIndicador: "es=1.7.",
@@ -985,7 +932,7 @@ const TabIndicadores: React.FC<any> = ({
     }
 
     //Validador para establecer tipo de operación en el gráfico de indicadores (promedio o totalizador)
-    if ( indiSelected?.label.includes("3.1.5 Coeficiente de Gini") || indiSelected?.label.includes("3.1.6 Coeficiente de Gini") || indiSelected?.label.includes("3.1.7") ) {
+    if ( indiSelected?.label.includes("3.1.5") || indiSelected?.label.includes("3.1.6") || indiSelected?.label.includes("3.1.7") ) {
       statisticOper = "avg";
       outStatisticFldTit = "Promedio";
     } else {
@@ -1019,11 +966,11 @@ const TabIndicadores: React.FC<any> = ({
   // END Funciones auxiliares handleIndicadorSelected:
   /**
    * @dateUpdated 2025-10-15
-   * @changes Implementación criterios de selección para indicadores 3.1.5 Coeficiente de Gini. 3.1.6 Coeficiente de Gini y 3.1.7.
+   * @changes Implementación criterios de selección para indicadores 3.1.5. 3.1.6 y 3.1.7.
    * @dateUpdated 2025-10-16
    * @changes Fix bug despliegue validador "El indicador seleccionado no presenta servicio nacional"
    * @dateUpdated 2025-10-23
-   * @changes Asignación al state whereIndica para indicadores 3.1.5 Coeficiente de Gini. 3.1.6 Coeficiente de Gini y 3.1.7.
+   * @changes Asignación al state whereIndica para indicadores 3.1.5. 3.1.6 y 3.1.7.
    * @changes Actualización título widget Indicadores, con el correspondiente a la región seleccionada [Nacional, Departamental]
    * @param param0
    * @returns {object}
@@ -1059,8 +1006,8 @@ const TabIndicadores: React.FC<any> = ({
     ]);
     let responseIndicador: any = null;
 
-    //Indicador 3.1.5 Coeficiente de Gini.
-    if (indiSelected?.label.includes("3.1.5 Coeficiente de Gini")) {
+    //Indicador 3.1.5.
+    if (indiSelected?.label.includes("3.1.5")) {
       if (typeof urlIndicadorToGetData === "undefined") {
         urlIndicadorToGetData = urlIndGetData;
       }
@@ -1093,8 +1040,8 @@ const TabIndicadores: React.FC<any> = ({
       }
     }
 
-    //Indicador 3.1.6 Coeficiente de Gini.
-    if (indiSelected?.label.includes("3.1.6 Coeficiente de Gini")) {
+    //Indicador 3.1.6.
+    if (indiSelected?.label.includes("3.1.6")) {
       if (typeof urlIndicadorToGetData === "undefined") {
         urlIndicadorToGetData = urlIndGetData;
       }
@@ -1176,11 +1123,11 @@ const TabIndicadores: React.FC<any> = ({
       if (utilsModule?.logger()) console.error({ urlIndicadorToGetData });
     } else {
       //Agrupamiento a nivel departamental
-      //Indicadores 3.1.5 Coeficiente de Gini., 3.1.6 Coeficiente de Gini y 3.1.7
+      //Indicadores 3.1.5., 3.1.6 y 3.1.7
       let groupByFieldsForStatistics = "mpcodigo";
       if (
-        indiSelected?.label.includes("3.1.5 Coeficiente de Gini") ||
-        indiSelected?.label.includes("3.1.6 Coeficiente de Gini") ||
+        indiSelected?.label.includes("3.1.5") ||
+        indiSelected?.label.includes("3.1.6") ||
         (indiSelected?.label.includes("3.1.7") && urlIndicadorToGetData !== "")
       ) {
         groupByFieldsForStatistics = "cod_departamento"
@@ -1572,7 +1519,7 @@ const TabIndicadores: React.FC<any> = ({
 
   /**
    * @dateUpdated 2025-10-16
-   * @changes Construcción de consolidado de indicador como el promedio del valor "gini", aplicado a los indicadores 3.1.5 Coeficiente de Gini, 3.1.6 Coeficiente de Gini y 3.1.7
+   * @changes Construcción de consolidado de indicador como el promedio del valor "gini", aplicado a los indicadores 3.1.5, 3.1.6 y 3.1.7
    * @param param0
    * @returns {object}
    */
@@ -1610,10 +1557,10 @@ const TabIndicadores: React.FC<any> = ({
       }
 
       // 2. Procesamiento en paralelo para mejor rendimiento
-      //Validador para generar promedio aplicado para indicadores 3.1.5 Coeficiente de Gini, 3.1.6 Coeficiente de Gini y 3.1.7
+      //Validador para generar promedio aplicado para indicadores 3.1.5, 3.1.6 y 3.1.7
       if (
-        indiSelected.label.includes("3.1.5 Coeficiente de Gini") ||
-        indiSelected?.label.includes("3.1.6 Coeficiente de Gini") ||
+        indiSelected.label.includes("3.1.5") ||
+        indiSelected?.label.includes("3.1.6") ||
         indiSelected?.label.includes("3.1.7")
       ) {
         const dataTorenderGraphics = await Promise.all(
@@ -1675,13 +1622,13 @@ const TabIndicadores: React.FC<any> = ({
    * y genera la consulta
    * @param {event} target
    * @dateUpdated 2025-10-15
-   * @changes Implementar consulta nacional y departamental para indicador 3.1.5 Coeficiente de Gini
-   * @changes Implementar consulta nacional y departamental para indicador 3.1.6 Coeficiente de Gini.
+   * @changes Implementar consulta nacional y departamental para indicador 3.1.5
+   * @changes Implementar consulta nacional y departamental para indicador 3.1.6.
    * @changes Implementar consulta nacional y departamental para indicador 3.1.7.
    * @dateUpdated 2025-10-23
    * @changes Actualización state con la petición asociada a la selección del departamento en el filtro
    * @changes Creación atributo where, el cual contendra el filtro inicial asociado al departamento seleccionado del campo Departamento
-   * @changes Construcción filtro asociado a los indicadores 3.1.5 Coeficiente de Gini 3.1.6 Coeficiente de Gini y 3.1.7 con el indicado en el atributo where
+   * @changes Construcción filtro asociado a los indicadores 3.1.5 3.1.6 y 3.1.7 con el indicado en el atributo where
    */
   const handleDepartamentoSelected = async ({
     target,
@@ -1701,11 +1648,11 @@ const TabIndicadores: React.FC<any> = ({
     let _geometrias = geometriaMunicipios;
     where = `cod_departamento='${target.value}'`;
 
-    //Validador para definir tipo consulta asociado a los indicadores 1.7. 3.1.5 Coeficiente de Gini 3.1.6 Coeficiente de Gini y 3.1.7
+    //Validador para definir tipo consulta asociado a los indicadores 1.7. 3.1.5 3.1.6 y 3.1.7
     if (
       selectIndicadores?.label.includes("1.7.") ||
-      selectIndicadores?.label.includes("3.1.5 Coeficiente de Gini") ||
-      selectIndicadores?.label.includes("3.1.6 Coeficiente de Gini") ||
+      selectIndicadores?.label.includes("3.1.5") ||
+      selectIndicadores?.label.includes("3.1.6") ||
       selectIndicadores?.label.includes("3.1.7")
     ) {
       tipoConsulta = "es=1.7.";
@@ -1716,8 +1663,8 @@ const TabIndicadores: React.FC<any> = ({
     console.log("Test URL serv Nal =>", urlIndicadorToGetData);
 
     if (
-      selectIndicadores?.label.includes("3.1.5 Coeficiente de Gini") ||
-      selectIndicadores?.label.includes("3.1.6 Coeficiente de Gini") ||
+      selectIndicadores?.label.includes("3.1.5") ||
+      selectIndicadores?.label.includes("3.1.6") ||
       selectIndicadores?.label.includes("3.1.7")
     ) {
       setUrlIndGetData(urlIndicadorToGetData);
@@ -2012,24 +1959,16 @@ const TabIndicadores: React.FC<any> = ({
   const formularioIndicadores = () => {
     const habilitaNuevosFiltrosObjeto3 = apuestaEstrategica?.value === 3 && selectApuestaEstategica?.value === 0;
     const usandoNuevoFlujoIndicadores = !!categoriaTematicaNueva || !!areaAdministrativaNueva || areaEstudioNueva.value !== '' || !!indicadorNuevoSeleccionado;
-    // @description Inserta una opción inicial en los selectores para mantener el comportamiento de "Seleccione ...".
-    const subSistemasConPlaceholder = agregarOpcionPlaceholder(dataFuenteIndicadores, "Seleccione ...");
-    const lineasEstrategicasConPlaceholder = agregarOpcionPlaceholder(
-      apuestaEstrategica?.APUESTA_ESTRATEGICA,
-      "Seleccione ...",
-    );
-    const departamentosConPlaceholder = agregarOpcionPlaceholder(departamentos, "Seleccione ...");
-
     if (validaLoggerLocalStorage("logger")) {      
-      showAllStates({habilitaNuevosFiltrosObjeto3, usandoNuevoFlujoIndicadores, lineasEstrategicasConPlaceholder, subSistemasConPlaceholder, departamentosConPlaceholder});
+      showAllStates(habilitaNuevosFiltrosObjeto3, usandoNuevoFlujoIndicadores);
     }
     return (
       <>
         {
           widgetModules?.INPUTSELECT(
-            subSistemasConPlaceholder,
+            dataFuenteIndicadores,
             handleSubsistemaSelected,
-            apuestaEstrategica?.value ?? "",
+            apuestaEstrategica?.value,
             "Sub Sistema",
             "",
           )
@@ -2038,9 +1977,9 @@ const TabIndicadores: React.FC<any> = ({
         {apuestaEstrategica.value !== 0 &&
           widgetModules &&
           widgetModules.INPUTSELECT(
-            lineasEstrategicasConPlaceholder,
+            apuestaEstrategica,
             handleApuestaEstrategicaSelected,
-            selectApuestaEstategica?.value ?? "",
+            selectApuestaEstategica?.value,
             "Línea estratégica",
             "APUESTA_ESTRATEGICA",
           )}
@@ -2103,9 +2042,9 @@ const TabIndicadores: React.FC<any> = ({
         {
           (selectIndicadores.urlDepartal !== '' && widgetModules && departamentos.length > 0) &&
             widgetModules.INPUTSELECT(
-              departamentosConPlaceholder,
+              departamentos,
               handleDepartamentoSelected,
-              departmentSelect?.value ?? "",
+              departmentSelect?.value,
               "Departamento",
               "",
             )
@@ -2230,7 +2169,7 @@ const TabIndicadores: React.FC<any> = ({
    * al dar un click en uno de los municipios, captura el poligono seleccionado y lo envia al widget indicadores
    * con la data correspondiente para renderizar la grafica de barras estadistica
    * @dateUpdated 2025-10-23
-   * @changes Adición validador para realizar exclusión de la formación de gráfico municipal para los indicadores de la línea estratégica 1.7. incluyendo 3.1.5 Coeficiente de Gini 3.1.6 Coeficiente de Gini y 3.1.7
+   * @changes Adición validador para realizar exclusión de la formación de gráfico municipal para los indicadores de la línea estratégica 1.7. incluyendo 3.1.5 3.1.6 y 3.1.7
    * @remarks Análisis del state para el objeto poligonoSeleccionado
    */
   useEffect(() => {
@@ -2241,8 +2180,8 @@ const TabIndicadores: React.FC<any> = ({
     if (
       !(
         selectIndicadores.label.includes("1.7.") ||
-        selectIndicadores?.label.includes("3.1.5 Coeficiente de Gini") ||
-        selectIndicadores?.label.includes("3.1.6 Coeficiente de Gini") ||
+        selectIndicadores?.label.includes("3.1.5") ||
+        selectIndicadores?.label.includes("3.1.6") ||
         selectIndicadores?.label.includes("3.1.7")
       )
     ) {
@@ -2319,11 +2258,13 @@ const TabIndicadores: React.FC<any> = ({
   }
 
   function showAllStates(
-    nevobjt = {}
+    habilitaNuevosFiltrosObjeto3 = false,
+    usandoNuevoFlujoIndicadores = false
   ) {
     console.log(
       {
-        ...nevobjt,        
+        habilitaNuevosFiltrosObjeto3,
+        usandoNuevoFlujoIndicadores,        
         constantes,
         servicios,
         lastLayerDeployed,
