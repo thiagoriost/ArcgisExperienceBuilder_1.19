@@ -27,8 +27,8 @@
   /* ========================================
      COLORES PRIMARIOS
      ======================================== */
-  --color-primary: #8aa260;
-  --color-primary-hover: #54623a;
+  --color-primary: #e3e3e3;
+  --color-primary-hover: rgb(82 92 171);
   --color-primary-active: #004266;
   --color-primary-light: #e6f4fb;
 

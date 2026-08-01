@@ -6,12 +6,6 @@
  */
 export const dataFuenteIndicadores = [
   {
-    value: 0,
-    label: 'Seleccione una opción',
-    descripcion: 'Seleccione una opción',
-    APUESTA_ESTRATEGICA: []
-  },
-  {
     value: 1,
     label: '1. De adquisición, adjudicación de tierras y de procesos agrarios para la reforma agraria',
     descripcion: 'De adquisición, adjudicación de tierras y de procesos agrarios para la reforma agraria, y garantía de derechos territoriales de los campesinos, pueblos indígenas y de las comunidades negras, afrocolombianas, raizales, palenqueras y pueblo Rom',
@@ -727,7 +721,7 @@ export const dataFuenteIndicadores = [
               },
               {
                 value: 5,
-                label: '3.1.5.Coeficiente de Gini para predios privados rurales del año 2024',
+                label: '3.1.5 Coeficiente de Gini para predios privados rurales del año 2024',
                 descripcion: 'Coeficiente de Gini a nivel departamental para predios privados rurales del año 2024',
                 url: 'v_indice_gini_predios_dest',
                 urlNal: 'v_indice_gini_predios_dest',
@@ -748,7 +742,7 @@ export const dataFuenteIndicadores = [
               },
               {
                 value: 6,
-                label: '3.1.6.Coeficiente de Gini para predios privados rurales dentro de frontera agrícola del año 2024',
+                label: '3.1.6 Coeficiente de Gini para predios privados rurales dentro de frontera agrícola del año 2024',
                 descripcion: 'Coeficiente de Gini a nivel departamental para predios privados rurales dentro de frontera agrícola del año 2024',
                 url: '',
                 urlNal: 'v_indice_gini_predios_frontAgric',
@@ -1019,13 +1013,13 @@ export const dataFuenteIndicadoresObjeto3Nuevos = [
               },
               {
                 value: '3_1_5_gini_privados_2024',
-                label: '3.1.5.Coeficiente de Gini para predios privados rurales del año 2024',
+                label: '3.1.5 Coeficiente de Gini para predios privados rurales del año 2024',
                 serviceKey: 'v_indice_gini_predios_dest',
                 layerId: 0
               },
               {
                 value: '3_1_6_gini_frontera_agricola_2024',
-                label: '3.1.6.Coeficiente de Gini para predios privados rurales dentro de frontera agrícola del año 2024',
+                label: '3.1.6 Coeficiente de Gini para predios privados rurales dentro de frontera agrícola del año 2024',
                 serviceKey: 'v_indice_gini_predios_frontAgric',
                 layerId: 0
               },
@@ -1145,13 +1139,13 @@ export const dataFuenteIndicadoresObjeto3Nuevos = [
               },
               {
                 value: '3_1_5_gini_privados_2024',
-                label: '3.1.5.Coeficiente de Gini para predios privados rurales del año 2024',
+                label: '3.1.5 Coeficiente de Gini para predios privados rurales del año 2024',
                 serviceKey: 'v_indice_gini_predios_dest',
                 layerId: 0
               },
               {
                 value: '3_1_6_gini_frontera_agricola_2024',
-                label: '3.1.6.Coeficiente de Gini para predios privados rurales dentro de frontera agrícola del año 2024',
+                label: '3.1.6 Coeficiente de Gini para predios privados rurales dentro de frontera agrícola del año 2024',
                 serviceKey: 'v_indice_gini_predios_frontAgric',
                 layerId: 0
               },
@@ -1185,8 +1179,6 @@ export const dataFuenteIndicadoresObjeto3Nuevos = [
       }
     ]
   },
-
-
   {
     value: 'fragmentacion_predial_rural',
     label: 'Fragmentación predial rural',

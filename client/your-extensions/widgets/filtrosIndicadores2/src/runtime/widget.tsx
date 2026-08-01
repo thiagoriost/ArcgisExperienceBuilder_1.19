@@ -26,7 +26,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     const dataResponse = await utilsModule.queryAttributesLayer({url:url+"/query", definitionExpression:"1=1", returnGeometry:false,outFields:"*"})
     const departAjustadosToRender = utilsModule.ajustarDataToRender(dataResponse,"decodigo","denombre")
     if (utilsModule.logger()) console.log({departAjustadosToRender})
-    departAjustadosToRender.unshift({value:0, label:"Seleccione ..."})
+    // departAjustadosToRender.unshift({value:0, label:"Seleccione ..."})
     setDepartamentos(departAjustadosToRender)
   }
 
