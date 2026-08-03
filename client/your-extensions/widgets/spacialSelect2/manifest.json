@@ -1,7 +1,7 @@
 {
-    "name": "spacial-select2",
-    "label": "Selección Espacial2",
-    "type": "Select",
+    "name": "spacialSelect2",
+    "label": "Seleccion Espacial 2",
+    "type": "widget",
     "version": "1.14.0",
     "dependency": ["jimu-arcgis"],
     "exbVersion": "1.14.0",

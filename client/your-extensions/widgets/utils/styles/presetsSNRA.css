@@ -27,17 +27,17 @@
   /* ========================================
      COLORES PRIMARIOS
      ======================================== */
-  --color-primary: #e3e3e3;
-  --color-primary-hover: rgb(82 92 171);
-  --color-primary-active: #004266;
-  --color-primary-light: #e6f4fb;
+  --color-primary: #000846;  
+  --color-primary-hover: #152266;
+  --color-primary-active: #000424;
+  --color-primary-light: #E6E8F5;
 
   /* ========================================
      COLORES SECUNDARIOS
      ======================================== */
-  --color-secondary: #ff7d29;
-  --color-secondary-hover: #e66a1a;
-  --color-secondary-light: #ffeea9;
+  --color-secondary: #cab980;  
+  --color-secondary-hover: #B5A267;
+  --color-secondary-light: #F6F3E9;
 
   /* ========================================
      COLORES DE FONDO
@@ -134,7 +134,8 @@
   /* ========================================
      tree-node-checked:hover
      ======================================== */
-   --tree-node-checked-hover: rgba(138, 162, 96, 0.15);
+   /* --tree-node-checked-hover: rgba(138, 162, 96, 0.15); */
+   --tree-node-checked-hover: red;
 
   /* ========================================
      OVERLAYS Y OPACIDADES
@@ -195,4 +196,10 @@
 
   --accent: var(--color-secondary);
   --accent-color: var(--color-secondary);
+}
+
+
+.jimu-icon-img{
+   width: 22px !important;
+   height: 22px !important;
 }

@@ -3,7 +3,7 @@ Estilos generales para los widgets de conusulta.
 @author: IGAC, Ing. David Zornosa
 */
 
-@import './presetsQuindio.css';
+@import './stylesGlobals.css';
 
 /* Clase para el contenedor más externo del widget */
 .consulta-widget {

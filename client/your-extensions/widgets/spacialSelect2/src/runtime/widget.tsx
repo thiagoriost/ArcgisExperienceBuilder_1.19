@@ -3,11 +3,12 @@ import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis' // The map 
 import { useState } from "react"
 // import SelectWidget from "./components/SelectWidget";
 import SelectWidget from "./components/SelectWidget"
+//@ts-expect-error
 import "./styles/style.css"
 
 const Widget = (props: AllWidgetProps<any>) => {
   const [jimuMapView, setJimuMapView] = useState<JimuMapView>()
-  const [initialExtent, setInitialExtent] = useState(null)
+  // const [initialExtent, setInitialExtent] = useState(null)
 
 
   const activeViewChangeHandler = (jmv: JimuMapView) => {
@@ -15,7 +16,7 @@ const Widget = (props: AllWidgetProps<any>) => {
     // console.log(11111111111)
     if (jmv) {
       setJimuMapView(jmv)
-      setInitialExtent(jmv.view.extent) // Guarda el extent inicial
+      // setInitialExtent(jmv.view.extent) // Guarda el extent inicial
     }
   }
 

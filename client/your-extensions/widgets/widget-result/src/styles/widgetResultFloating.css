@@ -1,5 +1,5 @@
 /* Floating Button & Collapsible Widget Styles for WidgetResult */
-@import '../../../utils/styles/presetsQuindio.css';
+@import '../../../utils/styles/stylesGlobals.css';
 
 .widget-result-floating-icon {
   display: flex;

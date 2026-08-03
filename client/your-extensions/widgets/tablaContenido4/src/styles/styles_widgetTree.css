@@ -100,7 +100,8 @@
 }
 
 .tree-node-layer .tree-node-label {
-    color: var(--text-color-secondary);
+    /* color: var(--text-color-secondary); */
+    color: red;
 }
 
 .tree-node-checked {

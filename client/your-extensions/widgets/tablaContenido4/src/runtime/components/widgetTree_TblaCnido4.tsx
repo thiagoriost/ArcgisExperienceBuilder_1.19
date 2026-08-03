@@ -58,7 +58,8 @@ import type { InterfaceContextMenu, InterfaceFeaturesLayersDeployed, ItemRespons
  * @since 2024
  */
 const buildTree = (flatData: ItemResponseTablaContenido[], utilsModule): TreeNode[] => {
-    console.log({flatData})
+    if (utilsModule?.logger()) console.log({flatData})
+        
     if (!flatData || flatData.length === 0) return []
 
     // Mapa para acceso rápido por IDTEMATICA
@@ -754,9 +755,9 @@ const WidgetTree: React.FC<Widget_Tree_Props> = ({ dataTablaContenido, varJimuMa
              {/* <button type="button" onClick={showState}>GetState</button> */}
             <Tabs>
                 <TabList>
-                    <Tab>Lista de Indicadores</Tab>
+                    <Tab>Lista de Capas</Tab>
                     {
-                        capasSelectd.length>0 && <Tab>Orden de Indicadores</Tab>
+                        capasSelectd.length>0 && <Tab>Orden de Capas</Tab>
                     }
                 </TabList>
 
