@@ -10,9 +10,10 @@
 import { React, type AllWidgetProps } from "jimu-core"
 import { useState, useEffect } from "react"
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis'
+//@ts-expect-error
 import '../styles/style.css'
 import type { ItemResponseTablaContenido, TablaDeContenidoInterface } from "../types/interfaces"
-import Widget_Tree from "./components/widgetTree"
+import Widget_Tree from "./components/widgetTree_TblaCnido4"
 import { fallbackTablaContenido } from "../data/fallbackTablaContenido"
 
 /**
@@ -83,7 +84,7 @@ const Widget = (props: AllWidgetProps<any>) => {
   }, [])
 
   return (
-    <div className="w-100  contenedorTablaContenido"
+    <div className="w-100  contenedorTablaContenido mt-1"
     style={{backgroundColor:'var(--sys-color-primary)'}}>
       {props.useMapWidgetIds && props.useMapWidgetIds.length === 1 && (
         <JimuMapViewComponent useMapWidgetId={props.useMapWidgetIds?.[0]} onActiveViewChange={activeViewChangeHandler} />

@@ -332,6 +332,7 @@ const TabIndicadores: React.FC<any> = ({
         target,
         dataFuenteIndicadoresObjeto3Nuevos
       });
+    // @description Al cambiar la categoría temática se reinicia el filtro dependiente de área administrativa para evitar conservar una selección anterior.
     setCategoriaTematicaNueva(categoria);
     setAreaAdministrativaNueva(undefined);
     setAreaEstudioNueva(initAreaEstudioNueva);
@@ -2019,6 +2020,11 @@ const TabIndicadores: React.FC<any> = ({
       "Seleccione ...",
     );
     const departamentosConPlaceholder = agregarOpcionPlaceholder(departamentos, "Seleccione ...");
+    // @description Agrega el placeholder al selector del flujo nuevo para que el área administrativa vuelva al estado inicial tras un cambio de categoría.
+    const areasAdministrativasConPlaceholder = agregarOpcionPlaceholder(
+      categoriaTematicaNueva?.AREAS_ADMINISTRATIVAS,
+      "Seleccione ...",
+    );
 
     if (validaLoggerLocalStorage("logger")) {      
       showAllStates({habilitaNuevosFiltrosObjeto3, usandoNuevoFlujoIndicadores, lineasEstrategicasConPlaceholder, subSistemasConPlaceholder, departamentosConPlaceholder});
@@ -2075,9 +2081,9 @@ const TabIndicadores: React.FC<any> = ({
             )}
             {categoriaTematicaNueva &&
               widgetModules?.INPUTSELECT(
-                categoriaTematicaNueva,
+                areasAdministrativasConPlaceholder,
                 handleAreaAdministrativaNuevaSelected,
-                areaAdministrativaNueva?.value,
+                areaAdministrativaNueva?.value ?? "",
                 "Área administrativa",
                 "AREAS_ADMINISTRATIVAS",
               )}
@@ -2133,7 +2139,7 @@ const TabIndicadores: React.FC<any> = ({
             clearGraphigs();
             setRangosLeyenda([]);
           }}
-          className="mb-4"
+          className="mt-4"
         >
           Limpiar
         </Button>

@@ -1,5 +1,5 @@
 /* Importar variables centralizadas */
-@import '../../../utils/styles/presetsQuindio.css';  
+@import '../../../utils/styles/stylesGlobals.css';  
 .container_contextmenu{
     position: absolute;
     background-color: var(--bg-color-white);

@@ -19,11 +19,10 @@ const Setting = (props: AllWidgetSettingProps<any>) => {
     }
 
     return (
-        <div className="widget-setting-demo">
+        <div className="">
           <MapWidgetSelector useMapWidgetIds={props.useMapWidgetIds} onSelect={onMapWidgetSelected} />
         </div>
     )
-
   }
 
   export default Setting
