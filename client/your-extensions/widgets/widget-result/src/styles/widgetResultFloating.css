@@ -9,15 +9,17 @@
 
 .widget-result-floating-btn {
   position: fixed;
-  bottom: 270px;
-  right: 10px;
+  bottom: var(--floating-btn-bottom);
+  right: var(--floating-btn-right);
   z-index: 9999;
   background: var(--color-primary);
   color: var(--color-primary-light);
   border: none;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
+  /* width: 45px; */
+  width: var(--width-floating-btn);
+  /* height: 45px; */
+  height: var(--height-floating-btn);
   box-shadow: 0 2px 8px var(--shadow-light);
   display: flex;
   align-items: center;

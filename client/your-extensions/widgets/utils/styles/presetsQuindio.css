@@ -132,6 +132,14 @@
   --z-index-tooltip: 1050;
 
   /* ========================================
+     FLOATING BUTTON
+     ======================================== */
+   --floating-btn-bottom: 270px;
+   --floating-btn-right: 10px;
+   --width-floating-btn: 45px;
+   --height-floating-btn: 45px;
+
+  /* ========================================
      tree-node-checked:hover
      ======================================== */
    --tree-node-checked-hover: rgba(138, 162, 96, 0.15);

@@ -1,5 +1,5 @@
 export const WIDGET_IDS = {
-  RESULT: 'widget_74',
+  RESULT: 'widget_99',
   LEYENDA: 'widget_89',
   TABLA_DE_CONTENIDO: 'widget_54',
   TABLA_RESULTADOS_BNFE: 'widget_107',
