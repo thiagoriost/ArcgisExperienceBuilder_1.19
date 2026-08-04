@@ -31,7 +31,7 @@ const ConsultaAvanzada = (props: AllWidgetProps<any>) => {
   const [subtemaselected, setSubtemaselected] = useState()
   const [selGrupo, setselGrupo] = useState(undefined)
   const [campo, setCampo] = useState(undefined)
-  const [valores, setValores] = useState<string[]>([])
+  const [valores, setValores] = useState< { value: any; label: any }[]>([])
   const [valorSelected, setValorSelected] = useState()
   const [condicionBusqueda, setCondicionBusqueda] = useState('')
   const [responseConsulta, setResponseConsulta] = useState<any>(null)
@@ -569,7 +569,7 @@ const ConsultaAvanzada = (props: AllWidgetProps<any>) => {
           body: `${response.error.code} - ${response.error.message}`
         })
       } else {
-        const ordenarDatos: string[] = getOrdenarDatos(response, campo)
+        const ordenarDatos: { value: any; label: any }[] = getOrdenarDatos(response, campo)
         if (utilsModule?.logger()) console.log({ ordenarDatos })
         if (ordenarDatos[0] === null) {
           setValores([])
@@ -894,7 +894,7 @@ const realizarConsulta = async (campo: string, url: string, returnGeometry: bool
  */
 const getOrdenarDatos = (response: InterfaceResponseConsulta, campo: string) => {
   const { features } = response
-  const justDatos: Iterable<any> = []
+  const justDatos: any[] = []
   features.forEach(feature => {
     justDatos.push(feature.attributes[campo])
   })

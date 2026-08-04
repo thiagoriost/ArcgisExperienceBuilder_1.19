@@ -5,5 +5,16 @@
 
 export const MAP_DEFAULT_VIEW = {
     center: [-75.690601, 4.40],
-    scale: 400000     
+    scale: 400000
+}
+
+export const VISOR_ACTUAL = {
+    visorSNRA: {
+        activo: true,
+        titleSalidaGrafica: "Sig Reforma Agraría",
+    },
+    visorQUINDIO: {
+        activo: false,
+        titleSalidaGrafica: "Sig Quindío",
+    },
 }

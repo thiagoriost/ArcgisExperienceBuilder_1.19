@@ -196,10 +196,22 @@
 
   --accent: var(--color-secondary);
   --accent-color: var(--color-secondary);
+
+  /* ========================================
+     FLOATING BUTTON
+     ======================================== */
+  --floating-btn-bottom: 110px;
+  --floating-btn-right: 5px;
+   --width-floating-btn: 35px;
+   --height-floating-btn: 35px;
 }
 
 
 .jimu-icon-img{
    width: 22px !important;
    height: 22px !important;
+}
+
+.app-root-emotion-cache-ltr-swxaso-Surface-root-Paper-root .widget-coordinate-conversion .input-container .jimu-widget-setting--row-label{
+   color: var(--text-color-primary) !important;
 }

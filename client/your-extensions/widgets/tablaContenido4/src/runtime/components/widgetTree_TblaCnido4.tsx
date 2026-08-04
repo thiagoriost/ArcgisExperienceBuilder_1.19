@@ -592,7 +592,7 @@ const WidgetTree: React.FC<Widget_Tree_Props> = ({ dataTablaContenido, varJimuMa
                 nodes.forEach(n => {
                     const indent = "  ".repeat(nivel)
                     const tipo = n.URL ? "(CAPA)" : "(TEMATICA)"
-                    console.log(`${indent}${tipo} ID:${n.IDTEMATICA} Padre:${n.IDTEMATICAPADRE} - ${n.NOMBRETEMATICA || n.TITULOCAPA} [hijos: ${n.children?.length || 0}]`)
+                    // console.log(`${indent}${tipo} ID:${n.IDTEMATICA} Padre:${n.IDTEMATICAPADRE} - ${n.NOMBRETEMATICA || n.TITULOCAPA} [hijos: ${n.children?.length || 0}]`)
                     if (n.children && n.children.length > 0) {
                         logTree(n.children, nivel + 1)
                     }
