@@ -1,0 +1,1 @@
+05/08/2026    TbaIndicadores.tsx      Utilizado en el       SigRF

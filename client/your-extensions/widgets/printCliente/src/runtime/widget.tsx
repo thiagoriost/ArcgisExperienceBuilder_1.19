@@ -9,6 +9,7 @@ import { JimuMapViewComponent } from "jimu-arcgis"
 import { Label, TextInput } from "jimu-ui"
 import { useClientPrint } from "./useClientPrint"
 import { SearchActionBar } from '../../../shared/components/search-action-bar'
+import { VISOR_ACTUAL } from '../../../shared/constants/map-defaults'
 
 /**
  * Componente principal del widget de impresión de mapas.
@@ -27,7 +28,14 @@ import { SearchActionBar } from '../../../shared/components/search-action-bar'
 export default function Widget(props: any) {
 
   const [jimuMapView, setJimuMapView] = React.useState<any>()
-  const [title, setTitle] = React.useState("Sig Quindío")
+
+  // Inicializa el título del mapa basado en el visor activo definido en las constantes.
+  const initialTitle = React.useMemo(() => {
+    const visorActivo = Object.values(VISOR_ACTUAL).find((visor) => visor.activo)
+    return visorActivo?.titleSalidaGrafica ?? ""
+  }, [])
+
+  const [title, setTitle] = React.useState(initialTitle)
   const [author, setAuthor] = React.useState("")
   const [showGrid, setShowGrid] = React.useState(false)
   const [gridColor, setGridColor] = React.useState("#787878")

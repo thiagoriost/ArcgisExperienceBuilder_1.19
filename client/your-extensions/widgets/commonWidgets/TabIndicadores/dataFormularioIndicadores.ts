@@ -1325,8 +1325,8 @@ export const dataFuenteIndicadoresObjeto3Nuevos = [
     label: 'Conflictos de uso del suelo rural (fragmentación, concentración)',
     AREAS_ADMINISTRATIVAS: [
       {
-        value: 'no_aplica',
-        label: 'No aplica',
+        value: 'nacional',
+        label: 'Nacional',
         AREAS_ESTUDIO: [
           {
             value: 'clasificacion_suelo',
@@ -1393,8 +1393,8 @@ export const dataFuenteIndicadoresObjeto3Nuevos = [
         label: 'Municipal',
         AREAS_ESTUDIO: [
           {
-            value: 'no_aplica',
-            label: 'No aplica',
+            value: 'nacional',
+            label: 'Nacional',
             INDICADORES: [
               { value: 'gen_1', label: 'Participación porcentual de predios rurales en copropiedad', serviceKey: 'analisis_genero', layerId: 1 },
               { value: 'gen_2', label: 'Participación porcentual de predios rurales de mujeres', serviceKey: 'analisis_genero', layerId: 2 },

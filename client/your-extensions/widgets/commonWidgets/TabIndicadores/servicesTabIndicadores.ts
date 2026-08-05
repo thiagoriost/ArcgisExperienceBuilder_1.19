@@ -1,3 +1,4 @@
+import { INDICADORES_SELECTED } from "./constants"
 import type { DatasetItem } from "./utilsTabIndicadores"
 
 /**
@@ -134,12 +135,8 @@ export const construirDatasetMicrofundiMinifundio = (
   // Valida explícitamente que al menos una entidad incluya alguno de los dos campos esperados.
   const existeCampoEsperado = features.some((feature) => {
     const attrs = feature?.attributes ?? {}
-    return (
-      Object.prototype.hasOwnProperty.call(attrs, "Microfundi") ||
-      Object.prototype.hasOwnProperty.call(attrs, "microfundi") ||
-      Object.prototype.hasOwnProperty.call(attrs, "Minifundio") ||
-      Object.prototype.hasOwnProperty.call(attrs, "minifundio")
-    )
+    const existe = INDICADORES_SELECTED.DEFAULT.tohasOwnProperty.some((key) => Object.prototype.hasOwnProperty.call(attrs, key))
+    return existe
   })
 
   if (!existeCampoEsperado) {

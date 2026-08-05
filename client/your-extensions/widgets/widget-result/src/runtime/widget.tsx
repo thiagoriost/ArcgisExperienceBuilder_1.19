@@ -25,14 +25,17 @@ import { useSelector } from 'react-redux'
 import { ResultPayload } from '../../models/result-payload.model'
 import { ResultTable } from '../../components/ResultTable'
 import { ResultFooter } from '../../components/ResultFooter'
-import { exportService } from '../../../shared/services/export.service'
 import { JimuMapViewComponent, JimuMapView } from 'jimu-arcgis'
 import Graphic from '@arcgis/core/Graphic'
 import Polygon from '@arcgis/core/geometry/Polygon'
 import Point from "@arcgis/core/geometry/Point";
 import Polyline from "@arcgis/core/geometry/Polyline";
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer'
+import { exportService } from '../../../shared/services/export.service'
 import { useOnWidgetClose } from '../../../shared/hooks/useOnWidgetClose';
+import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
+import { useDibujarCoropletico } from '../../../shared/hooks/useDibujarCoropletico'
+import { VISOR_ACTUAL } from '../../../shared/constants/map-defaults'
 import { appActions, getAppStore } from 'jimu-core'
 import { WidgetState } from 'jimu-core'
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer'
@@ -43,10 +46,8 @@ import '../styles/widgetResultFloating.css'
 
 // cef 20260313
 import ResultGraphic from "../../components/ResultGraphic_Richarts";
-import { validaLoggerLocalStorage } from '../../../shared/utils/export.utils'
-import { useDibujarCoropletico } from '../../../shared/hooks/useDibujarCoropletico'
 // @ts-expect-error - Tipos para imports de .png no definidos en este workspace.
-import iconoTablaDeResultados from '../../../shared/assets/icons/Tabla de resultadosPNG.png'
+import iconoTablaDeResultados from '../../../shared/assets/icons/Tabla de resultadosPNG.png' // utilizado en Quindio
 
 
 /**
@@ -897,14 +898,23 @@ export default function Widget(props: AllWidgetProps<IMConfig>) {
                 <button className="widget-result-floating-btn" onClick={() => setOpen(true)} title="Mostrar resultados">
                     <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {/* SVG tabla */}
-                        {/* <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="4" y="6" width="20" height="16" rx="2" fill="var(--color-primary-light)" stroke="var(--color-primary-light)" strokeWidth="2" />
-                            <line x1="4" y1="11" x2="24" y2="11" stroke="var(--color-primary)" strokeWidth="1.5" />
-                            <line x1="4" y1="16" x2="24" y2="16" stroke="var(--color-primary)" strokeWidth="1.5" />
-                            <line x1="11" y1="6" x2="11" y2="22" stroke="var(--color-primary)" strokeWidth="1.5" />
-                            <line x1="18" y1="6" x2="18" y2="22" stroke="var(--color-primary)" strokeWidth="1.5" />
-                        </svg> */}
-                        <img src={iconoTablaDeResultados} alt="Icono de tabla de resultados" style={{ width: '40px', height: '40px' }} />
+                        {
+                            VISOR_ACTUAL.visorSNRA.activo && (
+                                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="4" y="6" width="20" height="16" rx="2" fill="var(--color-primary-light)" stroke="var(--color-primary-light)" strokeWidth="2" />
+                                    <line x1="4" y1="11" x2="24" y2="11" stroke="var(--color-primary)" strokeWidth="1.5" />
+                                    <line x1="4" y1="16" x2="24" y2="16" stroke="var(--color-primary)" strokeWidth="1.5" />
+                                    <line x1="11" y1="6" x2="11" y2="22" stroke="var(--color-primary)" strokeWidth="1.5" />
+                                    <line x1="18" y1="6" x2="18" y2="22" stroke="var(--color-primary)" strokeWidth="1.5" />
+                                </svg>
+                            )
+                        }
+                        {
+                            VISOR_ACTUAL.visorQUINDIO.activo && (
+                                <img src={iconoTablaDeResultados} alt="Icono de tabla de resultados" style={{ width: '40px', height: '40px' }} />
+                                
+                            )
+                        }
                     </span>
                 </button>
             )}
