@@ -93,7 +93,9 @@ const construirDatasetMicrofundiMinifundio = (
     const attrs = feature?.attributes ?? {};
     return (
       Object.prototype.hasOwnProperty.call(attrs, "Microfundi") ||
+      Object.prototype.hasOwnProperty.call(attrs, "Microfundio") ||
       Object.prototype.hasOwnProperty.call(attrs, "microfundi") ||
+      Object.prototype.hasOwnProperty.call(attrs, "microfundio") ||
       Object.prototype.hasOwnProperty.call(attrs, "Minifundio") ||
       Object.prototype.hasOwnProperty.call(attrs, "minifundio")
     );
@@ -581,7 +583,7 @@ const TabIndicadores: React.FC<any> = ({
     if (renderer.type === "uniqueValue" && renderer.uniqueValueInfos?.length) {
 
       return renderer.uniqueValueInfos.map((item) => [
-        item.label || item.value || "No aplica",
+        item.label || item.value || "Nacional",
         "",
         "",
         rgbaToCss(item.symbol?.color),

@@ -1,4 +1,5 @@
 import { React, appActions } from "jimu-core";
+import { INDICADORES_SELECTED } from "./CONSTANTS";
 import { Button } from "jimu-ui";
 
 // @ts-expect-error
@@ -60,6 +61,7 @@ const esCategoriaNuevaConDataAlfanumerica = (
 const construirDatasetMicrofundiMinifundio = (
   features: any[] = [],
   indicadorLabel = "Distribución predial",
+  categoriaTematicaNueva?: NuevoFiltroCategoria
 ): DatasetItem[] => {
   /**
    * @description Construye un dataset de fallback visual cuando no existe data alfanumérica
@@ -88,43 +90,68 @@ const construirDatasetMicrofundiMinifundio = (
     return construirFallbackSinDatos(indicadorLabel);
   }
 
+  let tohasOwnProperty = INDICADORES_SELECTED.DEFAULT.tohasOwnProperty;
+  if (indicadorLabel === INDICADORES_SELECTED.area_promedio_predial.indicadorLabel) {
+    tohasOwnProperty = INDICADORES_SELECTED.area_promedio_predial.tohasOwnProperty;
+  }else if(indicadorLabel === INDICADORES_SELECTED.coeficiente_gini.indicadorLabel) {
+    tohasOwnProperty = INDICADORES_SELECTED.coeficiente_gini.tohasOwnProperty;
+  }else if(indicadorLabel === INDICADORES_SELECTED.vocacion_uso.indicadorLabel) {
+    tohasOwnProperty = INDICADORES_SELECTED.vocacion_uso.tohasOwnProperty;
+  }else if(indicadorLabel === INDICADORES_SELECTED.conflictos_uso_sueloFront_agric.indicadorLabel) {
+    tohasOwnProperty = INDICADORES_SELECTED.conflictos_uso_sueloFront_agric.tohasOwnProperty;
+  }else if(indicadorLabel === INDICADORES_SELECTED.participacion_microfundios.indicadorLabel) {
+    tohasOwnProperty = INDICADORES_SELECTED.participacion_microfundios.tohasOwnProperty;
+  }else if(categoriaTematicaNueva?.value === INDICADORES_SELECTED.conflictos_uso_suelo.indicadorLabel) {
+    tohasOwnProperty = INDICADORES_SELECTED.conflictos_uso_suelo.tohasOwnProperty;
+  }
   // Valida explícitamente que al menos una entidad incluya alguno de los dos campos esperados.
   const existeCampoEsperado = features.some((feature) => {
     const attrs = feature?.attributes ?? {};
-    return (
-      Object.prototype.hasOwnProperty.call(attrs, "Microfundi") ||
-      Object.prototype.hasOwnProperty.call(attrs, "microfundi") ||
-      Object.prototype.hasOwnProperty.call(attrs, "Minifundio") ||
-      Object.prototype.hasOwnProperty.call(attrs, "minifundio")
-    );
+    const existe = tohasOwnProperty.some((key) => Object.prototype.hasOwnProperty.call(attrs, key));
+    return existe;
   });
 
-  if (!existeCampoEsperado) {
-    return construirFallbackSinDatos(indicadorLabel);
-  }
+  
+  // obtiene de los features los valores de Microfundi y Minifundio exactos.
+  const variablesIndicador: string[] = [];
+  features.forEach((feature) => {
+    const attrs = feature?.attributes ?? {};
+    for (const key of tohasOwnProperty) {
+      if (Object.prototype.hasOwnProperty.call(attrs, key)) {
+        if (!variablesIndicador.find((v) => v === key)) {
+          variablesIndicador.push(key);
+        }
+      }
+    }   
+  });
+
+ 
 
   const acumulado = features.reduce(
     (acc, feature) => {
       const attrs = feature?.attributes ?? {};
       return {
-        microfundi:
-          acc.microfundi +
-          toSafeNumber(attrs.Microfundi ?? attrs.microfundi),
-        minifundio:
-          acc.minifundio +
-          toSafeNumber(attrs.Minifundio ?? attrs.minifundio),
+        [variablesIndicador[0]]: acc[variablesIndicador[0]] + toSafeNumber(attrs[variablesIndicador[0]]),
+        [variablesIndicador[1]]: acc[variablesIndicador[1]] + toSafeNumber(attrs[variablesIndicador[1]]),
       };
     },
-    { microfundi: 0, minifundio: 0 },
+    { [variablesIndicador[0]]: 0, [variablesIndicador[1]]: 0 }
   );
+
+   if(validaLoggerLocalStorage("logger")) console.log("construirDatasetMicrofundiMinifundio", { existeCampoEsperado, features, indicadorLabel, variablesIndicador, tohasOwnProperty, acumulado, categoriaTematicaNueva });
+
+  if (!existeCampoEsperado) {
+    return construirFallbackSinDatos(indicadorLabel);
+  }
+  
 
   return [
     {
-      labels: ["Microfundi", "Minifundio"],
+      labels: variablesIndicador,
       datasets: [
         {
           label: indicadorLabel,
-          data: [acumulado.microfundi, acumulado.minifundio],
+          data: [acumulado[variablesIndicador[0]], acumulado[variablesIndicador[1]]],
           backgroundColor: "rgba(47, 125, 182, 0.55)",
           borderColor: "rgba(47, 125, 182, 1)",
           borderWidth: 1,
@@ -349,6 +376,7 @@ const TabIndicadores: React.FC<any> = ({
   const handleAreaAdministrativaNuevaSelected = ({
     target,
   }: SelectionTarget) => {
+    borrarSoloGraficas();
     const areaAdmin = categoriaTematicaNueva?.AREAS_ADMINISTRATIVAS.find((item) => item.value === target.value);
     if (validaLoggerLocalStorage("logger")) console.log("handleAreaAdministrativaNuevaSelected:", {
         areaAdmin,
@@ -368,6 +396,7 @@ const TabIndicadores: React.FC<any> = ({
    */
   const handleAreaEstudioNuevaSelected = ({ target }: SelectionTarget) => {
     const areaEstudio = areaAdministrativaNueva?.AREAS_ESTUDIO.find((item) => item.value === target.value);
+    borrarSoloGraficas();
     if (validaLoggerLocalStorage("logger")) console.log("handleAreaEstudioNuevaSelected:", { areaEstudio, target, areaAdministrativaNueva });
     setAreaEstudioNueva(areaEstudio);
     setIndicadorNuevoSeleccionado(undefined);
@@ -586,7 +615,7 @@ const TabIndicadores: React.FC<any> = ({
   const rgbaToCss = (color?: number[]): string => {
     if (!color || color.length < 3) return "";
     const [r, g, b, a = 255] = color;
-    if (validaLoggerLocalStorage("logger")) console.log("rgbaToCss:", { color, r, g, b, a });
+    // if (validaLoggerLocalStorage("logger")) console.log("rgbaToCss:", { color, r, g, b, a });
     return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(3)})`;
   };
 
@@ -627,7 +656,7 @@ const TabIndicadores: React.FC<any> = ({
     if (renderer.type === "uniqueValue" && renderer.uniqueValueInfos?.length) {
 
       return renderer.uniqueValueInfos.map((item) => [
-        item.label || item.value || "No aplica",
+        item.label || item.value || "Nacional",
         "",
         "",
         rgbaToCss(item.symbol?.color),
@@ -653,7 +682,7 @@ const TabIndicadores: React.FC<any> = ({
     const finTexto = `${fin ?? ""}`.trim();
 
     if (!finTexto) {
-      if (validaLoggerLocalStorage("logger")) console.log("formatearTextoRangoLeyenda:", { rango, index, prefijo, inicioTexto, finTexto });
+      // if (validaLoggerLocalStorage("logger")) console.log("formatearTextoRangoLeyenda:", { rango, index, prefijo, inicioTexto, finTexto });
       return `${prefijo}${inicioTexto}`.trim();
     }
     // if (validaLoggerLocalStorage("logger")) console.log("formatearTextoRangoLeyenda:", { rango, index, prefijo, inicioTexto, finTexto });
@@ -702,6 +731,7 @@ const TabIndicadores: React.FC<any> = ({
       handleIndicadorSelected({target});
       return;
     }
+    borrarSoloGraficas();
     const indicador = areaEstudioNueva?.INDICADORES.find(
       (item) => item.value === target.value,
     );
@@ -786,12 +816,13 @@ const TabIndicadores: React.FC<any> = ({
             url: queryUrl,
             where: "1=1",
             returnGeometry: false,
-            OutFields: "Microfundi,Minifundio",
+            OutFields: "*",
           });
 
           dataAlfanumericaNal = construirDatasetMicrofundiMinifundio(
             responseAlfanumerica?.features ?? [],
             indicador.label,
+            categoriaTematicaNueva
           );
 
           if (validaLoggerLocalStorage("logger")) {
