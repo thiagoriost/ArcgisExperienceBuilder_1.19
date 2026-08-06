@@ -1,0 +1,82 @@
+{
+  "1771445137396.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1771445137396.png",
+    "properties": {
+      "filename": "1771445137396.png",
+      "originalName": "Mock Up APP SIG-146.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1771445137396.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1771446754449.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1771446754449.png",
+    "properties": {
+      "filename": "1771446754449.png",
+      "originalName": "Dibujar 6.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1771446754449.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1771446791140.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1771446791140.png",
+    "properties": {
+      "filename": "1771446791140.png",
+      "originalName": "Ubicar por coordenadas 6.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1771446791140.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1771446869345.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1771446869345.png",
+    "properties": {
+      "filename": "1771446869345.png",
+      "originalName": "Añadir datos 6.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1771446869345.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1771446943841.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1771446943841.png",
+    "properties": {
+      "filename": "1771446943841.png",
+      "originalName": "Vista total 6.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1771446943841.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1771446971008.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1771446971008.png",
+    "properties": {
+      "filename": "1771446971008.png",
+      "originalName": "Consulta simple 6.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1771446971008.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1771450161353.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1771450161353.png",
+    "properties": {
+      "filename": "1771450161353.png",
+      "originalName": "Activar capa 5.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1771450161353.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1771861306374.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1771861306374.png",
+    "properties": {
+      "filename": "1771861306374.png",
+      "originalName": "Exportar 6.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1771861306374.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  }
+}

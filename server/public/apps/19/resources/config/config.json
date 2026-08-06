@@ -1,0 +1,1531 @@
+{
+  "pages": {
+    "page_0": {
+      "id": "page_0",
+      "mode": "FIT_WINDOW",
+      "type": "NORMAL",
+      "layout": {
+        "LARGE": "layout_1",
+        "SMALL": "layout_47"
+      },
+      "isDefault": true,
+      "isVisible": true,
+      "label": "Page",
+      "bodyBackgroundColor": "var(--light)"
+    }
+  },
+  "layouts": {
+    "layout_1": {
+      "type": "FIXED",
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_41",
+          "bbox": {
+            "left": "0.0%",
+            "right": "0.0%",
+            "top": "0.0%",
+            "bottom": "0.0%",
+            "width": "100.0%",
+            "height": "100.0%"
+          },
+          "setting": {
+            "autoProps": {
+              "right": false,
+              "left": true,
+              "top": true,
+              "bottom": false
+            }
+          }
+        }
+      },
+      "order": [
+        "0"
+      ]
+    },
+    "layout_35": {
+      "type": "GRID",
+      "order": [
+        "0",
+        "1",
+        "3",
+        "4",
+        "6",
+        "7",
+        "9",
+        "10",
+        "12"
+      ],
+      "content": {
+        "5": {
+          "gridType": 1,
+          "bbox": {
+            "width": 100
+          },
+          "children": [
+            "18",
+            "9"
+          ]
+        },
+        "7": {
+          "gridType": 3,
+          "type": "WIDGET",
+          "parent": "9",
+          "bbox": {
+            "width": 21.17
+          },
+          "widgetId": "widget_44"
+        },
+        "9": {
+          "gridType": 0,
+          "parent": "5",
+          "bbox": {
+            "width": 92.46333333333331
+          },
+          "children": [
+            "7",
+            "12"
+          ]
+        },
+        "12": {
+          "gridType": 3,
+          "type": "WIDGET",
+          "parent": "9",
+          "bbox": {
+            "width": 78.83000000000001
+          },
+          "widgetId": "widget_50",
+          "setting": {
+            "effect": {
+              "SCROLL_IN": {
+                "type": "ZOOM_IN",
+                "option": {
+                  "direction": null,
+                  "configType": "DEFAULT"
+                }
+              }
+            },
+            "oneByOneEffect": {
+              "SCROLL_IN": {
+                "type": "ZOOM_IN",
+                "option": {
+                  "direction": null,
+                  "start": "AFTER_PREVIOUS",
+                  "parentMode": "ONE_BY_ONE"
+                }
+              }
+            }
+          }
+        },
+        "18": {
+          "gridType": 3,
+          "type": "WIDGET",
+          "parent": "5",
+          "bbox": {
+            "width": 7.536666666666672
+          },
+          "widgetId": "widget_65",
+          "expandable": false
+        }
+      },
+      "setting": {
+        "rootItem": "5"
+      },
+      "label": "Default"
+    },
+    "layout_37": {
+      "type": "GRID",
+      "order": [
+        "0",
+        "1",
+        "3"
+      ],
+      "content": {
+        "3": {
+          "type": "SECTION",
+          "bbox": {
+            "width": 100
+          },
+          "gridType": 3,
+          "sectionId": "section_2",
+          "expandable": false,
+          "setting": {
+            "effect": {
+              "SCROLL_IN": {
+                "type": "FADE_IN",
+                "option": {
+                  "direction": null
+                }
+              }
+            }
+          }
+        }
+      },
+      "setting": {
+        "rootItem": "3",
+        "style": {
+          "padding": {
+            "number": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "unit": "px"
+          }
+        },
+        "resizable": true
+      },
+      "label": "Default"
+    },
+    "layout_38": {
+      "type": "FIXED",
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_46",
+          "bbox": {
+            "left": "0.0%",
+            "right": "0.0%",
+            "top": "0.0%",
+            "bottom": "71.5%",
+            "width": "100.0%",
+            "height": "50.00%"
+          },
+          "setting": {
+            "autoProps": {
+              "left": true,
+              "right": false,
+              "top": false,
+              "bottom": true
+            },
+            "vCenter": false,
+            "hCenter": false,
+            "effect": {
+              "SCROLL_IN": {
+                "type": "FADE_IN",
+                "option": {
+                  "direction": null
+                }
+              }
+            }
+          }
+        }
+      },
+      "order": [
+        "0"
+      ]
+    },
+    "layout_39": {
+      "type": "FIXED",
+      "content": {
+        "2": {
+          "type": "WIDGET",
+          "widgetId": "widget_80",
+          "bbox": {
+            "left": "0.0%",
+            "right": "0.0%",
+            "top": "0.0%",
+            "bottom": "0.0%",
+            "width": "100.0%",
+            "height": "100.0%"
+          },
+          "setting": {
+            "autoProps": {
+              "right": false,
+              "left": true,
+              "top": true,
+              "bottom": false
+            }
+          }
+        }
+      },
+      "order": [
+        "2"
+      ]
+    },
+    "layout_40": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_52",
+          "bbox": {
+            "left": "0.0%",
+            "right": "0.0%",
+            "top": "0.0%",
+            "bottom": "0.8%",
+            "width": "100.0%",
+            "height": "99.2%"
+          },
+          "setting": {
+            "autoProps": {
+              "left": true,
+              "right": false,
+              "top": false,
+              "bottom": true
+            },
+            "vCenter": false,
+            "hCenter": false
+          }
+        }
+      },
+      "type": "FIXED",
+      "label": "First",
+      "order": [
+        "0"
+      ]
+    },
+    "layout_41": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_51",
+          "bbox": {
+            "left": "0.1%",
+            "right": "0.0%",
+            "top": "0.0%",
+            "bottom": "0.0%",
+            "width": "99.9%",
+            "height": "100.0%"
+          },
+          "setting": {
+            "autoProps": {
+              "right": false,
+              "left": true,
+              "top": true,
+              "bottom": false
+            }
+          }
+        }
+      },
+      "type": "FIXED",
+      "label": "Second",
+      "order": [
+        "0"
+      ]
+    },
+    "layout_42": {
+      "type": "GRID",
+      "order": [
+        "0",
+        "1",
+        "3",
+        "4",
+        "6",
+        "7",
+        "9",
+        "10",
+        "12"
+      ],
+      "content": {
+        "19": {
+          "gridType": 3,
+          "type": "WIDGET",
+          "bbox": {
+            "width": 100
+          },
+          "widgetId": "widget_81"
+        }
+      },
+      "setting": {
+        "rootItem": "19"
+      },
+      "label": "Default"
+    },
+    "layout_43": {
+      "content": {
+        "1": {
+          "type": "WIDGET",
+          "bbox": {
+            "right": "0.4%",
+            "bottom": "58.3%",
+            "width": "3.80%",
+            "height": "41.1%",
+            "left": "1402px",
+            "top": "6px"
+          },
+          "setting": {
+            "autoProps": {
+              "left": true,
+              "right": false,
+              "top": false,
+              "bottom": true
+            },
+            "vCenter": false,
+            "hCenter": false
+          },
+          "widgetId": "widget_69"
+        }
+      },
+      "type": "FIXED",
+      "label": "Map FixedLayout",
+      "order": [
+        "1"
+      ]
+    },
+    "layout_45": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_66",
+          "bbox": {
+            "left": "0.0%",
+            "right": "81.8%",
+            "top": "0.0%",
+            "bottom": "0.0%",
+            "width": "18.2%",
+            "height": "100.0%"
+          },
+          "setting": {
+            "autoProps": {
+              "left": false,
+              "right": true,
+              "top": true,
+              "bottom": false
+            }
+          }
+        },
+        "1": {
+          "type": "WIDGET",
+          "widgetId": "widget_67",
+          "bbox": {
+            "left": "90.7%",
+            "right": "0.0%",
+            "top": "0.0%",
+            "bottom": "0.0%",
+            "width": "9.3%",
+            "height": "100.0%"
+          },
+          "setting": {
+            "autoProps": {
+              "right": false,
+              "left": true,
+              "top": true,
+              "bottom": false
+            },
+            "hCenter": false,
+            "lockParent": true,
+            "vCenter": false
+          }
+        }
+      },
+      "type": "FIXED",
+      "label": "Default",
+      "order": [
+        "0",
+        "1"
+      ]
+    },
+    "layout_46": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_70",
+          "bbox": {}
+        },
+        "1": {
+          "type": "WIDGET",
+          "widgetId": "widget_71",
+          "bbox": {}
+        },
+        "2": {
+          "type": "WIDGET",
+          "widgetId": "widget_72",
+          "bbox": {}
+        },
+        "4": {
+          "type": "WIDGET",
+          "widgetId": "widget_74",
+          "bbox": {}
+        },
+        "6": {
+          "type": "WIDGET",
+          "widgetId": "widget_82",
+          "bbox": {}
+        }
+      },
+      "type": "FIXED",
+      "label": "Controller layout",
+      "order": [
+        "0",
+        "2",
+        "4",
+        "1",
+        "6"
+      ]
+    },
+    "layout_47": {
+      "type": "FIXED",
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_83",
+          "bbox": {
+            "left": "0.0%",
+            "right": "0.0%",
+            "top": "0.0%",
+            "bottom": "0.0%",
+            "width": "100.0%",
+            "height": "100.0%"
+          },
+          "setting": {
+            "autoProps": {
+              "right": false,
+              "left": true,
+              "top": true,
+              "bottom": false
+            }
+          }
+        }
+      },
+      "order": [
+        "0"
+      ]
+    },
+    "layout_48": {
+      "type": "GRID",
+      "order": [
+        "0",
+        "1",
+        "3"
+      ],
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "bbox": {
+            "width": 9.209999999999997
+          },
+          "gridType": 3,
+          "parent": "4",
+          "setting": {},
+          "widgetId": "widget_84"
+        },
+        "3": {
+          "type": "WIDGET",
+          "bbox": {
+            "width": 90.78999999999999
+          },
+          "parent": "4",
+          "gridType": 3,
+          "widgetId": "widget_87"
+        },
+        "4": {
+          "gridType": 1,
+          "bbox": {
+            "width": 100
+          },
+          "children": [
+            "0",
+            "3"
+          ]
+        }
+      },
+      "setting": {
+        "rootItem": "4",
+        "splitSize": 1
+      }
+    },
+    "layout_49": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_85",
+          "setting": {
+            "autoProps": {
+              "height": "STRETCH"
+            }
+          },
+          "bbox": {
+            "left": 1,
+            "width": 5,
+            "height": "230px"
+          }
+        },
+        "1": {
+          "type": "WIDGET",
+          "widgetId": "widget_86",
+          "setting": {
+            "autoProps": {
+              "height": "STRETCH"
+            }
+          },
+          "bbox": {
+            "left": 7,
+            "width": 5,
+            "height": "230px"
+          }
+        }
+      },
+      "type": "ROW",
+      "label": "Default",
+      "setting": {
+        "space": 10,
+        "style": {
+          "padding": {
+            "number": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "unit": "px"
+          }
+        }
+      },
+      "order": [
+        "0",
+        "1"
+      ]
+    },
+    "layout_50": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_88",
+          "bbox": {
+            "left": "0.0%",
+            "bottom": "5.5%",
+            "width": "9.0%",
+            "height": "53.3%"
+          },
+          "setting": {
+            "autoProps": {
+              "width": "AUTO",
+              "height": "AUTO",
+              "left": false,
+              "right": true,
+              "top": true,
+              "bottom": false
+            }
+          }
+        }
+      },
+      "type": "FIXED",
+      "label": "Map FixedLayout",
+      "order": [
+        "0"
+      ]
+    },
+    "layout_51": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_89",
+          "bbox": {}
+        },
+        "1": {
+          "type": "WIDGET",
+          "widgetId": "widget_90",
+          "bbox": {}
+        }
+      },
+      "type": "FIXED",
+      "label": "Controller layout",
+      "order": [
+        "0",
+        "1"
+      ]
+    }
+  },
+  "exbVersion": "1.14.0",
+  "mainSizeMode": "LARGE",
+  "theme": "themes/default/",
+  "forBuilderAttributes": {
+    "lockLayout": false,
+    "viewPortSize": {
+      "LARGE": {
+        "width": 1920,
+        "height": 1080
+      },
+      "SMALL": {
+        "width": 375,
+        "height": 667
+      },
+      "MEDIUM": {
+        "width": 601,
+        "height": 962
+      }
+    }
+  },
+  "template": "blankfullscreen",
+  "widgets": {
+    "widget_41": {
+      "uri": "widgets/layout/grid/",
+      "version": "1.14.0",
+      "label": "Grid",
+      "config": {},
+      "id": "widget_41",
+      "layouts": {
+        "DEFAULT": {
+          "LARGE": "layout_35"
+        }
+      }
+    },
+    "widget_44": {
+      "uri": "widgets/layout/grid/",
+      "version": "1.14.0",
+      "label": "Grid 2",
+      "config": {},
+      "id": "widget_44",
+      "layouts": {
+        "DEFAULT": {
+          "LARGE": "layout_37"
+        }
+      }
+    },
+    "widget_46": {
+      "uri": "widgets/tablaDeContenido/",
+      "version": "1.14.0",
+      "label": "Tabla de contenido",
+      "config": {},
+      "id": "widget_46",
+      "useMapWidgetIds": [
+        "widget_52"
+      ]
+    },
+    "widget_50": {
+      "uri": "widgets/layout/sidebar/",
+      "version": "1.14.0",
+      "label": "Sidebar_FE",
+      "config": {
+        "direction": "VERTICAL",
+        "collapseSide": "SECOND",
+        "overlay": false,
+        "size": "429px",
+        "divider": {
+          "visible": true,
+          "lineStyle": {
+            "type": "solid",
+            "color": "var(--light-500)",
+            "width": "1px"
+          }
+        },
+        "resizable": false,
+        "toggleBtn": {
+          "visible": true,
+          "iconSource": 0,
+          "icon": "DOWN",
+          "offsetX": 0,
+          "offsetY": -15,
+          "position": "CENTER",
+          "iconSize": 21,
+          "width": 60,
+          "height": 15,
+          "border": {
+            "type": "solid",
+            "color": "var(--light-500)",
+            "width": "1px"
+          },
+          "color": {
+            "normal": {
+              "icon": {
+                "useTheme": false,
+                "color": "var(--light)"
+              },
+              "bg": {
+                "useTheme": false,
+                "color": "var(--info-800)"
+              }
+            },
+            "hover": {
+              "bg": {
+                "useTheme": false,
+                "color": "var(--primary-100)"
+              }
+            }
+          },
+          "expandStyle": {
+            "style": {
+              "borderRadius": "92px 92px 0 0"
+            }
+          },
+          "collapseStyle": {
+            "style": {
+              "borderRadius": "92px 92px 0 0"
+            }
+          },
+          "template": "default"
+        },
+        "defaultState": 0,
+        "secondPanelStyle": {
+          "background": {
+            "color": "var(--primary)",
+            "fillType": "fill",
+            "image": {
+              "url": ""
+            }
+          }
+        }
+      },
+      "id": "widget_50",
+      "layouts": {
+        "FIRST": {
+          "LARGE": "layout_40"
+        },
+        "SECOND": {
+          "LARGE": "layout_41"
+        }
+      }
+    },
+    "widget_51": {
+      "uri": "widgets/layout/grid/",
+      "version": "1.14.0",
+      "label": "Grid 3",
+      "config": {},
+      "id": "widget_51",
+      "layouts": {
+        "DEFAULT": {
+          "LARGE": "layout_42"
+        }
+      }
+    },
+    "widget_52": {
+      "uri": "widgets/arcgis/arcgis-map/",
+      "version": "1.14.0",
+      "label": "Map",
+      "config": {
+        "toolConfig": {
+          "canZoom": true,
+          "canHome": true,
+          "canSearch": false,
+          "canNavigation": true
+        },
+        "isUseCustomMapState": true,
+        "initialMapState": {
+          "viewPoint": {
+            "rotation": 0,
+            "scale": 9244648.868618,
+            "targetGeometry": {
+              "spatialReference": {
+                "wkid": 102100
+              },
+              "x": -8151263.805586159,
+              "y": 368852.9256518376
+            }
+          },
+          "extent": {
+            "spatialReference": {
+              "wkid": 102100
+            },
+            "xmin": -9912372.937276151,
+            "ymin": -834571.6476696574,
+            "xmax": -6390154.6738961665,
+            "ymax": 1572277.4989733326
+          },
+          "rotation": 0,
+          "viewType": "2d"
+        }
+      },
+      "id": "widget_52",
+      "layouts": {
+        "MapFixedLayout": {
+          "LARGE": "layout_43"
+        }
+      }
+    },
+    "widget_65": {
+      "uri": "widgets/layout/fixed/",
+      "version": "1.14.0",
+      "label": "Fixed Panel",
+      "config": null,
+      "id": "widget_65",
+      "layouts": {
+        "DEFAULT": {
+          "LARGE": "layout_45"
+        }
+      },
+      "style": {
+        "background": {
+          "color": "var(--primary)",
+          "fillType": "fit",
+          "image": {
+            "url": ""
+          }
+        }
+      }
+    },
+    "widget_66": {
+      "uri": "widgets/common/image/",
+      "version": "1.14.0",
+      "label": "Image 5",
+      "config": {
+        "functionConfig": {
+          "altText": "",
+          "toolTip": "",
+          "linkParam": {},
+          "scale": "Fit",
+          "imageParam": {
+            "url": "${appResourceUrl}/images/widget_66/1754509916630.png",
+            "originalUrl": "${appResourceUrl}/images/widget_66/1754509916630.png",
+            "fileName": "1754509916630.png",
+            "originalName": "Logo Banco Nacional de Firmas Espectrales-01.png",
+            "imgSourceType": "BY_UPLOAD",
+            "fileFormat": "image/png",
+            "originalId": "1754509916630",
+            "isUseCompress": false,
+            "originalWidth": 1370,
+            "originalHeight": 362
+          },
+          "imageDisplayQualityMode": "ORIGINAL",
+          "imgSourceType": "",
+          "srcExpression": null,
+          "imageFillMode": "FIT"
+        },
+        "styleConfig": {}
+      },
+      "id": "widget_66"
+    },
+    "widget_67": {
+      "uri": "widgets/common/image/",
+      "version": "1.14.0",
+      "label": "Image 6",
+      "config": {
+        "functionConfig": {
+          "altText": "",
+          "toolTip": "",
+          "linkParam": {},
+          "scale": "Fit",
+          "imageParam": {
+            "url": "${appResourceUrl}/images/widget_67/1754493737053.png",
+            "originalUrl": "${appResourceUrl}/images/widget_67/1754493737053.png",
+            "fileName": "1754493737053.png",
+            "originalName": "IGAC LOGO.png",
+            "imgSourceType": "BY_UPLOAD",
+            "fileFormat": "image/png",
+            "originalId": "1754493737053",
+            "isUseCompress": false,
+            "originalWidth": 501,
+            "originalHeight": 260
+          },
+          "imageDisplayQualityMode": "ORIGINAL",
+          "imgSourceType": "",
+          "srcExpression": null,
+          "imageFillMode": "FIT"
+        },
+        "styleConfig": {}
+      },
+      "id": "widget_67",
+      "style": {
+        "background": {
+          "color": "var(--light)",
+          "fillType": "fill"
+        }
+      }
+    },
+    "widget_69": {
+      "uri": "widgets/common/controller/",
+      "version": "1.14.0",
+      "label": "Widget Controller 2",
+      "config": {
+        "behavior": {
+          "onlyOpenOne": true,
+          "openStarts": [],
+          "displayType": "STACK",
+          "vertical": true,
+          "size": {}
+        },
+        "appearance": {
+          "space": 0,
+          "advanced": true,
+          "card": {
+            "showLabel": true,
+            "labelGrowth": 0,
+            "avatar": {
+              "type": "primary",
+              "size": "default",
+              "shape": "circle"
+            },
+            "variant": {
+              "default": {
+                "color": "#080808",
+                "bg": "#0c4660",
+                "border": {
+                  "color": "#0c4660",
+                  "width": "1px"
+                },
+                "bold": true
+              },
+              "hover": {
+                "bg": "var(--info-600)",
+                "bold": true
+              },
+              "active": {
+                "bg": "var(--info-800)",
+                "color": "#080808",
+                "bold": true
+              },
+              "disabled": {
+                "color": "#8b8b8b",
+                "bg": "#e3e3e3",
+                "border": {
+                  "color": "#e3e3e3"
+                }
+              }
+            },
+            "showIndicator": true
+          }
+        }
+      },
+      "id": "widget_69",
+      "layouts": {
+        "controller": {
+          "LARGE": "layout_46"
+        }
+      },
+      "style": {
+        "background": {
+          "color": "",
+          "fillType": "fill"
+        },
+        "borderRadius": {
+          "number": [
+            20,
+            20,
+            20,
+            20
+          ],
+          "unit": "px"
+        },
+        "border": {
+          "type": "dashed",
+          "color": "#000000",
+          "width": "0px"
+        }
+      }
+    },
+    "widget_70": {
+      "uri": "widgets/arcgis/basemap-gallery/",
+      "version": "1.14.0",
+      "label": "Basemap Gallery",
+      "config": {
+        "basemapsType": "ORGANIZATION",
+        "customBasemaps": []
+      },
+      "id": "widget_70",
+      "useMapWidgetIds": [
+        "widget_52"
+      ]
+    },
+    "widget_71": {
+      "uri": "widgets/arcgis/coordinates/",
+      "version": "1.14.0",
+      "label": "Coordinates",
+      "config": {
+        "coordinateSystem": [
+          {
+            "id": "system-1",
+            "name": "WGS_1984_Web_Mercator_Auxiliary_Sphere",
+            "wkid": "3857",
+            "displayUnit": "",
+            "elevationUnit": "METRIC",
+            "crs": {
+              "name": "WGS_1984_Web_Mercator_Auxiliary_Sphere",
+              "wkid": 3857,
+              "wkt": "PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere',GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Mercator_Auxiliary_Sphere'],PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',0.0],PARAMETER['Standard_Parallel_1',0.0],PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]"
+            }
+          }
+        ],
+        "coordinateDecimal": 3,
+        "altitudeDecimal": 2,
+        "showSeparators": true,
+        "displayOrder": "XY",
+        "widgetStyle": "CLASSIC",
+        "mapInfo": {
+          "id": "9d98f7113f9b469c8c302b210db7b922",
+          "title": "Topographic",
+          "wkid": 102100,
+          "label": "WGS_1984_Web_Mercator_Auxiliary_Sphere",
+          "csUnit": "Meter"
+        },
+        "mapInfo2": {
+          "csUnit": ""
+        }
+      },
+      "id": "widget_71",
+      "useMapWidgetIds": [
+        "widget_52"
+      ]
+    },
+    "widget_72": {
+      "uri": "widgets/arcgis/draw/",
+      "version": "1.14.0",
+      "label": "Draw",
+      "config": {
+        "isDisplayCanvasLayer": false,
+        "arrangement": "Panel",
+        "drawMode": "continuous",
+        "drawingTools": [
+          "point",
+          "polyline",
+          "polygon",
+          "rectangle",
+          "circle"
+        ],
+        "measurementsInfo": {
+          "enableMeasurements": false,
+          "fontsColor": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "fontsSize": 12,
+          "haloColor": [
+            255,
+            255,
+            255,
+            1
+          ],
+          "haloSize": 2,
+          "decimalPlaces": {
+            "point": 5,
+            "line": 3,
+            "area": 3
+          }
+        },
+        "measurementsUnitsInfos": [],
+        "drawingElevationMode3D": "on-the-ground"
+      },
+      "id": "widget_72",
+      "useMapWidgetIds": [
+        "widget_52"
+      ]
+    },
+    "widget_74": {
+      "uri": "widgets/arcgis/coordinate-conversion/",
+      "version": "1.14.0",
+      "label": "Coordinate Conversion",
+      "config": {
+        "inputSettings": {
+          "defaultCoordinate": "dd",
+          "format": "Y°N, X°E"
+        },
+        "outputSettings": [],
+        "addressSettings": {
+          "minCandidateScore": 100,
+          "maxSuggestions": 6,
+          "useUtilitiesGeocodeService": [],
+          "displayFullAddress": false,
+          "geocodeServiceUrl": "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer"
+        },
+        "generalSettings": {
+          "zoomScale": 50000,
+          "defaultPointSymbol": {
+            "type": "esriPMS",
+            "angle": 0,
+            "xoffset": 2,
+            "yoffset": 8,
+            "contentType": "image/png",
+            "imageData": "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",
+            "url": "https://static.arcgis.com/images/Symbols/Basic/BlueShinyPin.png",
+            "height": 24,
+            "width": 24
+          }
+        }
+      },
+      "id": "widget_74",
+      "useMapWidgetIds": [
+        "widget_52"
+      ]
+    },
+    "widget_80": {
+      "uri": "widgets/searchSIEC/",
+      "version": "1.14.0",
+      "label": "Búsqueda Firmas",
+      "config": {},
+      "id": "widget_80",
+      "useMapWidgetIds": [
+        "widget_52"
+      ]
+    },
+    "widget_81": {
+      "uri": "widgets/TablaResultados/",
+      "version": "1.14.0",
+      "label": "Tabla Resultados",
+      "config": {
+        "exampleConfigProperty": "test"
+      },
+      "id": "widget_81",
+      "useMapWidgetIds": [
+        "widget_52"
+      ]
+    },
+    "widget_82": {
+      "uri": "widgets/Bar-Chart/",
+      "version": "1.14.0",
+      "label": "Indicadores",
+      "config": {
+        "exampleConfigProperty": "test_Bar-Chart"
+      },
+      "id": "widget_82",
+      "useMapWidgetIds": [
+        "widget_52"
+      ]
+    },
+    "widget_83": {
+      "uri": "widgets/layout/grid/",
+      "version": "1.14.0",
+      "label": "Grid 4",
+      "config": {},
+      "id": "widget_83",
+      "layouts": {
+        "DEFAULT": {
+          "SMALL": "layout_48"
+        }
+      }
+    },
+    "widget_84": {
+      "uri": "widgets/layout/row/",
+      "version": "1.14.0",
+      "label": "Row",
+      "config": {
+        "space": 10,
+        "style": {
+          "padding": {
+            "number": [
+              10
+            ],
+            "unit": "px"
+          }
+        }
+      },
+      "id": "widget_84",
+      "layouts": {
+        "DEFAULT": {
+          "SMALL": "layout_49"
+        }
+      }
+    },
+    "widget_85": {
+      "uri": "widgets/common/image/",
+      "version": "1.14.0",
+      "label": "Image 7",
+      "config": {
+        "functionConfig": {
+          "altText": "",
+          "toolTip": "",
+          "linkParam": {},
+          "scale": "Fit",
+          "imageParam": {
+            "url": "${appResourceUrl}/images/widget_66/1754509916630.png",
+            "originalUrl": "${appResourceUrl}/images/widget_66/1754509916630.png",
+            "fileName": "1754509916630.png",
+            "originalName": "Logo Banco Nacional de Firmas Espectrales-01.png",
+            "imgSourceType": "BY_UPLOAD",
+            "fileFormat": "image/png",
+            "originalId": "1754509916630",
+            "isUseCompress": false,
+            "originalWidth": 1370,
+            "originalHeight": 362
+          },
+          "imageDisplayQualityMode": "ORIGINAL",
+          "imgSourceType": "",
+          "srcExpression": null,
+          "imageFillMode": "FIT"
+        },
+        "styleConfig": {}
+      },
+      "id": "widget_85"
+    },
+    "widget_86": {
+      "uri": "widgets/common/image/",
+      "version": "1.14.0",
+      "label": "Image 8",
+      "config": {
+        "functionConfig": {
+          "altText": "",
+          "toolTip": "",
+          "linkParam": {},
+          "scale": "Fit",
+          "imageParam": {
+            "url": "${appResourceUrl}/images/widget_67/1754486937617.png",
+            "originalUrl": "${appResourceUrl}/images/widget_67/1754486937617.png",
+            "fileName": "1754486937617.png",
+            "originalName": "logo-igac-colorhorizontal.png",
+            "imgSourceType": "BY_UPLOAD",
+            "fileFormat": "image/png",
+            "originalId": "1754486937617",
+            "isUseCompress": false,
+            "originalWidth": 1035,
+            "originalHeight": 549
+          },
+          "imageDisplayQualityMode": "ORIGINAL",
+          "imgSourceType": "",
+          "srcExpression": null,
+          "imageFillMode": "FIT"
+        },
+        "styleConfig": {}
+      },
+      "id": "widget_86"
+    },
+    "widget_87": {
+      "uri": "widgets/arcgis/arcgis-map/",
+      "version": "1.14.0",
+      "label": "Map 2",
+      "config": {
+        "toolConfig": {
+          "canZoom": true,
+          "canHome": true,
+          "canSearch": false,
+          "canNavigation": true
+        },
+        "isUseCustomMapState": true,
+        "initialMapState": {
+          "viewPoint": {
+            "rotation": 0,
+            "scale": 18489297.737236,
+            "targetGeometry": {
+              "spatialReference": {
+                "wkid": 102100
+              },
+              "x": -8203833.371789237,
+              "y": 238126.49802713055
+            }
+          },
+          "extent": {
+            "spatialReference": {
+              "wkid": 102100
+            },
+            "xmin": -9121077.711211108,
+            "ymin": -1234356.4148581133,
+            "xmax": -7286589.032367365,
+            "ymax": 1710609.4109123743
+          },
+          "rotation": 0,
+          "viewType": "2d"
+        }
+      },
+      "id": "widget_87",
+      "layouts": {
+        "MapFixedLayout": {
+          "SMALL": "layout_50"
+        }
+      },
+      "dataActions": {
+        "showOnMap": {
+          "config": {
+            "isUseCustomSymbol": true,
+            "symbolOption": {
+              "pointSymbol": {
+                "type": "esriSMS",
+                "color": [
+                  255,
+                  255,
+                  0,
+                  150
+                ],
+                "angle": 0,
+                "xoffset": 0,
+                "yoffset": 0,
+                "size": 12,
+                "style": "esriSMSCircle",
+                "outline": {
+                  "type": "esriSLS",
+                  "color": [
+                    255,
+                    255,
+                    0,
+                    150
+                  ],
+                  "width": 1,
+                  "style": "esriSLSSolid"
+                }
+              },
+              "polylineSymbol": {
+                "type": "esriSLS",
+                "color": [
+                  255,
+                  255,
+                  0,
+                  150
+                ],
+                "width": 0.75,
+                "style": "esriSLSSolid"
+              },
+              "polygonSymbol": {
+                "type": "esriSFS",
+                "color": [
+                  255,
+                  255,
+                  0,
+                  150
+                ],
+                "outline": {
+                  "type": "esriSLS",
+                  "color": [
+                    255,
+                    255,
+                    0,
+                    150
+                  ],
+                  "width": 1,
+                  "style": "esriSLSSolid"
+                },
+                "style": "esriSFSSolid"
+              }
+            }
+          }
+        }
+      }
+    },
+    "widget_88": {
+      "uri": "widgets/common/controller/",
+      "version": "1.14.0",
+      "label": "Widget Controller 3",
+      "config": {
+        "behavior": {
+          "onlyOpenOne": true,
+          "openStarts": [],
+          "displayType": "STACK",
+          "vertical": true,
+          "size": {}
+        },
+        "appearance": {
+          "space": 0,
+          "advanced": true,
+          "card": {
+            "showLabel": false,
+            "labelGrowth": 0,
+            "avatar": {
+              "type": "primary",
+              "size": "default",
+              "shape": "circle"
+            },
+            "variant": {
+              "default": {
+                "color": "#080808",
+                "bg": "var(--info-900)",
+                "border": {
+                  "color": "#f0f0f0",
+                  "width": "1px"
+                }
+              },
+              "hover": {
+                "bg": "#d7d7d7"
+              },
+              "active": {
+                "bg": "#d7d7d7",
+                "color": "#080808"
+              },
+              "disabled": {
+                "color": "#8b8b8b",
+                "bg": "#e3e3e3",
+                "border": {
+                  "color": "#e3e3e3"
+                }
+              }
+            }
+          }
+        }
+      },
+      "id": "widget_88",
+      "layouts": {
+        "controller": {
+          "SMALL": "layout_51"
+        }
+      },
+      "style": {
+        "background": {
+          "color": null,
+          "fillType": "fill"
+        }
+      }
+    },
+    "widget_89": {
+      "uri": "widgets/searchSIEC/",
+      "version": "1.14.0",
+      "label": "Búsqueda Firmas",
+      "config": {},
+      "id": "widget_89",
+      "useMapWidgetIds": [
+        "widget_87"
+      ]
+    },
+    "widget_90": {
+      "uri": "widgets/TablaResultados/",
+      "version": "1.14.0",
+      "label": "Tabla Resultados",
+      "config": {
+        "exampleConfigProperty": "test"
+      },
+      "id": "widget_90",
+      "useMapWidgetIds": [
+        "widget_87"
+      ]
+    }
+  },
+  "widgetsManifest": {},
+  "views": {
+    "view_4": {
+      "id": "view_4",
+      "label": "Capas",
+      "layout": {
+        "LARGE": "layout_38"
+      }
+    },
+    "view_5": {
+      "id": "view_5",
+      "label": "Buscador",
+      "layout": {
+        "LARGE": "layout_39"
+      }
+    }
+  },
+  "sections": {
+    "section_2": {
+      "id": "section_2",
+      "label": "Section 2",
+      "views": [
+        "view_5",
+        "view_4"
+      ],
+      "transition": {
+        "type": "CUBE",
+        "direction": "H"
+      },
+      "dotsNav": {
+        "visible": true,
+        "size": "15"
+      }
+    }
+  },
+  "dialogs": {},
+  "dataSources": {
+    "dataSource_1": {
+      "id": "dataSource_1",
+      "type": "WEB_MAP",
+      "sourceLabel": "Inventario movimiento en masa ",
+      "itemId": "8f89e47882b44fbdb8136139e96c0405",
+      "portalUrl": "https://pruebassig.igac.gov.co/portal"
+    }
+  },
+  "messageConfigs": {},
+  "attributes": {
+    "portalUrl": "https://pruebassig.igac.gov.co/portal",
+    "favicon": {
+      "svg": "${appResourceUrl}/images/icon_picker_in_setting/1754934709442.png",
+      "properties": {
+        "filename": "1754934709442.png",
+        "color": "var(--dark-800)",
+        "originalName": "Logo Banco Nacional de Firmas Espectrales.png",
+        "path": "${appResourceUrl}/images/icon_picker_in_setting/1754934709442.png",
+        "isUploaded": true,
+        "inlineSvg": false
+      }
+    }
+  },
+  "sharedThemeVariables": null,
+  "originExbVersion": "1.14.0",
+  "pageStructure": [
+    {
+      "page_0": []
+    }
+  ],
+  "timestamp": 1754953114829,
+  "customTheme": {
+    "colors": {
+      "primary": "#f0f0f0"
+    }
+  },
+  "controllerPanels": {}
+}

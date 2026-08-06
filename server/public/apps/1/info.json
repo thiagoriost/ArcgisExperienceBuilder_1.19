@@ -1,0 +1,31 @@
+{
+  "created": 1770324833565,
+  "description": "",
+  "id": "1",
+  "modified": 1785181656191,
+  "owner": "monica.cortes",
+  "tags": "",
+  "thumbnail": null,
+  "title": "Sig Reforma Agraria",
+  "type": "Web Experience",
+  "snippet": null,
+  "typeKeywords": [
+    "Web Experience",
+    "Ready To Use",
+    "JavaScript",
+    "status: Changed",
+    "version:1.19.0",
+    "modified: 1785181656186",
+    "publishVersion:1.19.0"
+  ],
+  "portalUrl": "https://pruebassig.igac.gov.co/portal",
+  "username": "monica.cortes",
+  "name": "Sig Reforma Agraria",
+  "isLocalApp": true,
+  "userRole": "org_publisher",
+  "userName": "monica.cortes",
+  "success": true,
+  "text": "",
+  "clearEmptyFields": true,
+  "url": null
+}

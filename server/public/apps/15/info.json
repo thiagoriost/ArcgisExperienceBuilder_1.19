@@ -1,0 +1,27 @@
+{
+  "created": 1785767299189,
+  "description": "",
+  "id": "15",
+  "modified": 1785968830915,
+  "owner": "monica.cortes",
+  "tags": "",
+  "thumbnail": "thumbnail/thumbnail1731445946465.png",
+  "title": "SigReformaAgraria05082026",
+  "type": "Web Experience",
+  "snippet": null,
+  "typeKeywords": [
+    "Web Experience",
+    "Ready To Use",
+    "JavaScript",
+    "status: Changed",
+    "version:1.19.0",
+    "modified: 1785968830908"
+  ],
+  "portalUrl": "https://pruebassig.igac.gov.co/portal",
+  "username": "monica.cortes",
+  "name": "SigReformaAgraria05082026",
+  "isLocalApp": true,
+  "success": true,
+  "url": null,
+  "clearEmptyFields": true
+}

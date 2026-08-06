@@ -1,0 +1,44 @@
+{
+  "1748383119756": {
+    "originalName": "Capture3.PNG",
+    "fileName": "1748383119756.PNG",
+    "size": 27183,
+    "url": "${appResourceUrl}/images/widget_42/1748383119756.PNG",
+    "created": 1748383119756,
+    "resourcesPrefix": "images/widget_42",
+    "referedIds": [],
+    "originId": "1748383119756",
+    "fileFormat": "image/png",
+    "isUseCompress": false,
+    "originalWidth": 1853,
+    "originalHeight": 82
+  },
+  "1748386753114": {
+    "originalName": "Capture2.PNG",
+    "fileName": "1748386753114.PNG",
+    "size": 45938,
+    "url": "${appResourceUrl}/images/widget_43/1748386753114.PNG",
+    "created": 1748386753114,
+    "resourcesPrefix": "images/widget_43",
+    "referedIds": [],
+    "originId": "1748386753114",
+    "fileFormat": "image/png",
+    "isUseCompress": false,
+    "originalWidth": 1648,
+    "originalHeight": 82
+  },
+  "1748531163463": {
+    "originalName": "Firmas Espectrales.png",
+    "fileName": "1748531163463.png",
+    "size": 49967,
+    "url": "${appResourceUrl}/images/widget_65/1748531163463.png",
+    "created": 1748531163463,
+    "resourcesPrefix": "images/widget_65",
+    "referedIds": [],
+    "originId": "1748531163463",
+    "fileFormat": "image/png",
+    "isUseCompress": false,
+    "originalWidth": 1934,
+    "originalHeight": 565
+  }
+}

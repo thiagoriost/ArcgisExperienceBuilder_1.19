@@ -1,0 +1,480 @@
+{
+  "pages": {
+    "page_0": {
+      "id": "page_0",
+      "mode": "FIT_WINDOW",
+      "type": "NORMAL",
+      "layout": {
+        "LARGE": "layout_0"
+      },
+      "isDefault": true,
+      "isVisible": true,
+      "label": "Página"
+    }
+  },
+  "layouts": {
+    "layout_0": {
+      "type": "FIXED",
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_1",
+          "bbox": {
+            "left": "0.0%",
+            "right": "0.0%",
+            "top": "0.0%",
+            "bottom": "0.0%",
+            "width": "100.0%",
+            "height": "100.0%"
+          },
+          "setting": {
+            "autoProps": {
+              "left": true,
+              "right": false,
+              "top": true,
+              "bottom": false
+            }
+          }
+        }
+      },
+      "order": [
+        "0"
+      ]
+    },
+    "layout_1": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_3",
+          "bbox": {
+            "left": "0.0%",
+            "right": "91.7%",
+            "top": "-0.0%",
+            "bottom": "94.8%",
+            "width": "8.2%",
+            "height": "5.3%"
+          },
+          "setting": {
+            "autoProps": {
+              "width": "AUTO",
+              "height": "AUTO",
+              "left": false,
+              "right": true,
+              "top": false,
+              "bottom": true
+            },
+            "vCenter": false,
+            "hCenter": false
+          }
+        },
+        "1": {
+          "type": "WIDGET",
+          "widgetId": "widget_8",
+          "bbox": {
+            "left": "31.8%",
+            "right": "48.6%",
+            "top": "1.3%",
+            "bottom": "88.9%",
+            "width": "19.5%",
+            "height": "9.9%"
+          },
+          "setting": {
+            "autoProps": {
+              "width": "AUTO",
+              "height": "AUTO",
+              "left": false,
+              "right": true,
+              "top": false,
+              "bottom": true
+            }
+          }
+        },
+        "2": {
+          "type": "WIDGET",
+          "widgetId": "widget_10",
+          "bbox": {
+            "left": "72.5%",
+            "right": "8.0%",
+            "top": "5.1%",
+            "bottom": "85.0%",
+            "width": "19.5%",
+            "height": "9.9%"
+          },
+          "setting": {
+            "autoProps": {
+              "width": "AUTO",
+              "height": "AUTO",
+              "right": false,
+              "left": true,
+              "top": false,
+              "bottom": true
+            }
+          }
+        }
+      },
+      "type": "FIXED",
+      "label": "Map FixedLayout",
+      "order": [
+        "0",
+        "1",
+        "2"
+      ]
+    },
+    "layout_2": {
+      "content": {
+        "1": {
+          "type": "WIDGET",
+          "widgetId": "widget_6",
+          "bbox": {},
+          "setting": {}
+        }
+      },
+      "type": "FIXED",
+      "label": "Controller layout",
+      "order": [
+        "1"
+      ]
+    },
+    "layout_3": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_9",
+          "bbox": {},
+          "setting": {}
+        }
+      },
+      "type": "FIXED",
+      "label": "Controller layout",
+      "order": [
+        "0"
+      ]
+    },
+    "layout_4": {
+      "content": {
+        "0": {
+          "type": "WIDGET",
+          "widgetId": "widget_13",
+          "bbox": {},
+          "setting": {}
+        }
+      },
+      "type": "FIXED",
+      "label": "Controller layout",
+      "order": [
+        "0"
+      ]
+    }
+  },
+  "exbVersion": "1.19.0",
+  "mainSizeMode": "LARGE",
+  "theme": "themes/master/",
+  "forBuilderAttributes": {
+    "lockLayout": false
+  },
+  "template": "blankfullscreen",
+  "widgets": {
+    "widget_1": {
+      "uri": "widgets/arcgis/arcgis-map/",
+      "version": "1.19.0",
+      "label": "Mapa",
+      "config": {
+        "toolConfig": {
+          "canZoom": false,
+          "canHome": false,
+          "canSearch": false,
+          "canNavigation": false
+        },
+        "isUseCustomMapState": true,
+        "initialMapState": {
+          "viewPoint": {
+            "rotation": 0,
+            "scale": 18489297.737236,
+            "targetGeometry": {
+              "spatialReference": {
+                "latestWkid": 3857,
+                "wkid": 102100
+              },
+              "x": -7856464.793220943,
+              "y": 422346.3321056106
+            }
+          },
+          "extent": {
+            "spatialReference": {
+              "latestWkid": 3857,
+              "wkid": 102100
+            },
+            "xmin": -10268205.909674183,
+            "ymin": -1272721.2071460073,
+            "xmax": -5444723.676767703,
+            "ymax": 2117413.8713572286
+          },
+          "rotation": 0,
+          "viewType": "2d"
+        },
+        "initialMapDataSourceID": "dataSource_1",
+        "scaleRange": null,
+        "customLODs": null
+      },
+      "id": "widget_1",
+      "layouts": {
+        "MapFixedLayout": {
+          "LARGE": "layout_1"
+        }
+      },
+      "dataActions": {
+        "showOnMap": {
+          "config": {
+            "isUseCustomSymbol": true,
+            "isOperationalLayer": true,
+            "symbolOption": {
+              "pointSymbol": {
+                "type": "esriSMS",
+                "color": [
+                  255,
+                  255,
+                  0,
+                  150
+                ],
+                "angle": 0,
+                "xoffset": 0,
+                "yoffset": 0,
+                "size": 12,
+                "style": "esriSMSCircle",
+                "outline": {
+                  "type": "esriSLS",
+                  "color": [
+                    255,
+                    255,
+                    0,
+                    150
+                  ],
+                  "width": 1,
+                  "style": "esriSLSSolid"
+                }
+              },
+              "polylineSymbol": {
+                "type": "esriSLS",
+                "color": [
+                  255,
+                  255,
+                  0,
+                  150
+                ],
+                "width": 0.75,
+                "style": "esriSLSSolid"
+              },
+              "polygonSymbol": {
+                "type": "esriSFS",
+                "color": [
+                  255,
+                  255,
+                  0,
+                  150
+                ],
+                "outline": {
+                  "type": "esriSLS",
+                  "color": [
+                    255,
+                    255,
+                    0,
+                    150
+                  ],
+                  "width": 1,
+                  "style": "esriSLSSolid"
+                },
+                "style": "esriSFSSolid"
+              }
+            }
+          }
+        }
+      },
+      "style": {
+        "boxShadow": {
+          "offsetX": "0",
+          "offsetY": "0",
+          "blur": "20px",
+          "spread": "2px",
+          "color": "var(--ref-palette-neutral-800)"
+        }
+      },
+      "useDataSources": [
+        {
+          "dataSourceId": "dataSource_1",
+          "mainDataSourceId": "dataSource_1"
+        }
+      ]
+    },
+    "widget_3": {
+      "uri": "widgets/common/controller/",
+      "version": "1.19.0",
+      "offPanel": true,
+      "label": "Controlador de widget",
+      "config": {
+        "behavior": {
+          "onlyOpenOne": true,
+          "openStarts": [],
+          "displayType": "STACK",
+          "vertical": false,
+          "size": {
+            "widget_4": {
+              "width": 405.625,
+              "height": 850
+            },
+            "widget_6": {
+              "width": 470.625,
+              "height": 666.390625
+            }
+          }
+        },
+        "appearance": {
+          "space": 0,
+          "advanced": false,
+          "card": {
+            "showLabel": false,
+            "labelGrowth": 10,
+            "avatar": {
+              "type": "primary",
+              "size": "default",
+              "shape": "circle"
+            }
+          }
+        }
+      },
+      "id": "widget_3",
+      "layouts": {
+        "controller": {
+          "LARGE": "layout_2"
+        }
+      }
+    },
+    "widget_6": {
+      "uri": "widgets/searchSIEC2026/",
+      "version": "1.19.0",
+      "label": "BusquedaFirmas2026",
+      "config": {
+        "exampleConfigProperty": "example config property value"
+      },
+      "id": "widget_6",
+      "useMapWidgetIds": [
+        "widget_1"
+      ]
+    },
+    "widget_8": {
+      "uri": "widgets/common/controller/",
+      "version": "1.19.0",
+      "offPanel": true,
+      "label": "Controlador de widget 2",
+      "config": {
+        "behavior": {
+          "onlyOpenOne": true,
+          "openStarts": [],
+          "displayType": "STACK",
+          "vertical": false,
+          "size": {}
+        },
+        "appearance": {
+          "space": 0,
+          "advanced": false,
+          "card": {
+            "showLabel": false,
+            "labelGrowth": 10,
+            "avatar": {
+              "type": "primary",
+              "size": "default",
+              "shape": "circle"
+            }
+          }
+        }
+      },
+      "id": "widget_8",
+      "layouts": {
+        "controller": {
+          "LARGE": "layout_3"
+        }
+      }
+    },
+    "widget_9": {
+      "uri": "widgets/tablaResultadosBNFE2026/",
+      "version": "1.19.0",
+      "config": {
+        "exampleConfigProperty": "test"
+      },
+      "id": "widget_9",
+      "useMapWidgetIds": [
+        "widget_1"
+      ]
+    },
+    "widget_10": {
+      "uri": "widgets/common/controller/",
+      "version": "1.19.0",
+      "offPanel": true,
+      "label": "Controlador de widget 3",
+      "config": {
+        "behavior": {
+          "onlyOpenOne": true,
+          "openStarts": [],
+          "displayType": "STACK",
+          "vertical": false,
+          "size": {}
+        },
+        "appearance": {
+          "space": 0,
+          "advanced": false,
+          "card": {
+            "showLabel": false,
+            "labelGrowth": 10,
+            "avatar": {
+              "type": "primary",
+              "size": "default",
+              "shape": "circle"
+            }
+          }
+        }
+      },
+      "id": "widget_10",
+      "layouts": {
+        "controller": {
+          "LARGE": "layout_4"
+        }
+      }
+    },
+    "widget_13": {
+      "uri": "widgets/barChart2026/",
+      "version": "1.19.0",
+      "label": "BarChart2026",
+      "config": {
+        "exampleConfigProperty": "test_Bar-Chart"
+      },
+      "id": "widget_13",
+      "useMapWidgetIds": [
+        "widget_1"
+      ]
+    }
+  },
+  "widgetsManifest": {},
+  "views": {},
+  "sections": {},
+  "dialogs": {},
+  "messageConfigs": {},
+  "attributes": {
+    "portalUrl": "https://sigi.igac.gov.co/portal"
+  },
+  "timestamp": 1784734700913,
+  "sharedThemeVariables": null,
+  "mainLocale": "es-mx",
+  "dataSources": {
+    "dataSource_1": {
+      "id": "dataSource_1",
+      "type": "WEB_MAP",
+      "sourceLabel": "ATP - Existing Bikeways - Dark Mode",
+      "itemId": "02f2312b89d4483cbee9f651883861e3",
+      "portalUrl": "https://www.arcgis.com"
+    }
+  },
+  "pageStructure": [
+    {
+      "page_0": []
+    }
+  ]
+}
