@@ -1,0 +1,14 @@
+[
+  {
+    "portalUrl": "https://pruebassig.igac.gov.co/portal",
+    "clientId": "DATrLqYJ7g27o8Or",
+    "supportsOAuth": true,
+    "isWebTier": false
+  },
+  {
+    "portalUrl": "https://sigi.igac.gov.co/portal",
+    "clientId": "RQPjE1fOaHJj54n1",
+    "supportsOAuth": true,
+    "isWebTier": false
+  }
+]

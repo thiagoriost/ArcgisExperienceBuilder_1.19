@@ -1,0 +1,33 @@
+{
+  "created": 1771443761047,
+  "description": "",
+  "id": "2",
+  "modified": 1771861328798,
+  "owner": "monica.cortes",
+  "tags": [],
+  "thumbnail": "thumbnail/thumbnail1771450207002.png",
+  "title": "SNRA",
+  "type": "Web Experience",
+  "snippet": "Sig Reforma Agraria",
+  "typeKeywords": [
+    "EXB Experience",
+    "Ready To Use",
+    "JavaScript",
+    "status: Changed",
+    "version:1.19.0",
+    "modified: 1771861328791",
+    "publishVersion:1.19.0"
+  ],
+  "portalUrl": "https://sigi.igac.gov.co/portal",
+  "username": "monica.cortes",
+  "name": "SNRA",
+  "isLocalApp": true,
+  "userRole": "org_admin",
+  "userName": "monica.cortes",
+  "success": true,
+  "text": "",
+  "clearEmptyFields": true,
+  "url": null,
+  "f": "json",
+  "token": "undefined"
+}

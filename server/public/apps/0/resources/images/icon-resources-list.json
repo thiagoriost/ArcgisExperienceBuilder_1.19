@@ -1,0 +1,522 @@
+{
+  "1774966959444.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774966959444.png",
+    "properties": {
+      "filename": "1774966959444.png",
+      "originalName": "iconConsultaEdu.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774966959444.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970111102.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970111102.png",
+    "properties": {
+      "filename": "1774970111102.png",
+      "originalName": "iconConsultaSimple.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970111102.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970123580.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970123580.png",
+    "properties": {
+      "filename": "1774970123580.png",
+      "originalName": "iconConsultaAvanzada.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970123580.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970136496.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970136496.png",
+    "properties": {
+      "filename": "1774970136496.png",
+      "originalName": "iconConsultaCatastral.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970136496.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970147684.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970147684.png",
+    "properties": {
+      "filename": "1774970147684.png",
+      "originalName": "iconConsultaAvanzadaAlfanumerica.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970147684.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970161519.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970161519.png",
+    "properties": {
+      "filename": "1774970161519.png",
+      "originalName": "iconConsultaAmbiental.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970161519.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970178795.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970178795.png",
+    "properties": {
+      "filename": "1774970178795.png",
+      "originalName": "mapaBaseGalery.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970178795.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970205509.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970205509.png",
+    "properties": {
+      "filename": "1774970205509.png",
+      "originalName": "iconConsultaPredial.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970205509.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970318288.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970318288.png",
+    "properties": {
+      "filename": "1774970318288.png",
+      "originalName": "coordenadas.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970318288.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970327889.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970327889.png",
+    "properties": {
+      "filename": "1774970327889.png",
+      "originalName": "Dibujar.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970327889.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970348335.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970348335.png",
+    "properties": {
+      "filename": "1774970348335.png",
+      "originalName": "Select.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970348335.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970359491.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970359491.png",
+    "properties": {
+      "filename": "1774970359491.png",
+      "originalName": "añadirDatos.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970359491.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970369145.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970369145.png",
+    "properties": {
+      "filename": "1774970369145.png",
+      "originalName": "Medir.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970369145.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970377749.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970377749.png",
+    "properties": {
+      "filename": "1774970377749.png",
+      "originalName": "guardarVista.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970377749.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970388309.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970388309.png",
+    "properties": {
+      "filename": "1774970388309.png",
+      "originalName": "UbicarPorCoordenadas.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970388309.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970403162.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970403162.png",
+    "properties": {
+      "filename": "1774970403162.png",
+      "originalName": "salidagrafica.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970403162.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970451606.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970451606.png",
+    "properties": {
+      "filename": "1774970451606.png",
+      "originalName": "swipeQ.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970451606.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1774970521258.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1774970521258.png",
+    "properties": {
+      "filename": "1774970521258.png",
+      "originalName": "Overview.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1774970521258.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1776976830979.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1776976830979.png",
+    "properties": {
+      "filename": "1776976830979.png",
+      "originalName": "icon1.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1776976830979.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1777470664131.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1777470664131.png",
+    "properties": {
+      "filename": "1777470664131.png",
+      "originalName": "iconSocioEconomica.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1777470664131.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1777470678346.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1777470678346.png",
+    "properties": {
+      "filename": "1777470678346.png",
+      "originalName": "iconAgropecuaria.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1777470678346.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680145052.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680145052.png",
+    "properties": {
+      "filename": "1778680145052.png",
+      "originalName": "BufferPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680145052.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680197183.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680197183.png",
+    "properties": {
+      "filename": "1778680197183.png",
+      "originalName": "Consulta EducaciónPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680197183.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680217382.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680217382.png",
+    "properties": {
+      "filename": "1778680217382.png",
+      "originalName": "Consulta SimplePNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680217382.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680233415.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680233415.png",
+    "properties": {
+      "filename": "1778680233415.png",
+      "originalName": "Consulta AvanzadaPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680233415.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680242722.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680242722.png",
+    "properties": {
+      "filename": "1778680242722.png",
+      "originalName": "Consulta CatastralPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680242722.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680251473.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680251473.png",
+    "properties": {
+      "filename": "1778680251473.png",
+      "originalName": "Consulta Avanzada AlfanuméricaPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680251473.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680260450.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680260450.png",
+    "properties": {
+      "filename": "1778680260450.png",
+      "originalName": "Consulta AmbientalPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680260450.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680274283.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680274283.png",
+    "properties": {
+      "filename": "1778680274283.png",
+      "originalName": "Consulta SocioeconómicaPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680274283.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680285575.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680285575.png",
+    "properties": {
+      "filename": "1778680285575.png",
+      "originalName": "Consulta Agropecuaria PNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680285575.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680294799.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680294799.png",
+    "properties": {
+      "filename": "1778680294799.png",
+      "originalName": "Consulta Cultura y TurismoPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680294799.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680304778.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680304778.png",
+    "properties": {
+      "filename": "1778680304778.png",
+      "originalName": "Consulta Industria y ComercioPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680304778.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680319220.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680319220.png",
+    "properties": {
+      "filename": "1778680319220.png",
+      "originalName": "Consulta SaludPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680319220.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680368766.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680368766.png",
+    "properties": {
+      "filename": "1778680368766.png",
+      "originalName": "Mapa base PNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680368766.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680458928.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680458928.png",
+    "properties": {
+      "filename": "1778680458928.png",
+      "originalName": "DibujarPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680458928.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680470635.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680470635.png",
+    "properties": {
+      "filename": "1778680470635.png",
+      "originalName": "SeleccionarPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680470635.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680481564.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680481564.png",
+    "properties": {
+      "filename": "1778680481564.png",
+      "originalName": "Añadir datosPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680481564.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680489964.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680489964.png",
+    "properties": {
+      "filename": "1778680489964.png",
+      "originalName": "MedirPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680489964.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680506592.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680506592.png",
+    "properties": {
+      "filename": "1778680506592.png",
+      "originalName": "Guardar vistaPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680506592.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680515423.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680515423.png",
+    "properties": {
+      "filename": "1778680515423.png",
+      "originalName": "Ubicar por coordenadasPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680515423.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778680632934.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778680632934.png",
+    "properties": {
+      "filename": "1778680632934.png",
+      "originalName": "Salida grafica PNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778680632934.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778681015927.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778681015927.png",
+    "properties": {
+      "filename": "1778681015927.png",
+      "originalName": "SwipePNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778681015927.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778704681207.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778704681207.png",
+    "properties": {
+      "filename": "1778704681207.png",
+      "originalName": "Grupo de consultas PNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778704681207.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778704711888.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778704711888.png",
+    "properties": {
+      "filename": "1778704711888.png",
+      "originalName": "EspacialesPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778704711888.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778704732897.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778704732897.png",
+    "properties": {
+      "filename": "1778704732897.png",
+      "originalName": "Conversión de coordenadasPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778704732897.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1778948518099.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1778948518099.png",
+    "properties": {
+      "filename": "1778948518099.png",
+      "originalName": "BufferPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1778948518099.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1779199382650.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1779199382650.png",
+    "properties": {
+      "filename": "1779199382650.png",
+      "originalName": "Mapa de localizaciónPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1779199382650.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1779823778061.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1779823778061.png",
+    "properties": {
+      "filename": "1779823778061.png",
+      "originalName": "Consulta espacialPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1779823778061.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1779892719542.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1779892719542.png",
+    "properties": {
+      "filename": "1779892719542.png",
+      "originalName": "Consulta Ordenamiento TerritorialPNG.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1779892719542.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1782919054606.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1782919054606.png",
+    "properties": {
+      "filename": "1782919054606.png",
+      "originalName": "mapaQuindioLogo.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1782919054606.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1782919104077.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1782919104077.png",
+    "properties": {
+      "filename": "1782919104077.png",
+      "originalName": "Buffer.png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1782919104077.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  },
+  "1782919324497.png": {
+    "svg": "${appResourceUrl}/images/icon_picker_in_setting/1782919324497.png",
+    "properties": {
+      "filename": "1782919324497.png",
+      "originalName": "mapaQuindioLogo-removebg-preview (1).png",
+      "path": "${appResourceUrl}/images/icon_picker_in_setting/1782919324497.png",
+      "isUploaded": true,
+      "inlineSvg": false
+    }
+  }
+}

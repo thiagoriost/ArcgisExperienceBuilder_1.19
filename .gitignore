@@ -1,4 +1,6 @@
-# Ignorar carpetas principales
+.gitignore
+soccerPromt.txt
+node_modules/*
 client/*
 !client/your-extensions/
 !client/your-extensions/**
@@ -7,6 +9,10 @@ client/*
 !client/webpack.config.js
 !client/webpack/
 !client/tsconfig.json
-server/
-soccerPromt.txt
-node_modules/*
+server/node_modules/**
+server/temp/**
+server/scripts/zip-app/**
+server/src/middlewares/**
+server/src/translations/**
+server/cert/server.key
+# server/public/apps/**
