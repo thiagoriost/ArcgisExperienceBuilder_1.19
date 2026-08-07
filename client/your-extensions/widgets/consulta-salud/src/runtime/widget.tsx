@@ -2,6 +2,7 @@
 import { React, jsx, AllWidgetProps } from 'jimu-core'
 import { Button } from 'jimu-ui'
 import { JimuMapViewComponent, type JimuMapView } from 'jimu-arcgis'
+//@ts-expect-error
 import '../../../utils/styles/consulta-widget.css'
 const { useEffect, useState, useRef, useCallback } = React
 

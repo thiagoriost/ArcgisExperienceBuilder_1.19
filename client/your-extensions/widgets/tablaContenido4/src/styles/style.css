@@ -1,7 +1,5 @@
-
-
 /* Importar variables CSS */
-@import '../../../utils/styles/presetsSNRA.css';
+@import '../../../utils/styles/stylesGlobals.css';
 
 .contenedorTablaContenido {
   overflow-y: scroll;

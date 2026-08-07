@@ -5,7 +5,9 @@ const { useEffect, useState, useRef, useCallback } = React
 import { JimuMapViewComponent, JimuMapView } from 'jimu-arcgis'
 import { Link } from 'jimu-ui';
 
+// @ts-expect-error
 import '../../../utils/styles/consulta-widget.css'
+// @ts-expect-error
 import '../styles/style.css'
 
 import SelectDesdeArray from '../../../consulta-salud/src/runtime/components/SelectDesdeArray';

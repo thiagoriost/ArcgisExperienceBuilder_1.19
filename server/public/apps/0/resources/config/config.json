@@ -262,7 +262,6 @@
         "10",
         "9",
         "7",
-        "11",
         "12"
       ],
       "content": {
@@ -293,12 +292,6 @@
         "10": {
           "type": "WIDGET",
           "widgetId": "widget_53",
-          "bbox": {},
-          "setting": {}
-        },
-        "11": {
-          "type": "WIDGET",
-          "widgetId": "widget_93",
           "bbox": {},
           "setting": {}
         },
@@ -695,14 +688,14 @@
         "initialMapState": {
           "viewPoint": {
             "rotation": 0,
-            "scale": 756867.4396674199,
+            "scale": 416311.21568721766,
             "targetGeometry": {
               "spatialReference": {
                 "latestWkid": 3857,
                 "wkid": 102100
               },
-              "x": -8422012.590367606,
-              "y": 492212.3200049489
+              "x": -8422012.590367604,
+              "y": 492212.32000494894
             }
           },
           "extent": {
@@ -710,10 +703,10 @@
               "latestWkid": 3857,
               "wkid": 102100
             },
-            "xmin": -8483090.338097095,
-            "ymin": 454063.759537841,
-            "xmax": -8360934.842638115,
-            "ymax": 530360.8804720567
+            "xmin": -8483090.338097094,
+            "ymin": 454045.61200085824,
+            "xmax": -8360934.8426381145,
+            "ymax": 530379.0280090397
           },
           "rotation": 0,
           "viewType": "2d"
@@ -1561,7 +1554,14 @@
         "galleryItemWidth": 200,
         "galleryItemHeight": 237.5,
         "galleryItemSpace": 24,
-        "cardItemWidth": "50%"
+        "cardItemWidth": "50%",
+        "templateType": "CARD",
+        "bookmarks": [],
+        "isTemplateConfirm": true,
+        "runtimeAddAllow": true,
+        "ignoreLayerVisibility": false,
+        "displayName": true,
+        "isInitialed": true
       },
       "id": "widget_63",
       "icon": {
@@ -1574,7 +1574,10 @@
           "isUploaded": true,
           "color": ""
         }
-      }
+      },
+      "useMapWidgetIds": [
+        "widget_23"
+      ]
     },
     "widget_67": {
       "uri": "widgets/barraEscala/",
@@ -1797,7 +1800,6 @@
         }
       }
     },
-    
     "widget_94": {
       "uri": "widgets/printCliente/",
       "version": "1.14.0",
@@ -1927,8 +1929,7 @@
       "id": "widget_108",
       "useMapWidgetIds": [
         "widget_23"
-      ],
-      "label": "undefined 2"
+      ]
     },
     "widget_109": {
       "uri": "widgets/consulta-salud/",
@@ -2760,7 +2761,7 @@
       "home": []
     }
   ],
-  "timestamp": 1782919328090,
+  "timestamp": 1786114062437,
   "header": {
     "layout": {
       "LARGE": "layout_58"
