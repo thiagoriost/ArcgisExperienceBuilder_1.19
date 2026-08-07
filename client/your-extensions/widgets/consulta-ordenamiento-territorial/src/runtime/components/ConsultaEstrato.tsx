@@ -35,11 +35,11 @@ handleError, loading, setLoading, municipios, idMunicipio, setIdMunicipio, onVal
         consultar: async () => {        
             const condicionesWhere: string[] = [];
             if (idMunicipio)
-                condicionesWhere.push(`MUNICIPIO=${idMunicipio}`)
+                condicionesWhere.push(`MUNICIPIO='${idMunicipio}'`)
             if (idEstrato)
-                condicionesWhere.push(`ESTRATO=${idEstrato}`)
+                condicionesWhere.push(`ESTRATO='${idEstrato}'`)
 
-            return cargarDesdeArcgisService(execute, arcgisService, url, 1, {
+            return cargarDesdeArcgisService(execute, arcgisService, url, 2, {
                 where: condicionesWhere.length > 0 ? condicionesWhere.join(' AND ') : '1=1',
                 outFields: '*',
                 returnGeometry: true,

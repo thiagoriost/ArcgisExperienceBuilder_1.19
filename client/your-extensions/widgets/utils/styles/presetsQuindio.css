@@ -1,33 +1,9 @@
-/**
- * Archivo de Variables CSS Maestro
- * ================================
- * Centraliza todos los colores y variables de diseño para los widgets.
- * Para cambiar un color en todos los componentes, modifícalo aquí.
- * 
- * Uso: Importar este archivo al inicio de cada archivo CSS del widget:
- * @import '../../../utils/styles/presetsSNRA.css';
- * 
- * O importarlo en el componente React:
- * import '../../../utils/styles/presetsSNRA.css';
-
- // Al inicio del archivo CSS
-@import '../../../utils/styles/presetsSNRA.css';
-
-// Usar las variables
-.mi-componente {
-    background-color: var(--color-primary);
-    color: var(--text-color-white);
-    padding: var(--spacing-md);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-light);
-}
- */
 
 :root {
   /* ========================================
      COLORES PRIMARIOS
      ======================================== */
-  --color-primary: #000846;
+  --color-primary: #8aa260;
   --color-primary-hover: #54623a;
   --color-primary-active: #004266;
   --color-primary-light: #e6f4fb;

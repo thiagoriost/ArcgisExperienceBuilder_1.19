@@ -29,7 +29,7 @@ const urls = {
   //SERVICIO_RIESGO :> SERVICIO_RIESGO_CONSULTA en ambiente productivo
 
   // ** Falla y se desconoce su uso (Octubre2019)
-  //URL_ARCHIVOS_QUINDIO : "http://181.57.208.251/ArchivosQuindioII/",   
+  //URL_ARCHIVOS_QUINDIO : "http://181.57.208.251/ArchivosQuindioII/",
   //URL_ARCHIVOS_QUINDIO : "http://181.57.208.251/ArchivosQuindioII/",
   URL_ARCHIVOS_QUINDIO : "https://sigquindio.gov.co/ArchivosQuindioIII/",
   // SERVICIO_CONSULTA_AVANZADA_ALFANUMERICA : "https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/Consulta_Avanzada_Alfanumerica/MapServer",
@@ -73,7 +73,7 @@ const urls = {
   CARTOGRAFIA: {
     // BASE: 'https://sigquindio.gov.co/arcgis/rest/services/QUINDIO_III/CartografiaBasica/MapServer',
     BASE: 'https://pruebassig.igac.gov.co/server/rest/services/SIG_QUINDIO/Cartografia_basica/MapServer',
-    MUNICIPIOS: 75,
+    MUNICIPIOS: 38,
   },
   /*
   * Instrumentos de monitoreo ambiental

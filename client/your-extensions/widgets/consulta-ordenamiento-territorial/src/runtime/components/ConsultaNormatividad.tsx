@@ -29,8 +29,8 @@ const ConsultaNormatividad = forwardRef(({
 
     useImperativeHandle(ref, () => ({
         consultar: async () => {
-            return cargarDesdeArcgisService(execute, arcgisService, url, 2, {
-                where: `MUNICIPIO=${idMunicipio} AND FICHANORMT='${idFicha}'`,
+            return cargarDesdeArcgisService(execute, arcgisService, url, 1, {
+                where: `MUNICIPIO='${idMunicipio}' AND FICHANORMT='${idFicha}'`,
                 outFields: '*',
                 returnGeometry: true
             }, setLoading)
@@ -59,7 +59,7 @@ const ConsultaNormatividad = forwardRef(({
                 return
             }
 
-            const ret = await cargarDesdeArcgisService(execute, arcgisService, url, 2, {
+            const ret = await cargarDesdeArcgisService(execute, arcgisService, url, 1, {
                 where: `MUNICIPIO="${idMunicipio}"`,
                 outFields: 'FICHANORMT,FICHAPDF',
                 returnDistinctValues: true,
